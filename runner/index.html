@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Lane Runner · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{--bg:#10151d;--panel:#1a212c;--ink:#eef2f7;--muted:#9aa6b4;--line:#2c3644;--c:#e0a526;--ok:#2fa36b;--bad:#d2493c}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:17px/1.5 "Source Serif 4",Georgia,serif;overscroll-behavior:none}
+h1,h2,h3,button,select,.g{font-family:"Familjen Grotesk",Arial,sans-serif}
+button,select{font-weight:600;font-size:15px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 14px;min-height:44px;cursor:pointer}
+button.pri{background:var(--c);color:#1a1300;border-color:var(--c);font-size:17px;padding:12px 22px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+a{color:var(--c)}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+.hud{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px max(3vw,12px) 6px;font:600 15px "Familjen Grotesk",sans-serif}
+.hud a{color:var(--ink);text-decoration:none}
+.hud .st{display:flex;gap:14px;align-items:center}
+.hearts{color:var(--bad);letter-spacing:2px;font-size:18px}
+.qbox{margin:0 max(3vw,12px);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px 12px;text-align:center}
+.qk{font:600 12.5px "Familjen Grotesk",sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.qt{font:700 clamp(20px,4.4vw,30px)/1.2 "Familjen Grotesk",sans-serif;margin-top:2px;text-wrap:balance}
+.opts{display:grid;gap:8px;margin-top:8px}
+.opt{font:600 clamp(14px,2.8vw,17px)/1.25 "Familjen Grotesk",sans-serif;background:#0f141b;border:1px solid var(--line);border-radius:10px;padding:7px 9px;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px}
+.opt.on{border-color:var(--c);box-shadow:0 0 0 2px var(--c) inset}
+.opt.ok{background:var(--ok);border-color:var(--ok);color:#fff}.opt.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.stage{position:relative;flex:1;touch-action:none}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ctrl{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));left:0;right:0;display:flex;justify-content:space-between;padding:0 max(3vw,12px);pointer-events:none}
+.ctrl button{pointer-events:auto;width:64px;height:64px;border-radius:50%;font-size:26px;background:#ffffff14;border-color:#ffffff30}
+.toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--bad);color:#fff;font:700 18px "Familjen Grotesk",sans-serif;padding:10px 16px;border-radius:12px;max-width:90%;text-align:center;display:none}
+.toast.ok{background:var(--ok)}
+.ov{position:absolute;inset:0;background:#0b0f15f2;overflow:auto;display:none;padding:22px max(4vw,16px) 40px}
+.ov.on{display:block}
+.box{max-width:680px;margin:0 auto;display:grid;gap:14px}
+.box h1{font-size:clamp(28px,6vw,40px);margin:0;line-height:1.1}.box h2{font-size:20px;margin:6px 0 0}
+.box p{margin:0;color:#cfd7e1}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lbl{font:600 13px "Familjen Grotesk",sans-serif;color:var(--muted);width:100%;margin-top:4px}
+.big{font:700 54px/1 "Familjen Grotesk",sans-serif;color:var(--c)}
+.rv{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:16px}
+.rv b{font-family:"Familjen Grotesk",sans-serif}.rv .m{color:var(--muted);font-size:14.5px}
+.chal{background:#e0a52622;border:1px solid var(--c);border-radius:12px;padding:10px 12px}
+.lang{display:flex;gap:6px}.lang button{min-height:34px;padding:5px 10px;font-size:13px;border-radius:999px}
+@media (min-width:700px){.qbox{max-width:900px;margin-left:auto;margin-right:auto;width:calc(100% - 24px)}}
+</style>
+</head>
+<body>
+<div id="app">
+ <div class="hud"><a href="../" id="back">← All games</a>
+  <div class="st"><span id="hs">0</span><span id="hk" class="muted"></span><span class="hearts" id="hl">♥♥♥</span><button id="pz" aria-label="Pause" style="min-height:34px;padding:4px 10px">II</button></div></div>
+ <div class="qbox"><div class="qk" id="qk"></div><div class="qt" id="qt"></div><div class="opts" id="opts"></div></div>
+ <div class="stage" id="stage"><canvas id="cv"></canvas><div class="toast" id="toast"></div>
+  <div class="ctrl"><button id="bl" aria-label="Left">◀</button><button id="br" aria-label="Right">▶</button></div>
+  <div class="ov on" id="menu"></div><div class="ov" id="over"></div></div>
+</div>
+<script src="../content/data.js"></script>
+<script>
+"use strict";
+const C=window.CONTENT;
+const S={
+en:{all:"← All games",title:"Lane Runner",lead:"A question appears, the answers come at you on the road. Switch to the right lane before you reach them. Three mistakes and the run is over.",
+ pack:"What do you want to train?",lang:"Language",from:"From",to:"To",lanes:"Lanes",speed:"Speed",slow:"Relaxed",norm:"Normal",fast:"Fast",start:"Run",
+ keys:"Keys ← → or A D. On a phone: swipe, or tap the left or right side.",best:"Best",score:"Score",streak:"Streak",over:"Run over",again:"Run again",menu:"Change game",learn:"Learn this first",
+ rev:"Review your mistakes",none:"No mistakes. Clean run.",you:"you chose",share:"Challenge a friend",copied:"Link copied. Your friend gets the same questions.",
+ chal:(n,s)=>`${n||"A friend"} challenges you: beat ${s} points on the same questions.`,beat:"You beat the challenge!",lost:"Challenge not beaten yet.",name:"Your name (for the challenge)",paused:"Paused",resume:"Resume",
+ P:{capitals:"Country → capital",capitals_rev:"Capital → country",idioms:"Idiom equivalents",meaning:"Idiom meanings",falsefr:"False friends",acronyms:"Acronyms",register:"Register",mix:"Mix of everything"},
+ Q:{capitals:"Capital of",capitals_rev:"Which country has this capital?",idioms:l=>"Equivalent in "+l,meaning:"What does it mean?",falsefr:"Correct translation",acronyms:l=>"Full name in "+l,register:(r)=>"Most "+r+" way to say",},
+ R:["casual","neutral","formal"],L:{en:"English",fr:"French",de:"German"},cont:"Continent",world:"Whole world"},
+fr:{all:"← Tous les jeux",title:"Lane Runner",lead:"Une question s'affiche, les réponses arrivent sur la route. Changez de couloir pour prendre la bonne. Trois erreurs et la course s'arrête.",
+ pack:"Que voulez-vous travailler ?",lang:"Langue",from:"De",to:"Vers",lanes:"Couloirs",speed:"Vitesse",slow:"Tranquille",norm:"Normale",fast:"Rapide",start:"Courir",
+ keys:"Touches ← → ou A D. Sur téléphone : glissez, ou touchez le côté gauche ou droit.",best:"Record",score:"Score",streak:"Série",over:"Course terminée",again:"Recommencer",menu:"Changer de jeu",learn:"Apprendre d'abord",
+ rev:"Revoir vos erreurs",none:"Aucune erreur. Course parfaite.",you:"votre choix",share:"Défier un ami",copied:"Lien copié. Votre ami aura les mêmes questions.",
+ chal:(n,s)=>`${n||"Un ami"} vous défie : battez ${s} points sur les mêmes questions.`,beat:"Défi relevé !",lost:"Défi pas encore relevé.",name:"Votre nom (pour le défi)",paused:"Pause",resume:"Reprendre",
+ P:{capitals:"Pays → capitale",capitals_rev:"Capitale → pays",idioms:"Équivalents d'expressions",meaning:"Sens des expressions",falsefr:"Faux amis",acronyms:"Sigles",register:"Registre",mix:"Un peu de tout"},
+ Q:{capitals:"Capitale de",capitals_rev:"Quel pays a cette capitale ?",idioms:l=>"Équivalent en "+l,meaning:"Que veut dire",falsefr:"Bonne traduction",acronyms:l=>"Nom complet en "+l,register:r=>"Façon la plus "+r+" de dire"},
+ R:["familière","neutre","soutenue"],L:{en:"anglais",fr:"français",de:"allemand"},cont:"Continent",world:"Monde entier"},
+de:{all:"← Alle Spiele",title:"Lane Runner",lead:"Eine Frage erscheint, die Antworten kommen auf der Straße auf Sie zu. Wechseln Sie rechtzeitig auf die richtige Spur. Drei Fehler und der Lauf ist vorbei.",
+ pack:"Was möchten Sie trainieren?",lang:"Sprache",from:"Von",to:"Nach",lanes:"Spuren",speed:"Tempo",slow:"Gemütlich",norm:"Normal",fast:"Schnell",start:"Los",
+ keys:"Tasten ← → oder A D. Am Handy: wischen oder links bzw. rechts tippen.",best:"Rekord",score:"Punkte",streak:"Serie",over:"Lauf beendet",again:"Nochmal",menu:"Spiel wechseln",learn:"Erst lernen",
+ rev:"Ihre Fehler",none:"Keine Fehler. Perfekter Lauf.",you:"Ihre Wahl",share:"Freund herausfordern",copied:"Link kopiert. Ihr Freund bekommt dieselben Fragen.",
+ chal:(n,s)=>`${n||"Ein Freund"} fordert Sie heraus: schlagen Sie ${s} Punkte mit denselben Fragen.`,beat:"Herausforderung gewonnen!",lost:"Herausforderung noch nicht geschafft.",name:"Ihr Name (für die Herausforderung)",paused:"Pause",resume:"Weiter",
+ P:{capitals:"Land → Hauptstadt",capitals_rev:"Hauptstadt → Land",idioms:"Redewendungen: Entsprechungen",meaning:"Redewendungen: Bedeutung",falsefr:"Falsche Freunde",acronyms:"Abkürzungen",register:"Register",mix:"Alles gemischt"},
+ Q:{capitals:"Hauptstadt von",capitals_rev:"Welches Land hat diese Hauptstadt?",idioms:l=>"Entsprechung auf "+l,meaning:"Was bedeutet",falsefr:"Richtige Übersetzung",acronyms:l=>"Vollständiger Name auf "+l,register:r=>"Am meisten "+r+" gesagt"},
+ R:["salopp","neutral","gehoben"],L:{en:"Englisch",fr:"Französisch",de:"Deutsch"},cont:"Kontinent",world:"Ganze Welt"}};
+// Well-known cities people mistake for the capital: used as the wrong lane first.
+const TRAP={CM:"Douala",MA:"Casablanca",NG:"Lagos",TZ:"Dar es Salaam",CI:"Abidjan",BJ:"Cotonou",TR:"Istanbul",MM:["Yangon","Rangoun","Rangun"],AU:"Sydney",CA:["Toronto","Montréal","Toronto"],
+ US:["New York","New York","New York"],BR:["Rio de Janeiro","Rio de Janeiro","Rio de Janeiro"],CH:["Zurich","Zurich","Zürich"],NZ:"Auckland",KZ:"Almaty",PK:"Karachi",IN:"Mumbai",CN:["Shanghai","Shanghai","Schanghai"],
+ VN:["Ho Chi Minh City","Hô Chi Minh-Ville","Ho-Chi-Minh-Stadt"],AE:["Dubai","Dubaï","Dubai"],EC:"Guayaquil",BI:"Bujumbura",GQ:"Malabo",LK:"Colombo",BO:"La Paz",EG:["Alexandria","Alexandrie","Alexandria"],
+ SA:["Jeddah","Djeddah","Dschidda"],RU:["Saint Petersburg","Saint-Pétersbourg","Sankt Petersburg"],PL:["Kraków","Cracovie","Krakau"],ES:["Barcelona","Barcelone","Barcelona"],IT:["Milan","Milan","Mailand"],
+ DE:["Munich","Munich","München"],KE:"Mombasa",MW:"Blantyre",GA:"Port-Gentil",CD:"Lubumbashi",SY:["Aleppo","Alep","Aleppo"],BZ:"Belize City",JP:"Osaka",KR:"Busan",MX:"Guadalajara",CO:"Medellín",
+ CL:"Valparaíso",AR:"Córdoba",VE:"Maracaibo",NL:["The Hague","La Haye","Den Haag"],ID:"Surabaya",GH:"Kumasi",SN:"Saint-Louis",MR:"Nouadhibou",TN:"Sfax",LY:["Benghazi","Benghazi","Bengasi"],
+ MZ:"Beira",BY:"Hrodna",UA:["Odesa","Odessa","Odessa"],GB:["Manchester","Manchester","Manchester"],SC:"Praslin",CG:"Pointe-Noire",TG:"Kara",ML:"Tombouctou"};
+const LI={en:0,fr:1,de:2};
+const HUB={capitals:"capitals",capitals_rev:"capitals",idioms:"idioms",meaning:"idioms",falsefr:"idioms",acronyms:"booth",register:"booth",mix:"capitals"};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let UI="en";try{UI=localStorage.getItem("twb-ui")||(navigator.language||"en").slice(0,2)}catch(e){}if(!S[UI])UI="en";
+let t=S[UI];
+// ---------- settings ----------
+let cfg={pack:"capitals",lang:UI,to:UI==="en"?"fr":"en",lanes:2,speed:1,cont:""};
+try{Object.assign(cfg,JSON.parse(localStorage.getItem("lr-cfg")||"{}"))}catch(e){}
+const H=new URLSearchParams(location.hash.slice(1).replace(/^[a-z_]+\??&?/,""));
+const hp=(location.hash.match(/^#([a-z_]+)/)||[])[1];
+const HASHPACK={capitals:"capitals",idioms:"idioms",booth:"acronyms",twister:"register",topics:"register"};
+if(hp)cfg.pack=S.en.P[hp]?hp:(HASHPACK[hp]||cfg.pack);
+let challenge=null;
+if(H.get("seed")){challenge={seed:+H.get("seed")>>>0,beat:+H.get("beat")||0,by:(H.get("by")||"").slice(0,30)};
+ ["lang","to","cont"].forEach(k=>{if(H.get(k)!==null)cfg[k]=H.get(k)});if(H.get("lanes"))cfg.lanes=+H.get("lanes")===3?3:2;if(H.get("sp"))cfg.speed=+H.get("sp")||1}
+// ---------- random ----------
+let seed=0,rnd=Math.random;
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let x=Math.imul(a^a>>>15,1|a);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296}}
+const pick=a=>a[Math.floor(rnd()*a.length)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+// ---------- question makers: each returns {k,q,ans,wrong[]} ----------
+const CO=()=>C.CP.COUNTRIES.filter(c=>!cfg.cont||c.continent===cfg.cont);
+function distinct(ans,pool,n){const out=[];for(const x of shuffle(pool)){if(out.length>=n)break;if(x&&x!==ans&&!out.includes(x))out.push(x)}return out}
+const M={
+ capitals(){const L=cfg.lang,pool=CO(),c=pick(pool),ans=c.cap[L];let tr=TRAP[c.id];tr=tr?(Array.isArray(tr)?tr[LI[L]]:tr):null;
+  const same=C.CP.COUNTRIES.filter(x=>x.region===c.region).map(x=>x.cap[L]);
+  const w=[];if(tr&&tr!==ans)w.push(tr);w.push(...distinct(ans,same.length>3?same:C.CP.COUNTRIES.map(x=>x.cap[L]),3).filter(x=>!w.includes(x)));
+  return{k:t.Q.capitals,q:c[L]+(L==="fr"?" ?":"?"),ans,wrong:w,note:c.note}},
+ capitals_rev(){const L=cfg.lang,pool=CO(),c=pick(pool),ans=c[L];
+  const same=C.CP.COUNTRIES.filter(x=>x.region===c.region&&x.id!==c.id).map(x=>x[L]);
+  return{k:t.Q.capitals_rev,q:c.cap[L],ans,wrong:distinct(ans,same.length>2?same:C.CP.COUNTRIES.map(x=>x[L]),3),note:c.note}},
+ idioms(){let F=cfg.lang,T=cfg.to;if(F===T)T=F==="en"?"fr":"en";const I=C.ID.IDIOMS,i=pick(I);
+  const same=I.filter(x=>x.c===i.c&&x!==i).map(x=>x[T]);return{k:t.Q.idioms(t.L[T]),q:i[F],ans:i[T],wrong:distinct(i[T],same,3),note:i.m}},
+ meaning(){const I=C.ID.IDIOMS,i=pick(I),L=cfg.lang;const same=I.filter(x=>x!==i).map(x=>x.m);
+  return{k:t.Q.meaning,q:"“"+i[L]+"”",ans:i.m,wrong:distinct(i.m,same,3),note:i.n,long:1}},
+ falsefr(){const all=C.ID.FF_FE.concat(C.ID.FF_FD),f=pick(all);return{k:t.Q.falsefr+" ("+f.l.toUpperCase()+")",q:f.w,ans:f.ok,wrong:shuffle(f.bad).slice(0,3),note:f.n}},
+ acronyms(){const L=cfg.lang,A=C.BG.ACRONYMS,a=pick(A),ix={en:[1,2],fr:[3,4],de:[5,6]}[L];const ans=a[ix[1]];
+  const same=A.filter(x=>x!==a&&x[7]===a[7]).map(x=>x[ix[1]]);return{k:t.Q.acronyms(t.L[L]),q:a[ix[0]],ans,wrong:distinct(ans,same.length>2?same:A.map(x=>x[ix[1]]),3)}},
+ register(){const want=cfg.lang.toUpperCase();let P=C.BG.LADDERS.filter(x=>x[0]===want);if(!P.length)P=C.BG.LADDERS;const l=pick(P),r=rnd()<.5?2:0;
+  return{k:t.Q.register(t.R[r]),q:"“"+l[1]+"”",ans:l[2][r],wrong:[l[2][2-r],l[2][1]].filter(x=>x!==l[2][r])}},
+ mix(){return M[pick(["capitals","capitals_rev","idioms","falsefr","acronyms","register"])]()}};
+let lastQ=[];
+function nextQ(){let q,n=0;do{q=M[cfg.pack]();n++}while(n<12&&(lastQ.includes(q.q)||!q.wrong.length));lastQ.push(q.q);if(lastQ.length>25)lastQ.shift();
+ const k=Math.min(cfg.lanes-1,q.wrong.length),lanes=shuffle([q.ans,...q.wrong.slice(0,k)]);return Object.assign(q,{lanes,right:lanes.indexOf(q.ans)})}
+// ---------- game state ----------
+const cv=$("#cv"),cx=cv.getContext("2d");let W=0,Hh=0,DPR=1;
+function size(){const r=$("#stage").getBoundingClientRect();DPR=Math.min(2,devicePixelRatio||1);W=r.width;Hh=r.height;cv.width=W*DPR;cv.height=Hh*DPR;cx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener("resize",size);
+let G=null;
+function bestKey(){return"lr-best-"+cfg.pack}
+function best(){return+(localStorage.getItem(bestKey())||0)}
+function newRun(){seed=challenge?challenge.seed:(Math.random()*1e9)>>>0;rnd=mulberry(seed);lastQ=[];
+ G={score:0,streak:0,lives:3,lane:Math.floor(cfg.lanes/2)-(cfg.lanes===2?0:0),px:0,z:0,q:null,state:"run",t:0,mist:[],n:0,ok:0,dur:0,wait:0,flash:0,parts:[],res:null};
+ G.lane=cfg.lanes===3?1:0;G.px=G.lane;spawn();$("#menu").classList.remove("on");$("#over").classList.remove("on");hud();last=performance.now();if(!raf)raf=requestAnimationFrame(loop)}
+function spawn(){G.q=nextQ();G.z=0;G.res=null;G.lane=Math.min(G.lane,G.q.lanes.length-1);
+ const base=(G.q.long?8.5:6.2)/cfg.speed,len=Math.max(...G.q.lanes.map(s=>s.length));
+ G.dur=Math.max(G.q.long?4.2:2.4,(base+Math.min(3,len/25))*Math.pow(.965,G.ok));renderQ()}
+function renderQ(){$("#qk").textContent=G.q.k;$("#qt").textContent=G.q.q;const o=$("#opts");o.style.gridTemplateColumns=`repeat(${cfg.lanes===3&&G.q.lanes.length===3?3:G.q.lanes.length},1fr)`;
+ o.innerHTML=G.q.lanes.map((s,i)=>`<div class="opt${i===G.lane?" on":""}" data-i="${i}">${i===0?"◀ ":""}${esc(s)}${i===G.q.lanes.length-1?" ▶":""}</div>`).join("")}
+function markOpts(){document.querySelectorAll(".opt").forEach((e,i)=>{e.classList.toggle("on",i===G.lane&&!G.res);if(G.res){e.classList.toggle("ok",i===G.q.right);e.classList.toggle("bad",i===G.lane&&i!==G.q.right)}})}
+function move(d){if(!G||G.state!=="run")return;const n=G.q.lanes.length;G.lane=Math.max(0,Math.min(n-1,G.lane+d));if(!G.res)markOpts()}
+function hud(){$("#hs").textContent=t.score+" "+G.score;$("#hk").textContent=G.streak>1?"×"+(1+Math.floor(G.streak/5))+" · "+t.streak+" "+G.streak:"";$("#hl").textContent="♥".repeat(G.lives)+"♡".repeat(3-G.lives)}
+function toast(s,ok){const e=$("#toast");e.textContent=s;e.className="toast"+(ok?" ok":"");e.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display="none",ok?700:1900)}
+function resolve(){const q=G.q,ok=G.lane===q.right;G.res=ok?"ok":"bad";G.n++;markOpts();
+ if(ok){G.ok++;G.streak++;const m=1+Math.floor(G.streak/5);G.score+=10*m;if(G.streak%5===0)toast("×"+(m)+" !",1);burst(G.lane,"#2fa36b")}
+ else{G.lives--;G.streak=0;G.mist.push({k:q.k,q:q.q,a:q.ans,y:q.lanes[G.lane],n:q.note});toast("✓ "+q.ans);burst(G.lane,"#d2493c");G.flash=.5}
+ hud();G.wait=ok?.55:1.9;if(G.lives<=0){G.wait=1.6;G.state="dying"}}
+function burst(l,col){const p=laneX(l,1);for(let i=0;i<22;i++)G.parts.push({x:p,y:Hh-95,vx:(Math.random()-.5)*260,vy:-Math.random()*300-60,life:.8,col})}
+// ---------- drawing ----------
+const HOR=()=>Hh*.12;
+function sc(z){return .22+.78*z}
+function yAt(z){return HOR()+(Hh-60-HOR())*z}
+function roadHalf(){return Math.min(W*.47,cfg.lanes===3?440:360)}
+function laneX(l,z,n){n=n||(G&&G.q?G.q.lanes.length:cfg.lanes);const hw=roadHalf()*sc(z),lw=2*hw/n;return W/2-hw+lw*(l+.5)}
+function wrap(s,maxw,fs){cx.font=`700 ${fs}px "Familjen Grotesk",Arial,sans-serif`;const w=s.split(" "),lines=[];let cur="";for(const x of w){const tt=cur?cur+" "+x:x;if(cx.measureText(tt).width>maxw&&cur){lines.push(cur);cur=x}else cur=tt}if(cur)lines.push(cur);return lines}
+let road=0;
+function draw(dt){cx.clearRect(0,0,W,Hh);const g=cx.createLinearGradient(0,0,0,Hh);g.addColorStop(0,"#1b2533");g.addColorStop(1,"#0d1117");cx.fillStyle=g;cx.fillRect(0,0,W,Hh);
+ const n=G&&G.q?G.q.lanes.length:cfg.lanes,h0=HOR(),hw0=roadHalf()*sc(0),hw1=roadHalf()*sc(1.1),y1=yAt(1.1);
+ // road
+ cx.fillStyle="#232c38";cx.beginPath();cx.moveTo(W/2-hw0,h0);cx.lineTo(W/2+hw0,h0);cx.lineTo(W/2+hw1,y1);cx.lineTo(W/2-hw1,y1);cx.fill();
+ cx.strokeStyle="#e0a526";cx.lineWidth=3;cx.beginPath();cx.moveTo(W/2-hw0,h0);cx.lineTo(W/2-hw1,y1);cx.moveTo(W/2+hw0,h0);cx.lineTo(W/2+hw1,y1);cx.stroke();
+ // dashes
+ road=(road+dt*(G&&G.state==="run"?1/Math.max(1.2,G.dur)*1.6:.15))%1;cx.fillStyle="#ffffff55";
+ for(let l=1;l<n;l++)for(let k=0;k<8;k++){const z0=((k/8)+road)%1.1,z1=z0+.045;const xa=W/2-roadHalf()*sc(z0)+2*roadHalf()*sc(z0)*l/n,xb=W/2-roadHalf()*sc(z1)+2*roadHalf()*sc(z1)*l/n,wa=2*sc(z0),wb=2*sc(z1);
+  cx.beginPath();cx.moveTo(xa-wa,yAt(z0));cx.lineTo(xa+wa,yAt(z0));cx.lineTo(xb+wb,yAt(z1));cx.lineTo(xb-wb,yAt(z1));cx.fill()}
+ if(!G||!G.q)return;
+ // gates
+ const z=Math.min(G.z,1),s=sc(z),lw=2*roadHalf()*s/n,gy=yAt(z);
+ for(let i=0;i<n;i++){const x=laneX(i,z),bw=lw*.92,fs=Math.max(9,Math.round((G.q.long?15:21)*s*(n===3?.85:1)));let lines=wrap(G.q.lanes[i],bw-14*s,fs);
+  let f=fs;while(lines.length>4&&f>8){f--;lines=wrap(G.q.lanes[i],bw-14*s,f)}
+  const lh=f*1.18,bh=Math.max(46*s,lines.length*lh+18*s),top=gy-bh-12*s;
+  let col="#f4efe3",tc="#16202c";if(G.res){if(i===G.q.right){col="#2fa36b";tc="#fff"}else if(i===G.lane){col="#d2493c";tc="#fff"}else{col="#59606b";tc="#d5d9de"}}
+  cx.fillStyle="#00000055";cx.fillRect(x-bw/2+4*s,top+5*s,bw,bh);
+  cx.fillStyle="#6b4a12";cx.fillRect(x-bw/2+6*s,top+bh,5*s,14*s);cx.fillRect(x+bw/2-11*s,top+bh,5*s,14*s);
+  cx.fillStyle=col;roundRect(x-bw/2,top,bw,bh,8*s);cx.fill();cx.lineWidth=3*s;cx.strokeStyle=i===G.lane&&!G.res?"#e0a526":"#00000033";cx.stroke();
+  cx.fillStyle=tc;cx.textAlign="center";cx.textBaseline="middle";cx.font=`700 ${f}px "Familjen Grotesk",Arial,sans-serif`;
+  lines.forEach((ln,j)=>cx.fillText(ln,x,top+bh/2+(j-(lines.length-1)/2)*lh))}
+ // runner
+ G.px+=(G.lane-G.px)*Math.min(1,dt*14);drawRunner(laneX(G.px,1,n),Hh-58,G.t);
+ // particles
+ for(const p of G.parts){p.life-=dt;p.vy+=600*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;cx.globalAlpha=Math.max(0,p.life/.8);cx.fillStyle=p.col;cx.fillRect(p.x-3,p.y-3,6,6)}cx.globalAlpha=1;G.parts=G.parts.filter(p=>p.life>0);
+ if(G.flash>0){cx.fillStyle=`rgba(210,73,60,${G.flash*.5})`;cx.fillRect(0,0,W,Hh);G.flash-=dt}}
+function roundRect(x,y,w,h,r){cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath()}
+function drawRunner(x,y,tm){const k=G.state==="run"||G.state==="dying"?Math.sin(tm*13):0,u=1;cx.save();cx.translate(x,y);cx.lineCap="round";
+ cx.fillStyle="#00000055";cx.beginPath();cx.ellipse(0,40,22,6,0,0,7);cx.fill();
+ cx.strokeStyle="#1d3f63";cx.lineWidth=7;// legs
+ cx.beginPath();cx.moveTo(0,8);cx.lineTo(10*k,24);cx.lineTo(8*k+4,38);cx.moveTo(0,8);cx.lineTo(-10*k,24);cx.lineTo(-8*k-4,38);cx.stroke();
+ cx.strokeStyle="#e0a526";cx.lineWidth=12;cx.beginPath();cx.moveTo(0,-18);cx.lineTo(0,8);cx.stroke();// torso (jacket)
+ cx.strokeStyle="#c98d18";cx.lineWidth=5;cx.beginPath();cx.moveTo(0,-14);cx.lineTo(-12*k,-2);cx.lineTo(-14*k-4,8);cx.moveTo(0,-14);cx.lineTo(12*k,-2);cx.lineTo(14*k+4,8);cx.stroke();
+ cx.fillStyle="#8a5a3c";cx.beginPath();cx.arc(0,-30,10,0,7);cx.fill();// head
+ cx.strokeStyle="#eef2f7";cx.lineWidth=3;cx.beginPath();cx.arc(0,-31,12.5,Math.PI*1.05,Math.PI*1.95);cx.stroke();// headset band
+ cx.fillStyle="#eef2f7";cx.fillRect(-15,-34,5,9);cx.fillRect(10,-34,5,9);
+ cx.strokeStyle="#eef2f7";cx.lineWidth=2;cx.beginPath();cx.moveTo(12,-26);cx.quadraticCurveTo(12,-18,4,-20);cx.stroke();cx.fillStyle="#e0a526";cx.beginPath();cx.arc(4,-20,2.5,0,7);cx.fill();
+ cx.restore()}
+// ---------- loop ----------
+let raf=0,last=0;
+function loop(now){raf=requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;if(!W)size();
+ if(G&&(G.state==="run"||G.state==="dying")){G.t+=dt;
+  if(!G.res){G.z+=dt/G.dur;if(G.z>=1){G.z=1;resolve()}}
+  else{G.wait-=dt;if(G.wait<=0){if(G.state==="dying")return endRun();spawn()}}}
+ draw(G&&G.state==="pause"?0:dt)}
+function endRun(){G.state="over";cancelAnimationFrame(raf);raf=0;let b=best(),rec=false;if(G.score>b){localStorage.setItem(bestKey(),G.score);b=G.score;rec=true}
+ const ch=challenge?`<div class="chal">${esc(t.chal(challenge.by,challenge.beat))}<br><b>${G.score>challenge.beat?t.beat:t.lost}</b></div>`:"";
+ $("#over").innerHTML=`<div class="box"><h1>${t.over}</h1><div class="row"><div><div class="lbl">${t.score}</div><div class="big">${G.score}</div></div><div style="margin-left:18px"><div class="lbl">${t.best}</div><div class="big" style="color:var(--ink)">${b}${rec?" ★":""}</div></div></div>
+ <p>${G.ok} / ${G.n} ✓</p>${ch}
+ <div class="row"><button class="pri" id="ag">${t.again}</button><button id="mn">${t.menu}</button><button id="sh">${t.share}</button><a href="../learn/#${HUB[cfg.pack]}">${t.learn}</a></div>
+ <h2>${t.rev}</h2>${G.mist.length?G.mist.map(m=>`<div class="rv"><div class="m">${esc(m.k)}</div><b>${esc(m.q)}</b> → <b style="color:#5fd39a">${esc(m.a)}</b><div class="m">${t.you}: <s>${esc(m.y)}</s>${m.n?" · "+esc(m.n):""}</div></div>`).join(""):`<p>${t.none}</p>`}</div>`;
+ $("#over").classList.add("on");$("#ag").onclick=newRun;$("#mn").onclick=()=>{challenge=null;showMenu()};
+ $("#sh").onclick=async()=>{let nm="";try{nm=localStorage.getItem("lr-name")||""}catch(e){}nm=prompt(t.name,nm)??nm;try{localStorage.setItem("lr-name",nm)}catch(e){}
+  const u=location.origin+location.pathname+"#"+cfg.pack+"?seed="+seed+"&beat="+G.score+"&by="+encodeURIComponent(nm)+"&lang="+cfg.lang+"&to="+cfg.to+"&lanes="+cfg.lanes+"&sp="+cfg.speed+(cfg.cont?"&cont="+cfg.cont:"");
+  try{if(navigator.share){await navigator.share({title:"Lane Runner",text:t.chal(nm,G.score),url:u});return}}catch(e){}
+  try{await navigator.clipboard.writeText(u);toast(t.copied,1)}catch(e){prompt("",u)}}}
+// ---------- menu ----------
+function showMenu(){if(G)G.state="menu";const P=Object.keys(t.P),needTo=cfg.pack==="idioms"||cfg.pack==="mix",cap=cfg.pack.startsWith("capitals")||cfg.pack==="mix";
+ const b=(k,v,lab)=>`<button data-k="${k}" data-v="${v}" aria-pressed="${String(cfg[k])===String(v)}">${lab}</button>`;
+ const ch=challenge?`<div class="chal">${esc(t.chal(challenge.by,challenge.beat))}</div>`:"";
+ $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:flex-end"><div class="lang">${["en","fr","de"].map(l=>`<button data-ui="${l}" aria-pressed="${l===UI}">${l.toUpperCase()}</button>`).join("")}</div></div>
+ <h1>${t.title}</h1><p>${t.lead}</p>${ch}
+ <div class="lbl">${t.pack}</div><div class="row">${P.map(p=>b("pack",p,t.P[p])).join("")}</div>
+ <div class="lbl">${needTo?t.from:t.lang}</div><div class="row">${["en","fr","de"].map(l=>b("lang",l,l.toUpperCase())).join("")}</div>
+ ${needTo?`<div class="lbl">${t.to}</div><div class="row">${["en","fr","de"].filter(l=>l!==cfg.lang).map(l=>b("to",l,l.toUpperCase())).join("")}</div>`:""}
+ ${cap?`<div class="lbl">${t.cont}</div><div class="row">${b("cont","",t.world)}${Object.keys(C.CP.CONTINENTS).map(c=>b("cont",c,C.CP.CONTINENTS[c][UI])).join("")}</div>`:""}
+ <div class="lbl">${t.lanes}</div><div class="row">${b("lanes",2,"2")}${b("lanes",3,"3")}</div>
+ <div class="lbl">${t.speed}</div><div class="row">${b("speed",.75,t.slow)}${b("speed",1,t.norm)}${b("speed",1.35,t.fast)}</div>
+ <div class="row" style="margin-top:8px"><button class="pri" id="go">${t.start} →</button><span class="muted" style="color:var(--muted)">${t.best}: ${best()}</span></div>
+ <p style="color:var(--muted);font-size:15px">${t.keys}</p></div>`;
+ $("#menu").classList.add("on");$("#over").classList.remove("on");
+ $("#menu").querySelectorAll("[data-k]").forEach(e=>e.onclick=()=>{const k=e.dataset.k;let v=e.dataset.v;if(k==="lanes"||k==="speed")v=+v;cfg[k]=v;if(cfg.to===cfg.lang)cfg.to=cfg.lang==="en"?"fr":"en";
+  challenge=null;try{localStorage.setItem("lr-cfg",JSON.stringify(cfg))}catch(x){}history.replaceState(null,"","#"+cfg.pack);showMenu()});
+ $("#menu").querySelectorAll("[data-ui]").forEach(e=>e.onclick=()=>{UI=e.dataset.ui;t=S[UI];try{localStorage.setItem("twb-ui",UI)}catch(x){}applyUI();showMenu()});
+ $("#go").onclick=newRun;
+ if(!raf){last=performance.now();raf=requestAnimationFrame(loop)}}
+function applyUI(){document.documentElement.lang=UI;$("#back").textContent=t.all}
+// ---------- input ----------
+addEventListener("keydown",e=>{if(e.key==="ArrowLeft"||e.key==="a"||e.key==="A"){move(-1);e.preventDefault()}else if(e.key==="ArrowRight"||e.key==="d"||e.key==="D"){move(1);e.preventDefault()}
+ else if(e.key===" "||e.key==="Escape"){if(G&&(G.state==="run"||G.state==="pause")){togglePause();e.preventDefault()}}
+ else if(e.key==="Enter"&&$("#menu").classList.contains("on"))newRun()});
+$("#bl").onclick=()=>move(-1);$("#br").onclick=()=>move(1);
+let sx=null;const st=$("#stage");
+st.addEventListener("pointerdown",e=>{if(e.target.closest("button,.ov"))return;sx=e.clientX});
+st.addEventListener("pointerup",e=>{if(sx===null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>30)move(dx>0?1:-1);else{const r=st.getBoundingClientRect();if(G&&G.q&&G.q.lanes.length===3){const f=(e.clientX-r.left)/r.width;move(f<.33?-1:f>.67?1:0)}else move(e.clientX-r.left<r.width/2?-1:1)}});
+$("#opts").addEventListener("click",e=>{const o=e.target.closest(".opt");if(o&&G&&G.state==="run"&&!G.res){G.lane=+o.dataset.i;markOpts()}});
+function togglePause(){if(G.state==="run"){G.state="pause";$("#pz").textContent="▶";toast(t.paused,1)}else if(G.state==="pause"){G.state="run";$("#pz").textContent="II";last=performance.now()}}
+$("#pz").onclick=()=>{if(G&&(G.state==="run"||G.state==="pause"))togglePause()};
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&G&&G.state==="run")togglePause()});
+addEventListener("hashchange",()=>location.reload());
+applyUI();size();showMenu();
+</script>
+</body>
+</html>

@@ -10,7 +10,7 @@
 :root{color-scheme:light dark;
  --bg:light-dark(#f3f1ec,#11141a);--panel:light-dark(#ffffff,#1a1f27);--ink:light-dark(#16202c,#e8ecf2);--muted:light-dark(#5b6675,#9aa6b4);--line:light-dark(#dcd8cf,#2b3440);
  --hero:light-dark(#16202c,#0b0e13);--accent:#f0a640;
- --c1:#4a2f7a;--c2:#1f5e8c;--c3:#2f7d4f;--c4:#b8432f;--c5:#a77a12;--c6:#5b6675}
+ --c1:#4a2f7a;--c2:#1f5e8c;--c3:#2f7d4f;--c4:#b8432f;--c5:#a77a12;--c6:#5b6675;--c7:#b07a10}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 "Source Serif 4",Georgia,serif}
 h1,h2,h3{font-family:"Familjen Grotesk","Helvetica Neue",Arial,sans-serif;margin:0;line-height:1.1;text-wrap:balance}
@@ -35,6 +35,9 @@ main{max-width:1100px;margin:0 auto;padding:28px max(4vw,16px) 64px;display:grid
 .tag{font:600 12.5px "Familjen Grotesk",sans-serif;border-radius:999px;padding:3px 9px;background:color-mix(in srgb,var(--c) 14%,transparent);color:light-dark(var(--c),#fff)}
 .play{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
 .play a{font:600 15px "Familjen Grotesk",sans-serif;text-decoration:none;border-radius:10px;padding:10px 14px;min-height:44px;display:inline-flex;align-items:center;border:1px solid var(--line)}
+.step{display:grid;gap:6px}.sl{font:600 12px "Familjen Grotesk",sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.play a.lrn{border-color:var(--c);color:var(--c)}.play a.run{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.game .new{background:#e0a526;color:#1a1300}
 .play a.main{background:var(--c);border-color:var(--c);color:#fff}
 .play a:hover{border-color:var(--c)}
 details{border-top:1px solid var(--line);padding-top:10px}
@@ -76,45 +79,46 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-off
 {
 const T={
 en:{lead:"Training games for interpreters and public speakers in English, French, German and sign language. Play in the browser on any phone or laptop, no account needed, or print the cards.",
- play:"Play",all:"All languages",print:"Printable cards (PDF)",
- fh:"Play with friends",fl:["Open <b>Twister Booth</b>, <b>Idiom Booth</b> or <b>Capital Relay</b> and tap <b>Live room</b>. Type your name and create a room.","Read the 4-letter code out to your friends. They open this same site on their own phones and join with it.","Everyone gets the same card or question each round, and the scoreboard updates live.","On one device, use the Duel or Party modes inside each game."],
+ play:"Practise",learn:"Learn",s1:"1 · Learn",s2:"2 · Practise",runl:"Lane Runner",all:"All languages",print:"Printable cards (PDF)",
+ fh:"Play with friends",fl:["Open <b>Twister Booth</b>, <b>Idiom Booth</b> or <b>Capital Relay</b> and tap <b>Live room</b>. Type your name and create a room.","Read the 4-letter code out to your friends. They open this same site on their own phones and join with it.","Everyone gets the same card or question each round, and the scoreboard updates live.","On one device, use the Duel or Party modes inside each game.","In <b>Lane Runner</b>, finish a run and tap <b>Challenge a friend</b>: the link gives them the same questions and your score to beat."],
  ph:"Plan your training",pt:"A level test and a 12-week plan to work through the games in order.",
  foot:"Progress is saved in your own browser only. Print the card PDFs on A4, double-sided, flip on the long edge, at 100%.",
- g:{tw:["Tongue twisters for diction, articulation and speed: warm-up routine, speed runs, ladder, split attention, live rooms."],
+ g:{rn:["Run and answer: a question appears, two or three answers come down the road, and you switch to the right lane. Capitals, idioms, false friends, acronyms and register. Share a challenge link so friends get the same questions."],tw:["Tongue twisters for diction, articulation and speed: warm-up routine, speed runs, ladder, split attention, live rooms."],
     id:["Idioms, expressions and press language: meaning, register, rephrasing drills and duels."],
     bg:["Booth drills: acronyms, timed speeches, dilemmas and register ladders."],
     cr:["World capitals relay: learn every country and capital in all your languages."],
     tp:["Impromptu speaking: draw a topic card and speak for a set time."]}},
 fr:{lead:"Des jeux d'entraînement pour interprètes et orateurs, en anglais, français, allemand et langue des signes. Jouez dans le navigateur sur n'importe quel téléphone ou ordinateur, sans compte, ou imprimez les cartes.",
- play:"Jouer",all:"Toutes les langues",print:"Cartes à imprimer (PDF)",
- fh:"Jouer entre amis",fl:["Ouvrez <b>Twister Booth</b>, <b>Idiom Booth</b> ou <b>Capital Relay</b> et touchez <b>Salle en direct</b>. Tapez votre prénom et créez une salle.","Lisez le code de 4 lettres à vos amis. Ils ouvrent ce même site sur leur téléphone et rejoignent la salle avec ce code.","Tout le monde reçoit la même carte ou question à chaque manche, et le classement se met à jour en direct.","Sur un seul appareil, utilisez les modes Duel ou Fête de chaque jeu."],
+ play:"S'entraîner",learn:"Apprendre",s1:"1 · Apprendre",s2:"2 · S'entraîner",runl:"Lane Runner",all:"Toutes les langues",print:"Cartes à imprimer (PDF)",
+ fh:"Jouer entre amis",fl:["Ouvrez <b>Twister Booth</b>, <b>Idiom Booth</b> ou <b>Capital Relay</b> et touchez <b>Salle en direct</b>. Tapez votre prénom et créez une salle.","Lisez le code de 4 lettres à vos amis. Ils ouvrent ce même site sur leur téléphone et rejoignent la salle avec ce code.","Tout le monde reçoit la même carte ou question à chaque manche, et le classement se met à jour en direct.","Sur un seul appareil, utilisez les modes Duel ou Fête de chaque jeu.","Dans <b>Lane Runner</b>, à la fin d'une course, touchez <b>Défier un ami</b> : le lien donne les mêmes questions et votre score à battre."],
  ph:"Planifier votre entraînement",pt:"Un test de niveau et un plan sur 12 semaines pour enchaîner les jeux dans l'ordre.",
  foot:"La progression est enregistrée uniquement dans votre navigateur. Imprimez les PDF en A4, recto verso, retournement bord long, à 100 %.",
- g:{tw:["Virelangues pour la diction, l'articulation et le débit : échauffement, contre la montre, échelle, attention partagée, salles en direct."],
+ g:{rn:["Courir et répondre : une question s'affiche, deux ou trois réponses arrivent sur la route, changez de couloir pour la bonne. Capitales, expressions, faux amis, sigles et registre. Partagez un lien de défi : vos amis auront les mêmes questions."],tw:["Virelangues pour la diction, l'articulation et le débit : échauffement, contre la montre, échelle, attention partagée, salles en direct."],
     id:["Expressions idiomatiques et langue de presse : sens, registre, reformulation et duels."],
     bg:["Exercices de cabine : sigles, discours chronométrés, dilemmes et échelles de registre."],
     cr:["Relais des capitales : chaque pays et sa capitale dans toutes vos langues."],
     tp:["Prise de parole improvisée : tirez un sujet et parlez pendant un temps donné."]}},
 de:{lead:"Trainingsspiele für Dolmetscher und Redner auf Englisch, Französisch, Deutsch und in Gebärdensprache. Im Browser auf jedem Handy oder Laptop spielen, ohne Konto, oder die Karten drucken.",
- play:"Spielen",all:"Alle Sprachen",print:"Karten zum Drucken (PDF)",
- fh:"Mit Freunden spielen",fl:["<b>Twister Booth</b>, <b>Idiom Booth</b> oder <b>Capital Relay</b> öffnen und auf <b>Live-Raum</b> tippen. Namen eingeben und einen Raum eröffnen.","Den vierstelligen Code vorlesen. Die anderen öffnen diese Seite auf dem eigenen Handy und treten damit bei.","Alle bekommen pro Runde dieselbe Karte oder Frage, die Rangliste aktualisiert sich live.","Auf einem Gerät: die Duell- oder Party-Modi in jedem Spiel."],
+ play:"Üben",learn:"Lernen",s1:"1 · Lernen",s2:"2 · Üben",runl:"Lane Runner",all:"Alle Sprachen",print:"Karten zum Drucken (PDF)",
+ fh:"Mit Freunden spielen",fl:["<b>Twister Booth</b>, <b>Idiom Booth</b> oder <b>Capital Relay</b> öffnen und auf <b>Live-Raum</b> tippen. Namen eingeben und einen Raum eröffnen.","Den vierstelligen Code vorlesen. Die anderen öffnen diese Seite auf dem eigenen Handy und treten damit bei.","Alle bekommen pro Runde dieselbe Karte oder Frage, die Rangliste aktualisiert sich live.","Auf einem Gerät: die Duell- oder Party-Modi in jedem Spiel.","In <b>Lane Runner</b> nach dem Lauf auf <b>Freund herausfordern</b> tippen: Der Link bringt dieselben Fragen und Ihre Punktzahl zum Schlagen."],
  ph:"Training planen",pt:"Ein Einstufungstest und ein 12-Wochen-Plan, um die Spiele der Reihe nach durchzuarbeiten.",
  foot:"Der Fortschritt wird nur in Ihrem Browser gespeichert. Die PDFs auf A4 drucken, beidseitig, an der langen Kante spiegeln, 100 %.",
- g:{tw:["Zungenbrecher für Aussprache, Artikulation und Tempo: Aufwärmen, auf Zeit, Leiter, geteilte Aufmerksamkeit, Live-Räume."],
+ g:{rn:["Laufen und antworten: Eine Frage erscheint, zwei oder drei Antworten kommen auf der Straße, und Sie wechseln auf die richtige Spur. Hauptstädte, Redewendungen, falsche Freunde, Abkürzungen und Register. Teilen Sie einen Herausforderungs-Link mit denselben Fragen."],tw:["Zungenbrecher für Aussprache, Artikulation und Tempo: Aufwärmen, auf Zeit, Leiter, geteilte Aufmerksamkeit, Live-Räume."],
     id:["Redewendungen und Pressesprache: Bedeutung, Register, Umformulieren und Duelle."],
     bg:["Kabinenübungen: Abkürzungen, Reden auf Zeit, Dilemmata und Registerleitern."],
     cr:["Hauptstadt-Staffel: jedes Land und seine Hauptstadt in all Ihren Sprachen."],
     tp:["Stegreifrede: Thema ziehen und eine vorgegebene Zeit lang sprechen."]}}};
 const G=[
- {k:"tw",name:"Twister Booth",c:"var(--c1)",tags:["EN","FR","DE","ASL","Live room"],main:["twister/","all"],ed:[],
+ {k:"rn",name:"Lane Runner",c:"var(--c7)",tags:["New","EN","FR","DE","Challenge link"],main:null,lrn:null,ed:[],run:[["Capital Relay","capitals"],["Idiom Booth","idioms"],["Booth Gym","booth"],["Mix","mix"]],pdf:[]},
+ {k:"tw",lrn:"twister",run:null,name:"Twister Booth",c:"var(--c1)",tags:["EN","FR","DE","ASL","Live room"],main:["twister/","all"],ed:[],
   pdf:[["English","print/tongue-twisters/Twister-Booth-English-cards.pdf"],["Français","print/tongue-twisters/Twister-Booth-Francais-cards.pdf"],["Deutsch","print/tongue-twisters/Twister-Booth-Deutsch-cards.pdf"],["FR–EN","print/tongue-twisters/Twister-Booth-FR-EN-cards.pdf"],["FR–DE","print/tongue-twisters/Twister-Booth-FR-DE-cards.pdf"]]},
- {k:"id",name:"Idiom Booth",c:"var(--c2)",tags:["EN","FR","DE","ASL","Duel","Live room"],main:["idioms/all.html","all"],ed:[["English","idioms/en.html"],["Français","idioms/fr.html"],["Deutsch","idioms/de.html"]],
+ {k:"id",lrn:"idioms",run:[["Lane Runner","idioms"]],name:"Idiom Booth",c:"var(--c2)",tags:["EN","FR","DE","ASL","Duel","Live room"],main:["idioms/all.html","all"],ed:[["English","idioms/en.html"],["Français","idioms/fr.html"],["Deutsch","idioms/de.html"]],
   pdf:[["English","print/idioms/Idiom-Booth-English-cards.pdf"],["Français","print/idioms/Idiom-Booth-Francais-cards.pdf"],["Deutsch","print/idioms/Idiom-Booth-Deutsch-cards.pdf"],["FR–EN","print/idioms/Idiom-Booth-FR-EN-cards.pdf"],["FR–DE","print/idioms/Idiom-Booth-FR-DE-cards.pdf"]]},
- {k:"bg",name:"Booth Gym",c:"var(--c3)",tags:["EN","FR","DE"],main:["booth-gym/all.html","all"],ed:[["English","booth-gym/en.html"],["Français","booth-gym/fr.html"],["Deutsch","booth-gym/de.html"]],
+ {k:"bg",lrn:"booth",run:[["Lane Runner","booth"]],name:"Booth Gym",c:"var(--c3)",tags:["EN","FR","DE"],main:["booth-gym/all.html","all"],ed:[["English","booth-gym/en.html"],["Français","booth-gym/fr.html"],["Deutsch","booth-gym/de.html"]],
   pdf:[["English","print/booth-gym/Booth-Gym-English-cards.pdf"],["Français","print/booth-gym/Booth-Gym-Francais-cards.pdf"],["Deutsch","print/booth-gym/Booth-Gym-Deutsch-cards.pdf"],["FR–EN","print/booth-gym/Booth-Gym-FR-EN-cards.pdf"],["FR–DE","print/booth-gym/Booth-Gym-FR-DE-cards.pdf"]]},
- {k:"cr",name:"Capital Relay",c:"var(--c4)",tags:["EN","FR","DE","Solo","Live room"],main:["capitals/","all"],ed:[],
+ {k:"cr",lrn:"capitals",run:[["Lane Runner","capitals"]],name:"Capital Relay",c:"var(--c4)",tags:["EN","FR","DE","Solo","Live room"],main:["capitals/","all"],ed:[],
   pdf:[["English","print/world-capitals/Capital-Relay-EN.pdf"],["Français","print/world-capitals/Capital-Relay-FR.pdf"],["Deutsch","print/world-capitals/Capital-Relay-DE.pdf"],["FR–EN","print/world-capitals/Capital-Relay-FR-EN.pdf"],["FR–DE","print/world-capitals/Capital-Relay-FR-DE.pdf"]]},
- {k:"tp",name:"Open Floor · Sujet libre · Freie Rede",c:"var(--c5)",tags:["EN","FR","DE"],main:null,ed:[["Open Floor (English)","topics/en.html"],["Sujet libre (français)","topics/fr.html"],["Freie Rede (Deutsch)","topics/de.html"]],
+ {k:"tp",lrn:"topics",run:null,name:"Open Floor · Sujet libre · Freie Rede",c:"var(--c5)",tags:["EN","FR","DE"],main:null,ed:[["Open Floor (English)","topics/en.html"],["Sujet libre (français)","topics/fr.html"],["Freie Rede (Deutsch)","topics/de.html"]],
   pdf:[["Open Floor","print/topic-cards/Open-Floor-cards.pdf"],["Sujet libre","print/topic-cards/Sujet-Libre-cartes.pdf"],["Freie Rede","print/topic-cards/Freie-Rede-Karten.pdf"]]}];
 const PLAN=[["Interpreting Level Test","print/level-test-plan/Interpreting-Level-Test.pdf"],["12-Week Training Plan","print/level-test-plan/12-Week-Training-Plan.pdf"]];
 const $=s=>document.querySelector(s);
@@ -124,9 +128,10 @@ function render(l){const t=T[l];document.documentElement.lang=l;
  $("#t-ph").textContent=t.ph;$("#t-pt").textContent=t.pt;$("#t-foot").textContent=t.foot;
  $("#plan").innerHTML=PLAN.map(p=>`<li><a href="${p[1]}">${p[0]}</a> (PDF)</li>`).join("");
  $("#games").innerHTML=G.map(g=>`<article class="game" style="--c:${g.c}"><div class="band"></div><div class="gb">
-  <h2>${g.name}</h2><p>${t.g[g.k][0]}</p><div class="tags">${g.tags.map(x=>`<span class="tag">${x}</span>`).join("")}</div>
-  <div class="play">${g.main?`<a class="main" href="${g.main[0]}">${t.play}${g.ed.length?" · "+t.all:""}</a>`:""}${g.ed.map((e,i)=>`<a class="${!g.main&&i===0?"main":""}" href="${e[1]}">${g.main?e[0]:t.play+" · "+e[0]}</a>`).join("")}</div>
-  <details><summary>${t.print}</summary><ul>${g.pdf.map(p=>`<li><a href="${p[1]}">${p[0]}</a></li>`).join("")}</ul></details>
+  <h2>${g.name}</h2><p>${t.g[g.k][0]}</p><div class="tags">${g.tags.map(x=>`<span class="tag${x==="New"?" new":""}">${x}</span>`).join("")}</div>
+  ${g.lrn?`<div class="step"><span class="sl">${t.s1}</span><div class="play"><a class="lrn" href="learn/#${g.lrn}">${t.learn} →</a></div></div>`:""}
+  <div class="step">${g.lrn?`<span class="sl">${t.s2}</span>`:""}<div class="play">${g.main?`<a class="main" href="${g.main[0]}">${t.play}${g.ed.length?" · "+t.all:""}</a>`:""}${g.ed.map((e,i)=>`<a class="${!g.main&&i===0?"main":""}" href="${e[1]}">${g.main?e[0]:t.play+" · "+e[0]}</a>`).join("")}${(g.run||[]).map((r,i)=>`<a class="${g.k==="rn"&&i===0?"main":"run"}" href="runner/#${r[1]}">${g.k==="rn"?r[0]:"🏃 "+t.runl}</a>`).join("")}</div></div>
+  ${g.pdf.length?`<details><summary>${t.print}</summary><ul>${g.pdf.map(p=>`<li><a href="${p[1]}">${p[0]}</a></li>`).join("")}</ul></details>`:""}
  </div></article>`).join("")}
 let L="en";try{L=localStorage.getItem("twb-ui")||(navigator.language||"en").slice(0,2)}catch(e){}
 if(!T[L])L="en";
