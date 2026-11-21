@@ -1,0 +1,1317 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><a href="../" id="hub-back" style="position:fixed;z-index:9999;left:max(10px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));background:#16202c;color:#fff;font:600 14px/1 -apple-system,Segoe UI,Arial,sans-serif;padding:10px 14px;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">&larr; All games</a>
+<title>Idiom Booth Deutsch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an interpreter's booth console. Top channel strip, mode tabs, one working panel. */
+:root{
+  --bg:#eef0f3; --panel:#ffffff; --ink:#16202c; --muted:#5b6675; --line:#d5dae1;
+  --accent:#1f5e8c; --accent-soft:#dfeaf3;
+  --fr:#2d5fa8; --en:#b8432f; --de:#a77a12; --sl:#4c7a4a;
+  --ok:#2f7d4f; --ok-soft:#e1f1e7; --bad:#b23a3a; --bad-soft:#f7e3e3; --air:#d23b2a;
+  --f-display:"Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --f-body:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f151c; --panel:#18212b; --ink:#e6ebf1; --muted:#9aa6b4; --line:#2b3744;
+  --accent:#6fb0e0; --accent-soft:#1d3346;
+  --fr:#7fa8ee; --en:#ee8a74; --de:#e2b54a; --sl:#8cc489;
+  --ok:#6cc792; --ok-soft:#163626; --bad:#f08a8a; --bad-soft:#3a1d1f; --air:#ff5a45; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f151c; --panel:#18212b; --ink:#e6ebf1; --muted:#9aa6b4; --line:#2b3744;
+  --accent:#6fb0e0; --accent-soft:#1d3346;
+  --fr:#7fa8ee; --en:#ee8a74; --de:#e2b54a; --sl:#8cc489;
+  --ok:#6cc792; --ok-soft:#163626; --bad:#f08a8a; --bad-soft:#3a1d1f; --air:#ff5a45; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5}
+.wrap{max-width:920px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:grid;gap:18px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(28px,5vw,40px);letter-spacing:-.01em}
+h2{font-size:22px}
+h3{font-size:17px}
+p{margin:0}
+.mono{font-family:var(--f-mono)}
+.lbl{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header{display:grid;gap:10px}
+.channels{display:flex;flex-wrap:wrap;gap:8px}
+.ch{font-family:var(--f-mono);font-size:12px;padding:4px 9px;border-radius:999px;border:1px solid var(--line);background:var(--panel);display:inline-flex;gap:6px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.lead{color:var(--muted);max-width:62ch}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
+.stat b{display:block;font-family:var(--f-display);font-size:24px;font-variant-numeric:tabular-nums}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+nav.tabs button{flex:0 0 auto}
+button{font:inherit;font-family:var(--f-display);font-weight:600;font-size:15px;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px}
+button:hover{border-color:var(--accent)}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+nav.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:16px;min-width:0}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.spread{justify-content:space-between}
+select{max-width:100%;min-width:0}
+.panel>*{min-width:0}
+select,input[type=search]{font:inherit;font-size:15px;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.prompt{font-family:var(--f-display);font-size:clamp(24px,4.4vw,34px);font-weight:600;line-height:1.2}
+.example{font-style:italic;color:var(--muted)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.opt{text-align:left;font-family:var(--f-body);font-weight:400;font-size:16.5px;padding:12px 14px;min-height:56px}
+.opt.correct{background:var(--ok-soft);border-color:var(--ok)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.opt:disabled{cursor:default;color:var(--ink)}
+.feedback{border-top:1px dashed var(--line);padding-top:14px;display:grid;gap:8px}
+.tag{font-family:var(--f-mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:5px;border:1px solid currentColor}
+.t-fr{color:var(--fr)} .t-en{color:var(--en)} .t-de{color:var(--de)} .t-sl{color:var(--sl)}
+.eq{display:grid;gap:6px}
+.eq div{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:baseline}
+.note{background:var(--accent-soft);border-radius:8px;padding:10px 12px;font-size:15.5px}
+.trap{color:var(--bad);font-weight:600}
+.progress{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.timer{height:10px;background:var(--line);border-radius:5px;overflow:hidden}
+.timer i{display:block;height:100%;background:var(--air);width:100%}
+.air{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;padding:4px 10px;border-radius:5px;border:1px solid var(--line);color:var(--muted)}
+.air.on{background:var(--air);border-color:var(--air);color:#fff}
+.score{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.grade{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.list{display:grid;gap:0}
+.item{border-top:1px solid var(--line);padding:12px 0;display:grid;gap:4px}
+.item summary{cursor:pointer;list-style:none;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.item summary::-webkit-details-marker{display:none}
+.item summary b{font-family:var(--f-display)}
+.item .body{padding:10px 0 4px;display:grid;gap:10px}
+.box-pill{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-left:auto}
+.links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.links a{display:block;border:1px solid var(--line);border-radius:var(--r);padding:12px;color:var(--ink);text-decoration:none}
+.links a:hover{border-color:var(--sl)}
+.links a span{display:block;color:var(--muted);font-size:14.5px}
+a{color:var(--accent)}
+.small{font-size:14.5px;color:var(--muted)}
+.big-reveal{font-family:var(--f-body);font-size:20px}
+kbd{font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px}
+@media (max-width:640px){
+  .stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .stats .stat:nth-child(n+4){display:none}
+  .opts,.links{grid-template-columns:1fr}
+  .panel{padding:16px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="channels" aria-label="Channels">
+      <span class="ch"><span class="dot" style="background:var(--de)"></span>CH1 · DE</span>
+      <span class="ch"><span class="dot" style="background:var(--sl)"></span>ASL</span>
+    </div>
+    <h1>Idiom Booth Deutsch</h1>
+    <p class="lead">Trainieren Sie deutsche Redewendungen so, wie Dolmetscher sie brauchen: Bedeutung, Stilebene und wie man sie in einfachen Worten wiedergibt.</p>
+  </header>
+  <section class="stats">
+    <div class="stat"><span class="lbl">Heute fällig</span><b id="s-due">0</b></div>
+    <div class="stat"><span class="lbl">In Arbeit</span><b id="s-learn">0</b></div>
+    <div class="stat"><span class="lbl">Gelernt</span><b id="s-mast">0</b></div>
+    <div class="stat"><span class="lbl">Neu</span><b id="s-new">0</b></div>
+    <div class="stat"><span class="lbl">Beste Serie</span><b id="s-streak">0</b></div>
+  </section>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-mode="review" id="tab-review">Tägliche Wiederholung</button>
+    <button role="tab" data-mode="find" id="tab-find">Wendung finden</button>
+    <button role="tab" data-mode="context" id="tab-context">Bedeutung & Kontext</button>
+    <button role="tab" data-mode="drill" id="tab-drill">Umformulieren auf Zeit</button>
+    <button role="tab" data-mode="topic" id="tab-topic">Themenkarte</button>
+    <button role="tab" data-mode="duel" id="tab-duel">Duell</button>
+    <button role="tab" data-mode="sign" id="tab-sign">ASL</button>
+    <button role="tab" data-mode="lexicon" id="tab-lexicon">Lexikon</button>
+  </nav>
+  <main id="stage" class="panel" aria-live="polite"></main>
+  <p class="small">Der Fortschritt wird nur in diesem Browser gespeichert. Alle Wendungen sind heute gebräuchlich.</p>
+</div>
+<script>
+const L="de"; document.documentElement.lang=L;
+const IDIOMS = [
+ {id:"rain",c:"Everyday",r:"informal",en:"It's raining cats and dogs",fr:"Il pleut des cordes",de:"Es regnet in Strömen",m:"It is raining very heavily.",
+  x:["It's raining cats and dogs, so take a taxi.","Il pleut des cordes, prends un taxi.","Es regnet in Strömen, nimm lieber ein Taxi."],
+  n:"FR literally 'it's raining ropes'; DE 'it's raining in streams'. Never carry the animals across."},
+ {id:"ice",c:"Speeches & meetings",r:"neutral",en:"to break the ice",fr:"briser la glace",de:"das Eis brechen",m:"To ease the first tension in a social or formal situation.",
+  x:["A short joke helped break the ice with the delegates.","Une petite plaisanterie a permis de briser la glace avec les délégués.","Ein kleiner Witz half, mit den Delegierten das Eis zu brechen."],
+  n:"A rare case where the image is identical in all three languages."},
+ {id:"bush",c:"Speeches & meetings",r:"informal",en:"to beat around the bush",fr:"tourner autour du pot",de:"um den heißen Brei herumreden",m:"To avoid saying something directly.",
+  x:["Stop beating around the bush and tell us the figures.","Arrête de tourner autour du pot et donne-nous les chiffres.","Hör auf, um den heißen Brei herumzureden, und nenn uns die Zahlen."],
+  n:"FR 'turn around the pot'; DE 'talk around the hot porridge'."},
+ {id:"birds",c:"Politics & business",r:"neutral",en:"to kill two birds with one stone",fr:"faire d'une pierre deux coups",de:"zwei Fliegen mit einer Klappe schlagen",m:"To achieve two aims with a single action.",
+  x:["By meeting them in Geneva, we killed two birds with one stone.","En les rencontrant à Genève, nous avons fait d'une pierre deux coups.","Mit dem Treffen in Genf haben wir zwei Fliegen mit einer Klappe geschlagen."],
+  n:"FR 'make two hits with one stone'; DE 'swat two flies with one swatter'."},
+ {id:"cake",c:"Everyday",r:"informal",en:"a piece of cake",fr:"c'est du gâteau",de:"ein Kinderspiel",m:"Something very easy.",
+  x:["The exam was a piece of cake.","L'examen, c'était du gâteau.","Die Prüfung war ein Kinderspiel."],
+  n:"FR also 'simple comme bonjour'; DE literally 'a child's game', also 'ein Klacks'."},
+ {id:"armleg",c:"Politics & business",r:"informal",en:"to cost an arm and a leg",fr:"coûter les yeux de la tête",de:"ein Vermögen kosten",m:"To be extremely expensive.",
+  x:["That conference venue costs an arm and a leg.","Ce lieu de conférence coûte les yeux de la tête.","Dieser Tagungsort kostet ein Vermögen."],
+  n:"FR 'cost the eyes out of your head'; DE 'cost a fortune' (colloquially 'ein Heidengeld kosten')."},
+ {id:"frog",c:"Everyday",r:"informal",en:"to have a frog in one's throat",fr:"avoir un chat dans la gorge",de:"einen Frosch im Hals haben",m:"To be hoarse or have difficulty speaking for a moment.",
+  x:["Sorry, I have a frog in my throat.","Pardon, j'ai un chat dans la gorge.","Entschuldigung, ich habe einen Frosch im Hals."],
+  n:"Same meaning, different animal: EN and DE a frog, FR a cat."},
+ {id:"pigs",c:"Everyday",r:"informal",en:"when pigs fly",fr:"quand les poules auront des dents",de:"am Sankt-Nimmerleinstag",m:"Never; something will not happen.",
+  x:["He'll apologise when pigs fly.","Il s'excusera quand les poules auront des dents.","Er wird sich am Sankt-Nimmerleinstag entschuldigen."],
+  n:"FR 'when hens have teeth'; DE 'on Saint Never-ever's Day'."},
+ {id:"leg",c:"Everyday",r:"informal",en:"to pull someone's leg",fr:"faire marcher quelqu'un",de:"jemanden auf den Arm nehmen",m:"To tease someone by telling them something untrue as a joke.",
+  x:["Don't worry, I'm just pulling your leg.","T'inquiète, je te fais marcher.","Keine Sorge, ich nehme dich nur auf den Arm."],
+  n:"DE 'take someone on the arm'. A literal leg in FR or DE makes no sense."},
+ {id:"moon",c:"Everyday",r:"informal",en:"to be over the moon",fr:"être aux anges",de:"im siebten Himmel sein",m:"To be extremely happy.",
+  x:["She was over the moon about the job offer.","Elle était aux anges en apprenant l'offre d'emploi.","Sie war wegen des Jobangebots im siebten Himmel."],
+  n:"FR 'to be with the angels'; DE 'in seventh heaven' (also 'überglücklich')."},
+ {id:"greek",c:"Everyday",r:"informal",en:"it's all Greek to me",fr:"c'est du chinois (pour moi)",de:"ich verstehe nur Bahnhof",m:"I don't understand this at all.",
+  x:["Legal jargon is all Greek to me.","Le jargon juridique, pour moi, c'est du chinois.","Bei Juristenjargon verstehe ich nur Bahnhof."],
+  n:"FR uses Chinese (also 'c'est de l'hébreu'); DE 'I only understand train station'.",
+  trap:"DE 'Das kommt mir spanisch vor' means 'that seems fishy', not 'I don't understand'."},
+ {id:"catbag",c:"Everyday",r:"informal",en:"to let the cat out of the bag",fr:"vendre la mèche",de:"die Katze aus dem Sack lassen",m:"To reveal a secret.",
+  x:["Who let the cat out of the bag about the merger?","Qui a vendu la mèche à propos de la fusion ?","Wer hat bei der Fusion die Katze aus dem Sack gelassen?"],
+  n:"FR 'sell the fuse'. DE uses the same cat, often for revealing something deliberately and at last."},
+ {id:"poke",c:"Politics & business",r:"neutral",en:"to buy a pig in a poke",fr:"acheter chat en poche",de:"die Katze im Sack kaufen",m:"To buy something without seeing or checking it first.",
+  x:["Buying a car online without seeing it is buying a pig in a poke.","Acheter une voiture en ligne sans la voir, c'est acheter chat en poche.","Ein Auto online ohne Besichtigung zu kaufen heißt, die Katze im Sack zu kaufen."],
+  n:"EN a pig, FR and DE a cat. A 'poke' is an old word for a sack."},
+ {id:"nail",c:"Speeches & meetings",r:"neutral",en:"to hit the nail on the head",fr:"mettre le doigt dessus",de:"den Nagel auf den Kopf treffen",m:"To describe something exactly right.",
+  x:["You've hit the nail on the head: funding is the real issue.","Tu as mis le doigt dessus : le vrai problème, c'est le financement.","Du hast den Nagel auf den Kopf getroffen: Das eigentliche Problem ist die Finanzierung."],
+  n:"FR 'put your finger on it'; FR also 'taper dans le mille' (hit the bullseye)."},
+ {id:"boat",c:"Politics & business",r:"neutral",en:"to be in the same boat",fr:"être dans le même bateau",de:"im selben Boot sitzen",m:"To be in the same difficult situation as others.",
+  x:["We're all in the same boat with these budget cuts.","Avec ces coupes budgétaires, nous sommes tous dans le même bateau.","Bei diesen Kürzungen sitzen wir alle im selben Boot."],
+  n:"Same image in all three. FR also 'être logé à la même enseigne'."},
+ {id:"straw",c:"Everyday",r:"neutral",en:"the last straw",fr:"la goutte d'eau qui fait déborder le vase",de:"der Tropfen, der das Fass zum Überlaufen bringt",m:"The final problem that makes a situation unbearable.",
+  x:["The delay was the last straw for the client.","Ce retard a été la goutte d'eau qui a fait déborder le vase pour le client.","Die Verspätung war für den Kunden der Tropfen, der das Fass zum Überlaufen brachte."],
+  n:"FR and DE use a drop that makes the vase or barrel overflow. Long in FR and DE: in simultaneous, start it early."},
+ {id:"fuel",c:"Politics & business",r:"neutral",en:"to add fuel to the fire",fr:"jeter de l'huile sur le feu",de:"Öl ins Feuer gießen",m:"To make a tense situation worse.",
+  x:["His comments only added fuel to the fire.","Ses commentaires n'ont fait que jeter de l'huile sur le feu.","Seine Bemerkungen haben nur Öl ins Feuer gegossen."],
+  n:"FR and DE pour oil; EN also 'add fuel to the flames'."},
+ {id:"log",c:"Everyday",r:"informal",en:"to sleep like a log",fr:"dormir comme une souche",de:"wie ein Murmeltier schlafen",m:"To sleep very deeply.",
+  x:["After the night shift I slept like a log.","Après le service de nuit, j'ai dormi comme une souche.","Nach der Nachtschicht habe ich wie ein Murmeltier geschlafen."],
+  n:"FR 'like a stump' (also 'comme un loir', a dormouse); DE 'like a marmot'."},
+ {id:"bull",c:"Politics & business",r:"neutral",en:"to take the bull by the horns",fr:"prendre le taureau par les cornes",de:"den Stier bei den Hörnern packen",m:"To deal with a difficult problem directly and decisively.",
+  x:["It's time to take the bull by the horns and reform the system.","Il est temps de prendre le taureau par les cornes et de réformer le système.","Es ist an der Zeit, den Stier bei den Hörnern zu packen und das System zu reformieren."],
+  n:"Same image in all three; acceptable in speeches."},
+ {id:"tea",c:"Everyday",r:"informal",en:"not my cup of tea",fr:"pas mon truc",de:"nicht mein Fall",m:"Not something I like or am interested in.",
+  x:["Opera isn't really my cup of tea.","L'opéra, ce n'est pas vraiment mon truc.","Oper ist nicht so mein Fall."],
+  n:"'Ce n'est pas ma tasse de thé' exists in French as a borrowing, but 'pas mon truc' is far more natural. DE also 'nicht mein Ding'."},
+ {id:"butterflies",c:"Speeches & meetings",r:"informal",en:"to have butterflies in one's stomach",fr:"avoir le trac",de:"Lampenfieber haben",m:"To feel nervous before a performance or important event.",
+  x:["I always get butterflies before I go on stage.","J'ai toujours le trac avant de monter sur scène.","Ich habe immer Lampenfieber, bevor ich auf die Bühne gehe."],
+  n:"DE 'lamp fever' is stage fright specifically.",
+  trap:"FR 'avoir des papillons dans le ventre' and DE 'Schmetterlinge im Bauch haben' mean being in love, not stage nerves."},
+ {id:"breakleg",c:"Speeches & meetings",r:"informal",en:"Break a leg!",fr:"Merde !",de:"Toi, toi, toi!",m:"Good luck (said before a performance).",
+  x:["Break a leg tonight!","Merde pour ce soir !","Toi, toi, toi für heute Abend!"],
+  n:"Theatre superstition: you avoid wishing 'good luck' directly. FR 'Merde !' is normal among performers despite being a swear word; tradition says you don't reply 'merci'. DE also 'Hals- und Beinbruch!'."},
+ {id:"cuff",c:"Speeches & meetings",r:"neutral",en:"to speak off the cuff",fr:"improviser, parler sans notes",de:"aus dem Stegreif sprechen",m:"To speak without preparation.",
+  x:["She spoke off the cuff for twenty minutes.","Elle a parlé vingt minutes sans notes, en improvisant.","Sie hat zwanzig Minuten aus dem Stegreif gesprochen."],
+  n:"FR has no single fixed idiom here.",
+  trap:"FR 'au pied levé' means 'at short notice' (remplacer quelqu'un au pied levé), not 'without notes'."},
+ {id:"thread",c:"Speeches & meetings",r:"neutral",en:"to lose one's train of thought",fr:"perdre le fil",de:"den Faden verlieren",m:"To forget what one was going to say next.",
+  x:["I lost my train of thought halfway through the speech.","J'ai perdu le fil au milieu du discours.","Mitten in der Rede habe ich den Faden verloren."],
+  n:"FR and DE lose the thread; EN 'lose the thread' also exists."},
+ {id:"point",c:"Speeches & meetings",r:"neutral",en:"to get to the point",fr:"en venir au fait",de:"zur Sache kommen",m:"To talk about the most important thing directly.",
+  x:["Please get to the point; we have ten minutes left.","Venez-en au fait, s'il vous plaît, il nous reste dix minutes.","Bitte kommen Sie zur Sache, wir haben noch zehn Minuten."],
+  n:"DE also 'auf den Punkt kommen'; FR also 'aller droit au but'."},
+ {id:"tongue",c:"Speeches & meetings",r:"neutral",en:"on the tip of one's tongue",fr:"sur le bout de la langue",de:"(es) liegt mir auf der Zunge",m:"Almost remembered but not quite.",
+  x:["Her name is on the tip of my tongue.","J'ai son nom sur le bout de la langue.","Ihr Name liegt mir auf der Zunge."],
+  n:"Same image in all three."},
+ {id:"lines",c:"Speeches & meetings",r:"neutral",en:"to read between the lines",fr:"lire entre les lignes",de:"zwischen den Zeilen lesen",m:"To understand a meaning that is implied, not stated.",
+  x:["If you read between the lines, the minister is ready to compromise.","En lisant entre les lignes, on comprend que le ministre est prêt au compromis.","Wenn man zwischen den Zeilen liest, ist der Minister zu einem Kompromiss bereit."],
+  n:"Same image in all three."},
+ {id:"foot",c:"Everyday",r:"informal",en:"to put one's foot in it",fr:"faire une gaffe",de:"ins Fettnäpfchen treten",m:"To say something tactless by accident.",
+  x:["I really put my foot in it when I mentioned his ex-wife.","J'ai vraiment fait une gaffe en parlant de son ex-femme.","Ich bin ins Fettnäpfchen getreten, als ich seine Ex-Frau erwähnt habe."],
+  n:"DE 'step into the little grease pot'.",
+  trap:"FR 'mettre les pieds dans le plat' usually means raising an awkward topic bluntly, often on purpose; for an accidental blunder 'faire une gaffe' fits better."},
+ {id:"bone",c:"Everyday",r:"informal",en:"to have a bone to pick with someone",fr:"avoir deux mots à dire à quelqu'un",de:"mit jemandem ein Hühnchen zu rupfen haben",m:"To have a complaint to discuss with someone.",
+  x:["I have a bone to pick with you about the schedule.","J'ai deux mots à te dire au sujet du planning.","Ich habe wegen des Zeitplans noch ein Hühnchen mit dir zu rupfen."],
+  n:"DE 'a chicken to pluck with you'. FR 'avoir un compte à régler' is harsher (settle a score)."},
+ {id:"wits",c:"Everyday",r:"neutral",en:"to be at one's wits' end",fr:"ne plus savoir à quel saint se vouer",de:"mit seinem Latein am Ende sein",m:"To have no idea what to do next.",
+  x:["After three hours on hold I was at my wits' end.","Après trois heures d'attente, je ne savais plus à quel saint me vouer.","Nach drei Stunden in der Warteschleife war ich mit meinem Latein am Ende."],
+  n:"FR 'no longer know which saint to pray to'; DE 'at the end of my Latin'."},
+ {id:"wolf",c:"Everyday",r:"neutral",en:"to cry wolf",fr:"crier au loup",de:"blinden Alarm schlagen",m:"To raise false alarms so often that people stop believing you.",
+  x:["If you cry wolf too often, nobody will believe you.","Si tu cries au loup trop souvent, personne ne te croira.","Wenn du zu oft blinden Alarm schlägst, glaubt dir niemand mehr."],
+  n:"DE 'sound blind alarm'."},
+ {id:"fence",c:"Politics & business",r:"neutral",en:"to sit on the fence",fr:"ménager la chèvre et le chou",de:"sich nicht festlegen",m:"To avoid taking sides.",
+  x:["The party is sitting on the fence until the polls are clearer.","Le parti ménage la chèvre et le chou en attendant des sondages plus clairs.","Die Partei will sich nicht festlegen, bis die Umfragen klarer sind."],
+  n:"FR 'spare both the goat and the cabbage'.",
+  trap:"DE 'zwischen den Stühlen sitzen' means being caught between two sides, not refusing to choose."},
+ {id:"blue",c:"Everyday",r:"neutral",en:"out of the blue",fr:"sans crier gare",de:"aus heiterem Himmel",m:"Suddenly and unexpectedly.",
+  x:["The resignation came out of the blue.","La démission est arrivée sans crier gare.","Der Rücktritt kam aus heiterem Himmel."],
+  n:"DE 'from a clear sky'; FR 'without shouting look out'.",
+  trap:"FR 'tomber du ciel' usually means a godsend, not simply unexpected."},
+ {id:"earlybird",c:"Proverbs",r:"neutral",en:"The early bird catches the worm.",fr:"L'avenir appartient à ceux qui se lèvent tôt.",de:"Morgenstund hat Gold im Mund.",m:"People who start early get the advantage.",
+  x:["The early bird catches the worm, so let's start at seven.","L'avenir appartient à ceux qui se lèvent tôt : on commence à sept heures.","Morgenstund hat Gold im Mund, also fangen wir um sieben an."],
+  n:"FR 'the future belongs to early risers'; DE 'the morning hour has gold in its mouth'."},
+ {id:"chickens",c:"Proverbs",r:"neutral",en:"Don't count your chickens before they hatch.",fr:"Il ne faut pas vendre la peau de l'ours avant de l'avoir tué.",de:"Man soll den Tag nicht vor dem Abend loben.",m:"Don't assume success before it actually happens.",
+  x:["Don't count your chickens before they hatch; the deal isn't signed.","Il ne faut pas vendre la peau de l'ours avant de l'avoir tué : l'accord n'est pas signé.","Man soll den Tag nicht vor dem Abend loben – der Vertrag ist noch nicht unterschrieben."],
+  n:"FR 'don't sell the bear's skin before you've killed it'; DE 'don't praise the day before the evening'."},
+ {id:"molehill",c:"Everyday",r:"informal",en:"to make a mountain out of a molehill",fr:"en faire tout un plat",de:"aus einer Mücke einen Elefanten machen",m:"To treat a small problem as if it were serious.",
+  x:["It's a typo; don't make a mountain out of a molehill.","C'est une coquille, n'en fais pas tout un plat.","Das ist ein Tippfehler, mach nicht aus einer Mücke einen Elefanten."],
+  n:"DE 'make an elephant out of a mosquito'; FR 'make a whole dish of it' (also 'tout un fromage')."},
+ {id:"fish",c:"Everyday",r:"informal",en:"to have bigger fish to fry",fr:"avoir d'autres chats à fouetter",de:"Wichtigeres zu tun haben",m:"To have more important things to deal with.",
+  x:["Forget the font; we have bigger fish to fry.","Oublie la police, on a d'autres chats à fouetter.","Vergiss die Schriftart, wir haben Wichtigeres zu tun."],
+  n:"FR 'other cats to whip'. DE has no common image here; use the plain phrase."},
+ {id:"peas",c:"Everyday",r:"informal",en:"like two peas in a pod",fr:"se ressembler comme deux gouttes d'eau",de:"sich gleichen wie ein Ei dem anderen",m:"Looking or being almost identical.",
+  x:["The twins are like two peas in a pod.","Les jumeaux se ressemblent comme deux gouttes d'eau.","Die Zwillinge gleichen sich wie ein Ei dem anderen."],
+  n:"FR two drops of water; DE one egg like the other."},
+ {id:"dust",c:"Politics & business",r:"informal",en:"to bite the dust",fr:"mordre la poussière",de:"scheitern / pleitegehen",m:"To fail or be defeated (also, informally, to die).",
+  x:["Another start-up has bitten the dust.","Encore une start-up qui a mordu la poussière.","Wieder ist ein Start-up pleitegegangen."],
+  n:"FR 'mordre la poussière' means suffering a defeat.",
+  trap:"DE 'ins Gras beißen' means to die, which is far too strong for a failed business."},
+ {id:"cards",c:"Politics & business",r:"neutral",en:"to lay one's cards on the table",fr:"jouer cartes sur table",de:"die Karten auf den Tisch legen",m:"To be completely open about one's intentions.",
+  x:["Let's lay our cards on the table before we negotiate.","Jouons cartes sur table avant de négocier.","Legen wir die Karten auf den Tisch, bevor wir verhandeln."],
+  n:"DE also 'mit offenen Karten spielen'. Fine in diplomatic register."},
+ {id:"fingers",c:"Everyday",r:"informal",en:"to keep one's fingers crossed",fr:"croiser les doigts",de:"die Daumen drücken",m:"To hope for good luck.",
+  x:["Keep your fingers crossed for my interview!","Croise les doigts pour mon entretien !","Drück mir die Daumen für mein Vorstellungsgespräch!"],
+  n:"DE presses thumbs instead of crossing fingers; the gesture differs too."},
+ {id:"blindeye",c:"Politics & business",r:"neutral",en:"to turn a blind eye",fr:"fermer les yeux sur quelque chose",de:"die Augen vor etwas verschließen",m:"To deliberately ignore something wrong.",
+  x:["The authorities turned a blind eye to the problem.","Les autorités ont fermé les yeux sur le problème.","Die Behörden haben die Augen vor dem Problem verschlossen."],
+  n:"DE 'ein Auge zudrücken' (close one eye) means being lenient about a small offence: close, but softer."},
+ {id:"bed",c:"Everyday",r:"informal",en:"to get out of bed on the wrong side",fr:"se lever du pied gauche",de:"mit dem linken Fuß zuerst aufstehen",m:"To be in a bad mood all day.",
+  x:["He got out of bed on the wrong side today.","Il s'est levé du pied gauche aujourd'hui.","Er ist heute mit dem linken Fuß zuerst aufgestanden."],
+  n:"FR and DE: the left foot. US English: 'wake up on the wrong side of the bed'."},
+ {id:"fishwater",c:"Everyday",r:"neutral",en:"like a fish out of water",fr:"comme un poisson hors de l'eau",de:"wie ein Fisch auf dem Trockenen",m:"Uncomfortable in an unfamiliar situation.",
+  x:["At the gala I felt like a fish out of water.","Au gala, je me sentais comme un poisson hors de l'eau.","Auf der Gala fühlte ich mich wie ein Fisch auf dem Trockenen."],
+  n:"Opposite: 'comme un poisson dans l'eau' / 'wie ein Fisch im Wasser' = completely at ease."},
+ {id:"ears",c:"Speeches & meetings",r:"informal",en:"to be all ears",fr:"être tout ouïe",de:"ganz Ohr sein",m:"To be listening eagerly.",
+  x:["Go on, I'm all ears.","Vas-y, je suis tout ouïe.","Schieß los, ich bin ganz Ohr."],
+  n:"Same idea in all three."},
+ {id:"coldfeet",c:"Politics & business",r:"informal",en:"to get cold feet",fr:"se dégonfler",de:"kalte Füße bekommen",m:"To lose courage just before doing something.",
+  x:["The investor got cold feet at the last minute.","L'investisseur s'est dégonflé à la dernière minute.","Der Investor hat in letzter Minute kalte Füße bekommen."],
+  n:"FR 'deflate'. DE shares the English image."},
+ {id:"nutshell",c:"Speeches & meetings",r:"neutral",en:"in a nutshell",fr:"en un mot",de:"kurz gesagt",m:"In summary; in very few words.",
+  x:["In a nutshell, the project is behind schedule.","En un mot, le projet a pris du retard.","Kurz gesagt: Das Projekt liegt hinter dem Zeitplan."],
+  n:"A summariser you will use constantly. FR also 'en bref', 'pour faire court'; DE 'kurzum', 'kurz und gut'."},
+ {id:"endday",c:"Speeches & meetings",r:"neutral",en:"at the end of the day",fr:"en fin de compte",de:"letzten Endes",m:"Ultimately; when everything is considered.",
+  x:["At the end of the day, the member states must decide.","En fin de compte, ce sont les États membres qui doivent décider.","Letzten Endes müssen die Mitgliedstaaten entscheiden."],
+  n:"FR also 'au bout du compte'; DE also 'unterm Strich'.",
+  trap:"'À la fin de la journée' is a time of day. 'Am Ende des Tages' is spreading in German as a calque, but many editors reject it."},
+ {id:"hotwater",c:"Politics & business",r:"informal",en:"to be in hot water",fr:"être dans le pétrin",de:"in der Klemme stecken",m:"To be in trouble.",
+  x:["The company is in hot water over its emissions data.","L'entreprise est dans le pétrin à cause de ses données d'émissions.","Das Unternehmen steckt wegen seiner Emissionsdaten in der Klemme."],
+  n:"FR 'in the kneading trough'; DE 'in the clamp' (also 'in der Patsche')."},
+ {id:"salt",c:"Politics & business",r:"neutral",en:"to take something with a pinch of salt",fr:"prendre quelque chose avec des pincettes",de:"mit Vorsicht zu genießen sein",m:"To be sceptical about something.",
+  x:["Take those survey results with a pinch of salt.","Il faut prendre ces résultats de sondage avec des pincettes.","Diese Umfrageergebnisse sind mit Vorsicht zu genießen."],
+  n:"FR 'with tweezers'; DE 'to be enjoyed with caution'. US English: 'a grain of salt'."},
+ {id:"spade",c:"Politics & business",r:"neutral",en:"to call a spade a spade",fr:"appeler un chat un chat",de:"das Kind beim Namen nennen",m:"To speak plainly and honestly.",
+  x:["Let's call a spade a spade: this is a cut, not a reform.","Appelons un chat un chat : c'est une coupe, pas une réforme.","Nennen wir das Kind beim Namen: Das ist eine Kürzung, keine Reform."],
+  n:"FR 'call a cat a cat'; DE 'call the child by its name'."},
+ {id:"towel",c:"Everyday",r:"informal",en:"to throw in the towel",fr:"jeter l'éponge",de:"das Handtuch werfen",m:"To give up.",
+  x:["After the third defeat, he threw in the towel.","Après la troisième défaite, il a jeté l'éponge.","Nach der dritten Niederlage hat er das Handtuch geworfen."],
+  n:"From boxing. FR throws a sponge."},
+ {id:"devil",c:"Everyday",r:"informal",en:"speak of the devil",fr:"quand on parle du loup",de:"wenn man vom Teufel spricht",m:"Said when the person being talked about appears.",
+  x:["Speak of the devil, here's Marc!","Quand on parle du loup… voilà Marc !","Wenn man vom Teufel spricht – da ist ja Marc!"],
+  n:"FR 'when you speak of the wolf (you see its tail)'."},
+ {id:"neck",c:"Everyday",r:"informal",en:"a pain in the neck",fr:"un casse-pieds",de:"eine Nervensäge",m:"An annoying person (or thing).",
+  x:["Our neighbour is a real pain in the neck.","Notre voisin est un vrai casse-pieds.","Unser Nachbar ist eine echte Nervensäge."],
+  n:"FR 'foot-breaker'; DE 'nerve saw'. For things, DE says 'Das nervt'."},
+ {id:"heaven",c:"Politics & business",r:"neutral",en:"to move heaven and earth",fr:"remuer ciel et terre",de:"Himmel und Hölle in Bewegung setzen",m:"To do everything possible to achieve something.",
+  x:["They moved heaven and earth to get the visas.","Ils ont remué ciel et terre pour obtenir les visas.","Sie haben Himmel und Hölle in Bewegung gesetzt, um die Visa zu bekommen."],
+  n:"DE moves heaven and hell."},
+ {id:"belt",c:"Politics & business",r:"neutral",en:"to tighten one's belt",fr:"se serrer la ceinture",de:"den Gürtel enger schnallen",m:"To spend less money.",
+  x:["Households will have to tighten their belts.","Les ménages vont devoir se serrer la ceinture.","Die Haushalte werden den Gürtel enger schnallen müssen."],
+  n:"Same image in all three; common in economic speeches."},
+ {id:"can",c:"Politics & business",r:"neutral",en:"to kick the can down the road",fr:"repousser le problème à plus tard",de:"etwas auf die lange Bank schieben",m:"To postpone dealing with a problem.",
+  x:["The government keeps kicking the can down the road on pensions.","Le gouvernement ne cesse de repousser le problème des retraites à plus tard.","Die Regierung schiebt das Rentenproblem immer wieder auf die lange Bank."],
+  n:"DE 'push it onto the long bench'. FR 'botter en touche' means dodging a question, a related but different move."},
+ {id:"drop",c:"Politics & business",r:"neutral",en:"a drop in the ocean",fr:"une goutte d'eau dans la mer",de:"ein Tropfen auf den heißen Stein",m:"An amount far too small to make a difference.",
+  x:["The aid is a drop in the ocean compared with the need.","Cette aide n'est qu'une goutte d'eau dans la mer au regard des besoins.","Die Hilfe ist angesichts des Bedarfs nur ein Tropfen auf den heißen Stein."],
+  n:"DE 'a drop on the hot stone': it evaporates."},
+ {id:"elephant",c:"Speeches & meetings",r:"neutral",en:"the elephant in the room",fr:"le sujet que tout le monde évite",de:"der Elefant im Raum",m:"An obvious problem that nobody wants to mention.",
+  x:["Corruption is the elephant in the room.","La corruption, c'est le sujet que tout le monde évite.","Korruption ist der Elefant im Raum, über den keiner spricht."],
+  n:"A recent calque in both FR ('l'éléphant dans la pièce') and DE. Widely understood in media; in formal settings a paraphrase is safer in French."},
+ {id:"thinice",c:"Politics & business",r:"neutral",en:"to be on thin ice",fr:"être sur un terrain glissant",de:"sich auf dünnem Eis bewegen",m:"To be in a risky situation.",
+  x:["Legally, we're on thin ice here.","Juridiquement, nous sommes sur un terrain glissant.","Rechtlich bewegen wir uns hier auf dünnem Eis."],
+  n:"FR 'on slippery ground'."},
+ {id:"eggshells",c:"Everyday",r:"neutral",en:"to walk on eggshells",fr:"marcher sur des œufs",de:"wie auf Eiern gehen",m:"To be very careful not to upset someone.",
+  x:["Everyone walks on eggshells around the director.","Tout le monde marche sur des œufs avec le directeur.","In der Nähe des Direktors gehen alle wie auf Eiern."],
+  n:"FR and DE walk on whole eggs."},
+ {id:"tunnel",c:"Politics & business",r:"neutral",en:"to see the light at the end of the tunnel",fr:"voir le bout du tunnel",de:"Licht am Ende des Tunnels sehen",m:"To see signs that a difficult period is ending.",
+  x:["After two years of crisis, we can finally see the light at the end of the tunnel.","Après deux ans de crise, nous voyons enfin le bout du tunnel.","Nach zwei Jahren Krise sehen wir endlich Licht am Ende des Tunnels."],
+  n:"FR sees 'the end of the tunnel', no light."},
+ {id:"hands",c:"Politics & business",r:"formal",en:"to have one's hands tied",fr:"avoir les mains liées",de:"jemandem sind die Hände gebunden",m:"To be unable to act because of rules or circumstances.",
+  x:["I'd like to help, but my hands are tied by the regulations.","J'aimerais vous aider, mais j'ai les mains liées par le règlement.","Ich würde gern helfen, aber mir sind durch die Vorschriften die Hände gebunden."],
+  n:"Same image in all three; DE uses a dative construction."},
+ {id:"wave",c:"Speeches & meetings",r:"neutral",en:"to be on the same wavelength",fr:"être sur la même longueur d'onde",de:"auf derselben Wellenlänge liegen",m:"To understand each other well; to think alike.",
+  x:["The two negotiators were on the same wavelength from the start.","Les deux négociateurs étaient sur la même longueur d'onde dès le départ.","Die beiden Verhandler lagen von Anfang an auf derselben Wellenlänge."],
+  n:"Same image in all three."}
+];
+const SIGN_LINKS = [
+ {t:"Handspeak",u:"https://www.handspeak.com",d:"ASL dictionary with video, usage notes and a section on ASL idioms."},
+ {t:"Lifeprint (ASL University)",u:"https://www.lifeprint.com",d:"Free ASL lessons and dictionary by Dr. Bill Vicars, a Deaf ASL instructor."},
+ {t:"ASL Signbank",u:"https://aslsignbank.haskins.yale.edu",d:"Research lexical database of ASL with video."},
+ {t:"Spread the Sign",u:"https://www.spreadthesign.com",d:"Multilingual video dictionary; useful to compare ASL with other sign languages."}
+];
+// Meanings in French and German (English meanings are it.m).
+const M_FR = {
+ rain:"Il pleut très fort.", ice:"Détendre l'atmosphère au début d'une rencontre.", bush:"Éviter de dire les choses directement.",
+ birds:"Atteindre deux objectifs avec une seule action.", cake:"Quelque chose de très facile.", armleg:"Être extrêmement cher.",
+ frog:"Avoir la voix enrouée un moment.", pigs:"Jamais ; cela n'arrivera pas.", leg:"Taquiner quelqu'un en lui faisant croire une chose fausse.",
+ moon:"Être extrêmement heureux.", greek:"Je n'y comprends rien du tout.", catbag:"Révéler un secret.",
+ poke:"Acheter quelque chose sans l'avoir vu ni vérifié.", nail:"Identifier exactement le problème.", boat:"Être dans la même situation difficile que les autres.",
+ straw:"Le dernier problème qui rend la situation insupportable.", fuel:"Aggraver une situation déjà tendue.", log:"Dormir très profondément.",
+ bull:"Affronter un problème difficile directement et avec détermination.", tea:"Quelque chose qu'on n'aime pas ou qui ne nous intéresse pas.",
+ butterflies:"Être nerveux avant une prestation ou un événement important.", breakleg:"Bonne chance (avant un spectacle).",
+ thread:"Oublier ce qu'on allait dire.", point:"Parler directement de l'essentiel.", tongue:"Presque retrouver un mot, sans y arriver.",
+ lines:"Comprendre ce qui est sous-entendu.", foot:"Dire quelque chose de maladroit sans le vouloir.", bone:"Avoir un reproche à faire à quelqu'un.",
+ wits:"Ne plus savoir quoi faire.", wolf:"Donner de fausses alertes si souvent qu'on n'est plus cru.", fence:"Éviter de prendre parti.",
+ blue:"Soudainement, sans prévenir.", earlybird:"Ceux qui commencent tôt prennent l'avantage.", chickens:"Ne pas considérer un succès comme acquis avant qu'il soit réel.",
+ molehill:"Exagérer l'importance d'un petit problème.", fish:"Avoir des choses plus importantes à faire.", peas:"Être presque identiques.",
+ dust:"Échouer ou être vaincu.", cards:"Être totalement franc sur ses intentions.", fingers:"Espérer que tout se passe bien.",
+ blindeye:"Ignorer volontairement quelque chose de répréhensible.", bed:"Être de mauvaise humeur toute la journée.", fishwater:"Être mal à l'aise dans un milieu inhabituel.",
+ ears:"Écouter avec beaucoup d'attention.", coldfeet:"Perdre courage juste avant d'agir.", nutshell:"En résumé, en très peu de mots.",
+ endday:"En définitive, tout bien considéré.", hotwater:"Avoir de gros ennuis.", salt:"Rester sceptique face à une information.",
+ spade:"Dire les choses franchement, sans détour.", towel:"Abandonner.", devil:"Se dit quand arrive la personne dont on parle.",
+ neck:"Une personne (ou une chose) très agaçante.", heaven:"Faire tout son possible pour obtenir quelque chose.", belt:"Réduire ses dépenses.",
+ drop:"Une quantité bien trop faible pour changer quoi que ce soit.", thinice:"Être dans une situation risquée.", eggshells:"Faire très attention à ne pas froisser quelqu'un.",
+ tunnel:"Voir la fin d'une période difficile.", hands:"Ne pas pouvoir agir à cause des règles ou des circonstances.", wave:"Bien se comprendre, penser de la même façon."
+};
+const M_DE = {
+ rain:"Es regnet sehr stark.", ice:"Die anfängliche Anspannung in einer Begegnung lösen.", bush:"Nicht direkt sagen, worum es geht.",
+ birds:"Mit einer einzigen Handlung zwei Ziele erreichen.", cake:"Etwas sehr Leichtes.", armleg:"Extrem teuer sein.",
+ frog:"Kurz heiser sein.", pigs:"Niemals; das wird nicht passieren.", leg:"Jemanden im Scherz etwas Falsches glauben lassen.",
+ moon:"Überaus glücklich sein.", greek:"Ich verstehe überhaupt nichts.", catbag:"Ein Geheimnis preisgeben.",
+ poke:"Etwas kaufen, ohne es vorher gesehen oder geprüft zu haben.", nail:"Etwas ganz genau treffen.", boat:"In derselben schwierigen Lage sein wie andere.",
+ straw:"Das letzte Problem, das eine Situation unerträglich macht.", fuel:"Eine angespannte Lage noch verschlimmern.", log:"Sehr tief schlafen.",
+ bull:"Ein schwieriges Problem direkt und entschlossen angehen.", tea:"Etwas, das man nicht mag oder das einen nicht interessiert.",
+ butterflies:"Vor einem Auftritt oder wichtigen Ereignis nervös sein.", breakleg:"Viel Glück (vor einem Auftritt).",
+ cuff:"Ohne Vorbereitung sprechen.", thread:"Vergessen, was man als Nächstes sagen wollte.", point:"Direkt über das Wichtigste sprechen.",
+ tongue:"Fast an ein Wort denken, aber nicht ganz.", lines:"Verstehen, was nur angedeutet wird.", foot:"Versehentlich etwas Taktloses sagen.",
+ bone:"Mit jemandem etwas zu klären haben, eine Beschwerde haben.", wits:"Nicht mehr weiterwissen.", wolf:"So oft Fehlalarm geben, dass einem niemand mehr glaubt.",
+ blue:"Plötzlich und unerwartet.", earlybird:"Wer früh anfängt, ist im Vorteil.", chickens:"Einen Erfolg nicht vorwegnehmen, bevor er feststeht.",
+ molehill:"Ein kleines Problem übertrieben wichtig nehmen.", peas:"Fast völlig gleich aussehen oder sein.", cards:"Völlig offen über seine Absichten sein.",
+ fingers:"Auf Glück hoffen.", blindeye:"Etwas Falsches bewusst ignorieren.", bed:"Den ganzen Tag schlechte Laune haben.",
+ fishwater:"Sich in einer ungewohnten Umgebung unwohl fühlen.", ears:"Aufmerksam zuhören.", coldfeet:"Kurz vor einer Handlung den Mut verlieren.",
+ nutshell:"Zusammengefasst, in wenigen Worten.", endday:"Letztlich, wenn man alles bedenkt.", hotwater:"In Schwierigkeiten sein.",
+ salt:"Einer Information gegenüber skeptisch sein.", spade:"Die Dinge offen und ehrlich aussprechen.", towel:"Aufgeben.",
+ devil:"Wird gesagt, wenn die Person auftaucht, über die man gerade spricht.", neck:"Eine sehr lästige Person.", heaven:"Alles Mögliche tun, um etwas zu erreichen.",
+ belt:"Weniger Geld ausgeben.", can:"Ein Problem immer wieder aufschieben.", drop:"Eine Menge, die viel zu klein ist, um etwas zu bewirken.",
+ elephant:"Ein offensichtliches Problem, das niemand ansprechen will.", thinice:"Sich in einer riskanten Lage befinden.", eggshells:"Sehr vorsichtig sein, um niemanden zu verärgern.",
+ tunnel:"Anzeichen sehen, dass eine schwierige Zeit zu Ende geht.", hands:"Wegen Regeln oder Umständen nicht handeln können.", wave:"Sich gut verstehen, ähnlich denken."
+};
+// Entries left out of a single-language edition because that language has no real idiom for them.
+const SKIP = { fr:["cuff","can","elephant"], de:["fish","dust","fence"], en:[] };
+// Usage notes written in the edition's own language.
+const MN = {
+ en:{
+  breakleg:"Theatre superstition: performers avoid saying 'good luck' directly.", bed:"US English: 'wake up on the wrong side of the bed'.",
+  salt:"US English: 'take it with a grain of salt'.", poke:"A 'poke' is an old word for a sack.", fuel:"Also 'add fuel to the flames'.",
+  thread:"Also 'lose the thread'.", nutshell:"A summariser you will use constantly in consecutive interpreting.", cards:"Fine in diplomatic register.",
+  elephant:"Widely used in media and politics.", neck:"Also used for things: 'This form is a pain in the neck.'",
+  endday:"Overused in speeches; in formal settings 'ultimately' is cleaner.", towel:"From boxing.", screw:"", dust:"Can also mean 'to die', informally."
+ },
+ fr:{
+  butterflies:"Piège : « avoir des papillons dans le ventre » signifie être amoureux, pas avoir le trac.",
+  foot:"Piège : « mettre les pieds dans le plat » veut plutôt dire aborder sans détour un sujet délicat, souvent volontairement.",
+  blue:"Piège : « tomber du ciel » désigne plutôt une aubaine inattendue.",
+  endday:"Piège : « à la fin de la journée » désigne seulement un moment de la journée. Variante : « au bout du compte ».",
+  tea:"« Ce n'est pas ma tasse de thé » existe aussi, mais « pas mon truc » est bien plus courant.",
+  breakleg:"« Merde ! » est l'usage normal entre artistes ; la tradition veut qu'on ne réponde pas « merci ».",
+  bone:"« Avoir un compte à régler avec quelqu'un » est nettement plus hostile.",
+  cake:"Variante : « simple comme bonjour ».", nail:"Variante : « taper dans le mille ».", log:"Variante : « dormir comme un loir ».",
+  molehill:"Variante : « en faire tout un fromage ».", nutshell:"Variantes : « en bref », « pour faire court ».", point:"Variante : « aller droit au but ».",
+  boat:"Variante : « être logé à la même enseigne ».", greek:"Variante : « c'est de l'hébreu ».", fishwater:"Contraire : « comme un poisson dans l'eau ».",
+  devil:"Forme complète : « Quand on parle du loup, on en voit la queue. »"
+ },
+ de:{
+  greek:"Achtung: „Das kommt mir spanisch vor“ heißt „das ist merkwürdig“, nicht „ich verstehe nichts“.",
+  butterflies:"Achtung: „Schmetterlinge im Bauch haben“ heißt verliebt sein, nicht Lampenfieber haben.",
+  endday:"Achtung: „am Ende des Tages“ ist ein Anglizismus, den viele Lektoren ablehnen. Auch: „unterm Strich“.",
+  blindeye:"„Ein Auge zudrücken“ heißt dagegen, bei einem kleinen Fehler nachsichtig zu sein.",
+  cake:"Auch: „ein Klacks“.", armleg:"Umgangssprachlich auch: „ein Heidengeld kosten“.", moon:"Auch: „überglücklich sein“.",
+  point:"Auch: „auf den Punkt kommen“.", cards:"Auch: „mit offenen Karten spielen“.", hotwater:"Auch: „in der Patsche sitzen“.",
+  nutshell:"Auch: „kurzum“, „kurz und gut“.", tea:"Auch: „nicht mein Ding“.", breakleg:"Auch: „Hals- und Beinbruch!“",
+  fishwater:"Gegenteil: „wie ein Fisch im Wasser“.", neck:"Für Dinge sagt man eher: „Das nervt.“", elephant:"Junge Lehnübersetzung aus dem Englischen, inzwischen verbreitet.",
+  devil:"Vollständig: „Wenn man vom Teufel spricht, kommt er.“"
+ }
+};
+// Screen text per edition language.
+const UI = {
+ en:{lead:"Train English idioms the way an interpreter needs them: what they mean, how formal they are, and how to rephrase them in plain words.",
+  due:"Due today",learn:"Learning",mast:"Mastered",nw:"New",best:"Best streak",
+  tabs:{review:"Daily review",find:"Find the expression",context:"Meaning & context",drill:"Rephrase drill",sign:"ASL",lexicon:"Lexicon"},
+  card:"Card",of:"of",isnew:"new",recall:"Explain the meaning out loud in your own words, then reveal.",reveal:"Reveal",again:"Again",gotit:"Got it",easy:"Easy",
+  caught:"All caught up",caughtP:"Nothing is due right now. Try the rephrase drill meanwhile.",startDrill:"Start a rephrase drill",
+  done:"Session done",doneP:n=>`You reviewed ${n} expressions. Cards you found hard come back sooner.`,more:"Check for more",
+  findH:"Which expression fits this meaning?",findP:"Pick the idiom a native speaker would use.",next:"Next",
+  ctxH:"What does the speaker mean?",ctxP:"Read the expression in context and choose the plain meaning.",
+  drillH:"Rephrase drill",drillP:"A sentence appears. Before the light goes off, say it again out loud without the idiom, in plain words. This is the paraphrasing skill you need for relay, ASL and accessible speech.",
+  time:"Time",start:"Start drill",revealNow:"Reveal now",missed:"Missed it",close:"Close",nailed:"Nailed it",onair:"● ON AIR",offair:"OFF AIR",
+  plain:"Plain meaning",meaning:"Meaning",reg:{informal:"informal",neutral:"neutral",formal:"formal"},
+  regLong:{informal:"Informal. Fine in conversation; in a formal speech, prefer a neutral paraphrase.",neutral:"Neutral. Works in most settings, including speeches.",formal:"Formal. Safe in official settings."},
+  register:"Register",search:"Search…",all:"All",lex:n=>`Lexicon · ${n} expressions`,st:{new:"new",learning:"learning",mastered:"mastered"},
+  foot:"Progress is saved in this browser only. Every expression here is in real, current use.",
+  cats:{"Everyday":"Everyday","Speeches & meetings":"Speeches & meetings","Politics & business":"Politics & business","Proverbs":"Proverbs"},
+  asl:{h:"ASL: sign the meaning, not the words",p:"American Sign Language is a full language with its own grammar. An English idiom is never signed word for word: you sign its meaning, and show intensity through the movement of the sign and your face.",
+   steps:["1. Find the meaning (the card shows it).","2. Decide the intensity and attitude: joking, annoyed, formal?","3. Carry intensity through the movement of the sign and facial expression, not extra words.","4. Fingerspell only names and terms with no established sign."],
+   howH:"How to work an idiom into ASL",limitB:"What this section does not do: ",limit:"it does not describe how to form signs. Check every sign on video or with your teachers. In Nigeria, the sign language in use is largely based on ASL, with local signs, so confirm local variants with your programme.",
+   practH:"Meaning-first practice",practP:"See an idiom, sign its meaning in ASL, then check.",btn:"I've signed it, show the meaning",signThis:"Sign this meaning: ",check:"Check yourself: did you sign the idea with the right intensity, or copy the words?",nextI:"Next idiom",
+   ownH:"ASL has idioms of its own",ownP:"Going from ASL into speech, you will meet expressions written as glosses in capitals. Look each one up on video.",dictH:"ASL video dictionaries",
+   idioms:[["TRAIN-GO-SORRY","You missed it, and I'm not going to repeat it."],["SWALLOW-FISH","Gullible; fell for it completely."],["PAH!","Finally! At last, it worked."]]}},
+ fr:{lead:"Entraînez-vous aux expressions idiomatiques françaises comme un interprète : leur sens, leur registre et la façon de les reformuler simplement.",
+  due:"À revoir",learn:"En cours",mast:"Maîtrisées",nw:"Nouvelles",best:"Meilleure série",
+  tabs:{review:"Révision du jour",find:"Trouver l'expression",context:"Sens et contexte",drill:"Reformulation chronométrée",sign:"ASL",lexicon:"Lexique"},
+  card:"Carte",of:"sur",isnew:"nouvelle",recall:"Expliquez le sens à voix haute avec vos propres mots, puis vérifiez.",reveal:"Afficher",again:"À revoir",gotit:"Je savais",easy:"Facile",
+  caught:"Tout est à jour",caughtP:"Rien à revoir pour l'instant. Essayez la reformulation chronométrée.",startDrill:"Lancer la reformulation",
+  done:"Séance terminée",doneP:n=>`Vous avez révisé ${n} expressions. Les cartes difficiles reviendront plus tôt.`,more:"Vérifier s'il en reste",
+  findH:"Quelle expression correspond à ce sens ?",findP:"Choisissez l'expression qu'emploierait un locuteur natif.",next:"Suivant",
+  ctxH:"Que veut dire l'orateur ?",ctxP:"Lisez l'expression en contexte et choisissez son sens.",
+  drillH:"Reformulation chronométrée",drillP:"Une phrase s'affiche. Avant que le voyant s'éteigne, redites-la à voix haute sans l'expression, avec des mots simples. C'est la reformulation dont vous avez besoin en relais, en ASL et en langage accessible.",
+  time:"Temps",start:"Commencer",revealNow:"Afficher maintenant",missed:"Raté",close:"Presque",nailed:"Réussi",onair:"● EN DIRECT",offair:"COUPÉ",
+  plain:"Sens simple",meaning:"Sens",reg:{informal:"familier",neutral:"courant",formal:"soutenu"},
+  regLong:{informal:"Familier. Très bien à l'oral ; dans un discours officiel, préférez une reformulation neutre.",neutral:"Courant. Convient à la plupart des situations, y compris les discours.",formal:"Soutenu. Adapté aux contextes officiels."},
+  register:"Registre",search:"Rechercher…",all:"Tout",lex:n=>`Lexique · ${n} expressions`,st:{new:"nouvelle",learning:"en cours",mastered:"maîtrisée"},
+  foot:"La progression est enregistrée dans ce navigateur uniquement. Toutes les expressions sont d'usage courant aujourd'hui.",
+  cats:{"Everyday":"Vie quotidienne","Speeches & meetings":"Discours et réunions","Politics & business":"Politique et économie","Proverbs":"Proverbes"},
+  asl:{h:"ASL : signer le sens, pas les mots",p:"La langue des signes américaine (ASL) est une langue à part entière, avec sa propre grammaire. Une expression française ne se signe jamais mot à mot : on signe son sens, et on rend l'intensité par le mouvement du signe et l'expression du visage.",
+   steps:["1. Trouvez le sens (la carte l'indique).","2. Choisissez l'intensité et l'attitude : ironie, agacement, registre officiel ?","3. Rendez l'intensité par le mouvement du signe et l'expression du visage, pas par des signes en plus.","4. N'épelez que les noms propres et les termes sans signe établi."],
+   howH:"Passer d'une expression à l'ASL",limitB:"Ce que cette section ne fait pas : ",limit:"elle ne décrit pas la formation des signes. Vérifiez chaque signe en vidéo ou avec vos enseignants. Au Nigeria, la langue des signes utilisée repose en grande partie sur l'ASL, avec des signes locaux : confirmez les variantes avec votre formation.",
+   practH:"S'entraîner au sens",practP:"Lisez l'expression, signez son sens en ASL, puis vérifiez.",btn:"J'ai signé, afficher le sens",signThis:"Sens à signer : ",check:"Avez-vous signé l'idée avec la bonne intensité, ou recopié les mots ?",nextI:"Expression suivante",
+   ownH:"L'ASL a ses propres expressions",ownP:"De l'ASL vers le français, vous rencontrerez des expressions notées en gloses majuscules. Vérifiez-les en vidéo.",dictH:"Dictionnaires vidéo d'ASL",
+   idioms:[["TRAIN-GO-SORRY","Tu l'as raté, je ne vais pas répéter."],["SWALLOW-FISH","Naïf ; s'est complètement fait avoir."],["PAH!","Enfin ! Ça y est, ça a marché."]]}},
+ de:{lead:"Trainieren Sie deutsche Redewendungen so, wie Dolmetscher sie brauchen: Bedeutung, Stilebene und wie man sie in einfachen Worten wiedergibt.",
+  due:"Heute fällig",learn:"In Arbeit",mast:"Gelernt",nw:"Neu",best:"Beste Serie",
+  tabs:{review:"Tägliche Wiederholung",find:"Wendung finden",context:"Bedeutung & Kontext",drill:"Umformulieren auf Zeit",sign:"ASL",lexicon:"Lexikon"},
+  card:"Karte",of:"von",isnew:"neu",recall:"Erklären Sie die Bedeutung laut in eigenen Worten und decken Sie dann auf.",reveal:"Aufdecken",again:"Nochmal",gotit:"Gewusst",easy:"Leicht",
+  caught:"Alles erledigt",caughtP:"Gerade ist nichts fällig. Probieren Sie das Umformulieren auf Zeit.",startDrill:"Umformulieren starten",
+  done:"Runde beendet",doneP:n=>`Sie haben ${n} Wendungen wiederholt. Schwierige Karten kommen früher wieder.`,more:"Weitere prüfen",
+  findH:"Welche Wendung passt zu dieser Bedeutung?",findP:"Wählen Sie die Wendung, die Muttersprachler verwenden.",next:"Weiter",
+  ctxH:"Was meint der Redner?",ctxP:"Lesen Sie die Wendung im Kontext und wählen Sie die Bedeutung.",
+  drillH:"Umformulieren auf Zeit",drillP:"Ein Satz erscheint. Bevor das Licht ausgeht, sagen Sie ihn laut ohne die Redewendung, in einfachen Worten. Diese Fähigkeit brauchen Sie beim Relais, für ASL und für leichte Sprache.",
+  time:"Zeit",start:"Starten",revealNow:"Jetzt aufdecken",missed:"Daneben",close:"Fast",nailed:"Getroffen",onair:"● AUF SENDUNG",offair:"AUS",
+  plain:"Einfache Bedeutung",meaning:"Bedeutung",reg:{informal:"umgangssprachlich",neutral:"neutral",formal:"gehoben"},
+  regLong:{informal:"Umgangssprachlich. Im Gespräch gut; in einer offiziellen Rede lieber neutral umschreiben.",neutral:"Neutral. Passt fast überall, auch in Reden.",formal:"Gehoben. Für offizielle Anlässe geeignet."},
+  register:"Stilebene",search:"Suchen…",all:"Alle",lex:n=>`Lexikon · ${n} Wendungen`,st:{new:"neu",learning:"in Arbeit",mastered:"gelernt"},
+  foot:"Der Fortschritt wird nur in diesem Browser gespeichert. Alle Wendungen sind heute gebräuchlich.",
+  cats:{"Everyday":"Alltag","Speeches & meetings":"Reden und Sitzungen","Politics & business":"Politik und Wirtschaft","Proverbs":"Sprichwörter"},
+  asl:{h:"ASL: die Bedeutung gebärden, nicht die Wörter",p:"Die Amerikanische Gebärdensprache (ASL) ist eine vollwertige Sprache mit eigener Grammatik. Eine deutsche Redewendung wird nie Wort für Wort gebärdet: Man gebärdet die Bedeutung und zeigt die Intensität durch die Bewegung der Gebärde und die Mimik.",
+   steps:["1. Bedeutung finden (die Karte zeigt sie).","2. Intensität und Haltung festlegen: Scherz, Ärger, offizieller Ton?","3. Intensität über Bewegung und Mimik ausdrücken, nicht über zusätzliche Gebärden.","4. Nur Namen und Begriffe ohne feste Gebärde fingeralphabetisch buchstabieren."],
+   howH:"Von der Redewendung zur ASL",limitB:"Was dieser Bereich nicht leistet: ",limit:"Er beschreibt nicht, wie Gebärden ausgeführt werden. Prüfen Sie jede Gebärde im Video oder bei Ihren Lehrkräften. In Nigeria basiert die verwendete Gebärdensprache weitgehend auf ASL, mit lokalen Gebärden; klären Sie Varianten mit Ihrem Studiengang.",
+   practH:"Bedeutung zuerst üben",practP:"Lesen Sie die Wendung, gebärden Sie die Bedeutung in ASL und prüfen Sie dann.",btn:"Gebärdet, Bedeutung zeigen",signThis:"Diese Bedeutung gebärden: ",check:"Haben Sie die Idee mit der richtigen Intensität gebärdet oder die Wörter kopiert?",nextI:"Nächste Wendung",
+   ownH:"ASL hat eigene Redewendungen",ownP:"Von ASL ins Deutsche begegnen Ihnen Ausdrücke, die als Glossen in Großbuchstaben notiert werden. Prüfen Sie jeden im Video.",dictH:"ASL-Videowörterbücher",
+   idioms:[["TRAIN-GO-SORRY","Verpasst, und ich wiederhole es nicht."],["SWALLOW-FISH","Leichtgläubig; voll darauf hereingefallen."],["PAH!","Endlich! Hat geklappt."]]}}
+};
+
+// Media & press expressions (all three languages).
+const MEDIA = [
+ {id:"sources",r:"formal",en:"sources close to the government",fr:"de source proche du gouvernement",de:"aus Regierungskreisen",m:"Information from unnamed people near the government.",
+  x:["Sources close to the government say the budget will be delayed.","De source proche du gouvernement, le budget sera reporté.","Aus Regierungskreisen heißt es, der Haushalt werde verschoben."]},
+ {id:"breaking",r:"neutral",en:"breaking news",fr:"une information de dernière minute",de:"eine Eilmeldung",m:"News that is happening now and is reported immediately.",
+  x:["We interrupt this programme with breaking news from Abuja.","Nous interrompons ce programme pour une information de dernière minute en provenance d'Abuja.","Wir unterbrechen das Programm für eine Eilmeldung aus Abuja."]},
+ {id:"headlines",r:"neutral",en:"to make headlines",fr:"faire la une",de:"Schlagzeilen machen",m:"To be reported prominently in the news.",
+  x:["The scandal made headlines around the world.","Le scandale a fait la une dans le monde entier.","Der Skandal hat weltweit Schlagzeilen gemacht."]},
+ {id:"offrecord",r:"neutral",en:"off the record",fr:"en off",de:"unter drei",m:"Said to a journalist on condition that it is not published or attributed.",
+  x:["The minister spoke to reporters off the record.","Le ministre s'est confié aux journalistes en off.","Der Minister sprach mit den Journalisten unter drei."]},
+ {id:"wordwar",r:"neutral",en:"a war of words",fr:"une passe d'armes",de:"ein verbaler Schlagabtausch",m:"A public exchange of sharp criticism.",
+  x:["The debate turned into a war of words between the two candidates.","Le débat a tourné à la passe d'armes entre les deux candidats.","Die Debatte wurde zum verbalen Schlagabtausch zwischen den beiden Kandidaten."]},
+ {id:"underfire",r:"neutral",en:"to come under fire",fr:"être sous le feu des critiques",de:"in die Kritik geraten",m:"To be strongly criticised publicly.",
+  x:["The agency has come under fire for its slow response.","L'agence est sous le feu des critiques pour sa lenteur.","Die Behörde ist wegen ihrer langsamen Reaktion in die Kritik geraten."]},
+ {id:"uturn",r:"neutral",en:"a U-turn",fr:"un revirement",de:"eine Kehrtwende",m:"A complete reversal of a policy or decision.",
+  x:["The government made a U-turn on fuel subsidies.","Le gouvernement a opéré un revirement sur les subventions aux carburants.","Die Regierung vollzog eine Kehrtwende bei den Treibstoffsubventionen."]},
+ {id:"landslide",r:"neutral",en:"a landslide victory",fr:"une victoire écrasante",de:"ein Erdrutschsieg",m:"An election won by a very large margin.",
+  x:["The opposition won a landslide victory.","L'opposition a remporté une victoire écrasante.","Die Opposition hat einen Erdrutschsieg errungen."]},
+ {id:"neckneck",r:"neutral",en:"neck and neck",fr:"au coude-à-coude",de:"ein Kopf-an-Kopf-Rennen",m:"So close that it is impossible to say who is winning.",
+  x:["The two parties are neck and neck in the polls.","Les deux partis sont au coude-à-coude dans les sondages.","Die beiden Parteien liefern sich in den Umfragen ein Kopf-an-Kopf-Rennen."]},
+ {id:"record",r:"neutral",en:"to set the record straight",fr:"remettre les pendules à l'heure",de:"etwas richtigstellen",m:"To correct a false report or misunderstanding.",
+  x:["The spokesperson held a press conference to set the record straight.","La porte-parole a tenu une conférence de presse pour remettre les pendules à l'heure.","Die Sprecherin gab eine Pressekonferenz, um die Dinge richtigzustellen."]},
+ {id:"court",r:"neutral",en:"the ball is in their court",fr:"la balle est dans leur camp",de:"jetzt sind sie am Zug",m:"It is now their turn to act or decide.",
+  x:["We've made our offer; the ball is in their court.","Nous avons fait notre offre, la balle est dans leur camp.","Wir haben unser Angebot gemacht, jetzt sind sie am Zug."]},
+ {id:"closeddoors",r:"neutral",en:"behind closed doors",fr:"à huis clos",de:"hinter verschlossenen Türen",m:"In private, without the public or press.",
+  x:["The negotiations took place behind closed doors.","Les négociations se sont déroulées à huis clos.","Die Verhandlungen fanden hinter verschlossenen Türen statt."]},
+ {id:"redline",r:"formal",en:"a red line",fr:"une ligne rouge",de:"eine rote Linie",m:"A limit that must not be crossed without serious consequences.",
+  x:["Any attack on civilians would be a red line.","Toute attaque contre des civils constituerait une ligne rouge.","Jeder Angriff auf Zivilisten wäre eine rote Linie."]},
+ {id:"frank",r:"formal",en:"a frank exchange of views",fr:"un échange de vues franc",de:"ein offener Meinungsaustausch",m:"Diplomatic code: the two sides disagreed seriously.",
+  x:["The ministers had a frank exchange of views on trade.","Les ministres ont eu un échange de vues franc sur le commerce.","Die Minister hatten einen offenen Meinungsaustausch über den Handel."]},
+ {id:"leak",r:"neutral",en:"to be leaked to the press",fr:"fuiter dans la presse",de:"an die Presse durchsickern",m:"Secret information reaching journalists without permission.",
+  x:["The report was leaked to the press before publication.","Le rapport a fuité dans la presse avant sa publication.","Der Bericht ist vor der Veröffentlichung an die Presse durchgesickert."]},
+ {id:"smear",r:"neutral",en:"a smear campaign",fr:"une campagne de dénigrement",de:"eine Schmutzkampagne",m:"An organised effort to damage someone's reputation with false or unfair claims.",
+  x:["The senator says he is the victim of a smear campaign.","Le sénateur se dit victime d'une campagne de dénigrement.","Der Senator sieht sich als Opfer einer Schmutzkampagne."]},
+ {id:"lameduck",r:"neutral",en:"a lame duck",fr:"un président en fin de mandat",de:"eine lahme Ente",m:"A leader near the end of their term, with little remaining power.",
+  x:["In his final months, the president is a lame duck.","Dans ses derniers mois, le président est en fin de mandat et n'a plus guère de pouvoir.","In seinen letzten Monaten ist der Präsident eine lahme Ente."]},
+ {id:"bombshell",r:"neutral",en:"a bombshell",fr:"un coup de tonnerre",de:"ein Paukenschlag",m:"A sudden, shocking announcement or revelation.",
+  x:["Her resignation was a political bombshell.","Sa démission a été un coup de tonnerre politique.","Ihr Rücktritt war ein politischer Paukenschlag."]}
+].map(o=>Object.assign({c:"Media & press"},o));
+IDIOMS.push(...MEDIA);
+if(typeof NOTES!=="undefined") Object.assign(NOTES,{
+ sources:{x:"Standard attribution formula; keep it formal in your rendering."},
+ breaking:{de:"'Eilmeldung' is the agency and broadcast term."},
+ headlines:{fr:"Literally 'make the front page'; also 'faire les gros titres'."},
+ offrecord:{fr:"French newsrooms use the English loan 'en off'.",de:"German press convention: 'unter eins' (quotable), 'unter zwei' (usable without naming the source), 'unter drei' (not for publication)."},
+ wordwar:{fr:"Literally 'an exchange of weapons' (fencing image).",de:"Literally 'a verbal exchange of blows'; also 'ein Wortgefecht'."},
+ underfire:{de:"'Unter Beschuss geraten' also exists, with the same military image."},
+ uturn:{fr:"Also 'faire volte-face'.",de:"Literally 'a turn-around'."},
+ landslide:{de:"Literally 'a landslide victory', the same image."},
+ neckneck:{fr:"Literally 'elbow to elbow'.",de:"Literally 'a head-to-head race'."},
+ record:{fr:"Literally 'put the clocks back on time'."},
+ court:{fr:"Same tennis image.",de:"Chess image: 'it's their move'. 'Der Ball liegt bei ihnen' also exists."},
+ closeddoors:{fr:"'À huis clos' is also the legal term for a hearing closed to the public."},
+ redline:{x:"Same image in both languages; core diplomatic vocabulary."},
+ frank:{x:"Diplomatic code: render it with the same coded wording, not as 'they argued'."},
+ leak:{de:"Literally 'seep through'. 'Ein Leak' is also used in German media."},
+ smear:{de:"Literally 'a dirt campaign'."},
+ lameduck:{de:"German media use 'lahme Ente' in the same political sense.",tfr:"'Un canard boiteux' means a struggling company or a misfit, not an outgoing leader."},
+ bombshell:{fr:"Literally 'a thunderclap'.",de:"Literally 'a drum beat'."}
+});
+if(typeof M_FR!=="undefined"){
+Object.assign(M_FR,{
+ sources:"Information provenant de personnes non nommées proches du gouvernement.",breaking:"Une nouvelle annoncée immédiatement, au moment où elle se produit.",
+ headlines:"Être un sujet majeur de l'actualité.",offrecord:"Dit à un journaliste à condition de ne pas être publié ni cité.",
+ wordwar:"Un échange public de critiques vives.",underfire:"Être vivement critiqué en public.",uturn:"Un changement complet de position.",
+ landslide:"Une élection gagnée avec une très large avance.",neckneck:"Si proches qu'on ne peut pas dire qui gagne.",
+ record:"Corriger une information fausse ou un malentendu.",court:"C'est maintenant à eux d'agir ou de décider.",closeddoors:"En privé, sans public ni presse.",
+ redline:"Une limite à ne pas franchir sous peine de conséquences graves.",frank:"Formule diplomatique : les deux parties étaient en profond désaccord.",
+ leak:"Des informations secrètes parviennent aux journalistes sans autorisation.",smear:"Une action organisée pour salir la réputation de quelqu'un.",
+ bombshell:"Une annonce soudaine et choquante."
+});
+Object.assign(M_DE,{
+ sources:"Informationen von ungenannten Personen aus dem Umfeld der Regierung.",breaking:"Eine Nachricht, die sofort gemeldet wird, während sie passiert.",
+ headlines:"Groß in den Nachrichten erscheinen.",offrecord:"Einem Journalisten mitgeteilt unter der Bedingung, dass es nicht veröffentlicht wird.",
+ wordwar:"Ein öffentlicher Austausch scharfer Kritik.",underfire:"Öffentlich stark kritisiert werden.",uturn:"Eine vollständige Umkehr einer Politik oder Entscheidung.",
+ landslide:"Ein Wahlsieg mit sehr großem Vorsprung.",neckneck:"So knapp, dass man nicht sagen kann, wer gewinnt.",
+ record:"Eine falsche Meldung oder ein Missverständnis korrigieren.",court:"Jetzt muss die andere Seite handeln oder entscheiden.",closeddoors:"Unter Ausschluss von Öffentlichkeit und Presse.",
+ redline:"Eine Grenze, deren Überschreitung ernste Folgen hätte.",frank:"Diplomatische Formel: Die Seiten waren sich deutlich uneinig.",
+ leak:"Geheime Informationen gelangen ohne Erlaubnis zu Journalisten.",smear:"Ein gezielter Versuch, jemandes Ruf mit unfairen Behauptungen zu schädigen.",
+ lameduck:"Ein Amtsinhaber kurz vor Ende seiner Amtszeit mit wenig Macht.",bombshell:"Eine plötzliche, schockierende Ankündigung."
+});
+SKIP.fr.push("lameduck");
+Object.assign(MN.en,{offrecord:"Variants: 'on background', 'not for attribution'.",frank:"Diplomatic code for a serious disagreement.",lameduck:"Mainly used for US presidents after an election they cannot win again."});
+Object.assign(MN.fr,{offrecord:"Emprunt à l'anglais, très courant dans les rédactions.",headlines:"Variante : « faire les gros titres ».",uturn:"Variante : « faire volte-face ».",
+ frank:"Code diplomatique : il faut le rendre tel quel, pas par « ils se sont disputés ».",closeddoors:"C'est aussi le terme juridique pour une audience non publique."});
+Object.assign(MN.de,{offrecord:"Regeln der Bundespressekonferenz: unter eins (zitierbar), unter zwei (ohne Quelle verwendbar), unter drei (vertraulich).",
+ court:"Auch: „Der Ball liegt bei ihnen.“",frank:"Diplomatische Formel für deutliche Meinungsverschiedenheiten.",leak:"Auch: „ein Leak“.",lameduck:"Vor allem für US-Präsidenten am Ende ihrer Amtszeit."});
+}
+
+// Very common everyday idioms native to each language (single-language editions only).
+const NATIVE = {
+ en:[
+  ["callday","Everyday","neutral","to call it a day","To stop working for now.","We've done enough for today; let's call it a day."],
+  ["ballrolling","Speeches & meetings","neutral","to get the ball rolling","To start an activity or discussion.","Let me get the ball rolling with a quick update."],
+  ["bluemoon","Everyday","informal","once in a blue moon","Very rarely.","I only see my cousins once in a blue moon."],
+  ["weather","Everyday","informal","under the weather","Slightly ill.","I'm feeling a bit under the weather today."],
+  ["corners","Politics & business","neutral","to cut corners","To do something cheaply or carelessly to save time or money.","The contractor cut corners on safety."],
+  ["bothworlds","Everyday","neutral","the best of both worlds","The advantages of two different things at once.","Working part-time from home gives me the best of both worlds."],
+  ["missboat","Everyday","informal","to miss the boat","To miss an opportunity.","We missed the boat on that investment."],
+  ["sack","Everyday","informal","to hit the sack","To go to bed.","I'm exhausted; I'm going to hit the sack."],
+  ["samepage","Speeches & meetings","neutral","to be on the same page","To share the same understanding.","Before we vote, let's make sure we're all on the same page."],
+  ["box","Politics & business","neutral","to think outside the box","To think creatively and unconventionally.","We need to think outside the box to fund this project."],
+  ["squareone","Everyday","neutral","back to square one","Back to the beginning after a failure.","The talks collapsed, so we're back to square one."],
+  ["extramile","Politics & business","neutral","to go the extra mile","To make more effort than expected.","Our interpreters always go the extra mile."],
+  ["blessing","Everyday","neutral","a blessing in disguise","Something good that first seemed bad.","Losing that job was a blessing in disguise."],
+  ["beans","Everyday","informal","to spill the beans","To reveal a secret.","Come on, spill the beans: who got the job?"],
+  ["bullet","Everyday","neutral","to bite the bullet","To accept something unpleasant and face it.","I bit the bullet and booked the dentist."],
+  ["chase","Speeches & meetings","informal","to cut to the chase","To get to the main point quickly.","Let's cut to the chase: what's the price?"],
+  ["late","Proverbs","neutral","better late than never","It is better to do something late than not at all.","He finally apologised. Better late than never."],
+  ["second","Everyday","neutral","to have second thoughts","To start doubting a decision.","I'm having second thoughts about moving abroad."],
+  ["air","Politics & business","neutral","up in the air","Not yet decided.","The date of the summit is still up in the air."],
+  ["hang","Everyday","informal","to get the hang of something","To learn how to do something.","Simultaneous is hard at first, but you'll get the hang of it."],
+  ["together","Everyday","neutral","to pull oneself together","To regain control of one's emotions.","She took a deep breath and pulled herself together."],
+  ["base","Politics & business","neutral","to touch base","To make brief contact with someone.","Let's touch base next week about the contract."],
+  ["sleepon","Everyday","neutral","to sleep on it","To wait until the next day before deciding.","Don't answer now; sleep on it."],
+  ["eye","Everyday","neutral","to keep an eye on","To watch something carefully.","Can you keep an eye on my bag?"],
+  ["ball","Everyday","informal","to be on the ball","To be alert and quick to understand.","The new assistant is really on the ball."]
+ ],
+ fr:[
+  ["cafard","Everyday","informal","avoir le cafard","Être triste, avoir le moral à zéro.","Depuis son départ, j'ai un peu le cafard."],
+  ["lapin","Everyday","informal","poser un lapin à quelqu'un","Ne pas venir à un rendez-vous sans prévenir.","Il m'a posé un lapin hier soir."],
+  ["flemme","Everyday","informal","avoir la flemme","Ne pas avoir envie de faire d'effort.","J'ai la flemme de faire la vaisselle."],
+  ["peche","Everyday","informal","avoir la pêche","Être en pleine forme, plein d'énergie.","Après mes vacances, j'ai la pêche !"],
+  ["pommes","Everyday","informal","tomber dans les pommes","S'évanouir.","Il faisait si chaud qu'elle est tombée dans les pommes."],
+  ["salades","Everyday","informal","raconter des salades","Raconter des mensonges.","Arrête de me raconter des salades."],
+  ["graindesel","Everyday","informal","mettre son grain de sel","Donner son avis sans qu'on le demande.","Il faut toujours qu'il mette son grain de sel."],
+  ["poil","Everyday","informal","avoir un poil dans la main","Être très paresseux.","Lui, il a un poil dans la main."],
+  ["farine","Everyday","informal","se faire rouler dans la farine","Se faire tromper.","Je me suis fait rouler dans la farine par le vendeur."],
+  ["lune","Everyday","neutral","être dans la lune","Être distrait, rêveur.","Excuse-moi, j'étais dans la lune."],
+  ["pain","Politics & business","neutral","avoir du pain sur la planche","Avoir beaucoup de travail à faire.","Avec ce congrès, on a du pain sur la planche."],
+  ["pate","Politics & business","neutral","mettre la main à la pâte","Participer soi-même au travail.","Tout le monde a mis la main à la pâte."],
+  ["guidon","Politics & business","informal","avoir la tête dans le guidon","Être trop absorbé par son travail pour prendre du recul.","Avec les examens, j'ai la tête dans le guidon."],
+  ["poire","Politics & business","neutral","couper la poire en deux","Faire un compromis à mi-chemin.","On n'est pas d'accord sur le prix : coupons la poire en deux."],
+  ["canard","Everyday","informal","ça ne casse pas trois pattes à un canard","Ce n'est pas extraordinaire.","Le film ne casse pas trois pattes à un canard."],
+  ["pic","Everyday","neutral","tomber à pic","Arriver au bon moment.","Ton appel tombe à pic !"],
+  ["foudre","Everyday","neutral","avoir le coup de foudre","Tomber amoureux immédiatement.","Ils ont eu le coup de foudre dès leur première rencontre."],
+  ["langue","Everyday","neutral","donner sa langue au chat","Renoncer à trouver une réponse.","Je donne ma langue au chat : c'est quoi la réponse ?"],
+  ["grasse","Everyday","neutral","faire la grasse matinée","Se lever tard le matin.","Dimanche, je fais la grasse matinée."],
+  ["rouleau","Everyday","informal","être au bout du rouleau","Être épuisé, à bout de forces.","Après trois semaines sans repos, elle est au bout du rouleau."],
+  ["haricots","Everyday","informal","c'est la fin des haricots","C'est la catastrophe, tout est perdu.","Si le bus ne vient pas, c'est la fin des haricots."],
+  ["points","Speeches & meetings","neutral","mettre les points sur les i","Préciser les choses clairement, sans ambiguïté.","Je vais mettre les points sur les i : le délai est vendredi."],
+  ["moutons","Speeches & meetings","neutral","revenir à ses moutons","Revenir au sujet principal.","Mais revenons à nos moutons : le budget."],
+  ["anguille","Everyday","neutral","il y a anguille sous roche","Il y a quelque chose de caché.","Ils chuchotent depuis ce matin, il y a anguille sous roche."],
+  ["oreilles","Everyday","informal","casser les oreilles à quelqu'un","Faire trop de bruit, ou répéter sans cesse la même chose.","Arrête de me casser les oreilles avec cette chanson !"]
+ ],
+ de:[
+  ["tomaten","Everyday","informal","Tomaten auf den Augen haben","Etwas Offensichtliches nicht sehen.","Hast du Tomaten auf den Augen? Der Schlüssel liegt doch da!"],
+  ["nase","Everyday","informal","die Nase voll haben","Genug von etwas haben.","Ich habe die Nase voll von diesem Lärm."],
+  ["schwein","Everyday","informal","Schwein haben","Glück haben.","Da hast du aber Schwein gehabt!"],
+  ["sand","Politics & business","neutral","den Kopf in den Sand stecken","Problemen ausweichen, statt sie anzugehen.","Wir dürfen jetzt nicht den Kopf in den Sand stecken."],
+  ["keks","Everyday","informal","jemandem auf den Keks gehen","Jemanden nerven.","Du gehst mir echt auf den Keks."],
+  ["bier","Everyday","informal","Das ist nicht mein Bier.","Das ist nicht meine Angelegenheit.","Wie er sein Geld ausgibt, ist nicht mein Bier."],
+  ["kirche","Everyday","informal","die Kirche im Dorf lassen","Nicht übertreiben.","Lass mal die Kirche im Dorf, es war nur ein kleiner Fehler."],
+  ["halskopf","Everyday","neutral","Hals über Kopf","Überstürzt, in großer Eile.","Sie hat Hals über Kopf die Stadt verlassen."],
+  ["baer","Everyday","informal","Da steppt der Bär.","Dort ist viel los, die Stimmung ist großartig.","Am Samstag ist Party bei Tom, da steppt der Bär."],
+  ["baerauf","Everyday","informal","jemandem einen Bären aufbinden","Jemandem eine Lüge erzählen.","Du willst mir doch einen Bären aufbinden!"],
+  ["vieraugen","Politics & business","neutral","unter vier Augen","Privat, nur zu zweit.","Können wir das unter vier Augen besprechen?"],
+  ["butter","Everyday","informal","Alles in Butter.","Alles ist in Ordnung.","Keine Sorge, alles in Butter."],
+  ["zeug","Politics & business","neutral","sich ins Zeug legen","Sich sehr anstrengen.","Das Team hat sich richtig ins Zeug gelegt."],
+  ["eulen","Everyday","formal","Eulen nach Athen tragen","Etwas Überflüssiges tun.","Ihm das zu erklären hieße, Eulen nach Athen zu tragen."],
+  ["fische","Speeches & meetings","informal","Butter bei die Fische!","Jetzt sag konkret, worum es geht.","Butter bei die Fische: Was kostet das Ganze?"],
+  ["holzweg","Everyday","neutral","auf dem Holzweg sein","Sich irren.","Wenn du glaubst, das wird einfach, bist du auf dem Holzweg."],
+  ["glocke","Everyday","neutral","etwas an die große Glocke hängen","Etwas überall herumerzählen.","Bitte häng das nicht an die große Glocke."],
+  ["kater","Everyday","informal","einen Kater haben","Sich nach zu viel Alkohol schlecht fühlen.","Nach der Feier hatte er einen furchtbaren Kater."],
+  ["wein","Politics & business","neutral","jemandem reinen Wein einschenken","Jemandem offen die Wahrheit sagen.","Es ist Zeit, den Mitarbeitern reinen Wein einzuschenken."],
+  ["wurst","Everyday","informal","Jetzt geht es um die Wurst.","Jetzt kommt es auf alles an.","Letztes Spiel der Saison, jetzt geht es um die Wurst."],
+  ["katzensprung","Everyday","informal","ein Katzensprung","Eine sehr kurze Entfernung.","Der Bahnhof ist nur einen Katzensprung entfernt."],
+  ["linke","Everyday","informal","zwei linke Hände haben","Handwerklich ungeschickt sein.","Beim Basteln habe ich zwei linke Hände."],
+  ["blau","Everyday","informal","blaumachen","Ohne guten Grund nicht zur Arbeit oder Schule gehen.","Am Freitag hat er einfach blaugemacht."],
+  ["spanisch","Everyday","informal","Das kommt mir spanisch vor.","Das erscheint mir seltsam oder verdächtig.","Diese E-Mail kommt mir spanisch vor."],
+  ["gras","Everyday","informal","ins Gras beißen","Sterben (salopp).","In dem Film beißt der Held am Ende ins Gras."]
+ ]
+};
+
+/* ---------- TOPIC CARDS: impromptu speaking ---------- */
+const TOPICS = [
+ ["Should university be free for everyone?","L'université devrait-elle être gratuite pour tous ?","Sollte das Studium für alle kostenlos sein?"],
+ ["The role of social media in elections","Le rôle des réseaux sociaux dans les élections","Die Rolle sozialer Medien bei Wahlen"],
+ ["A person who changed your life","Une personne qui a changé votre vie","Ein Mensch, der Ihr Leben verändert hat"],
+ ["Will machines replace interpreters?","Les machines vont-elles remplacer les interprètes ?","Werden Maschinen Dolmetscher ersetzen?"],
+ ["Climate change: whose responsibility?","Le changement climatique : à qui la responsabilité ?","Klimawandel: Wer trägt die Verantwortung?"],
+ ["The best advice you ever received","Le meilleur conseil que vous ayez reçu","Der beste Rat, den Sie je bekommen haben"],
+ ["City life or country life?","Vivre en ville ou à la campagne ?","Stadtleben oder Landleben?"],
+ ["Why learn several languages?","Pourquoi apprendre plusieurs langues ?","Warum mehrere Sprachen lernen?"],
+ ["Should voting be compulsory?","Le vote devrait-il être obligatoire ?","Sollte es eine Wahlpflicht geben?"],
+ ["The importance of sign language in public life","L'importance de la langue des signes dans la vie publique","Die Bedeutung der Gebärdensprache im öffentlichen Leben"],
+ ["Working from home: blessing or curse?","Le télétravail : chance ou piège ?","Homeoffice: Segen oder Fluch?"],
+ ["Your favourite meal and its story","Votre plat préféré et son histoire","Ihr Lieblingsgericht und seine Geschichte"],
+ ["Should children have smartphones?","Les enfants devraient-ils avoir un smartphone ?","Sollten Kinder ein Smartphone haben?"],
+ ["Tourism: good or bad for local communities?","Le tourisme : bon ou mauvais pour les populations locales ?","Tourismus: gut oder schlecht für die Menschen vor Ort?"],
+ ["A city you would like to visit","Une ville que vous aimeriez visiter","Eine Stadt, die Sie gern besuchen würden"],
+ ["Fake news and how to fight it","Les fausses informations et comment les combattre","Falschmeldungen und wie man sie bekämpft"],
+ ["What makes a good leader?","Qu'est-ce qu'un bon dirigeant ?","Was macht eine gute Führungskraft aus?"],
+ ["Music that matters to you","Une musique qui compte pour vous","Musik, die Ihnen wichtig ist"],
+ ["Should rich countries cancel poor countries' debt?","Les pays riches devraient-ils annuler la dette des pays pauvres ?","Sollten reiche Länder armen Ländern die Schulden erlassen?"],
+ ["Sport and national identity","Le sport et l'identité nationale","Sport und nationale Identität"],
+ ["Your biggest mistake and what you learned","Votre plus grosse erreur et ce qu'elle vous a appris","Ihr größter Fehler und was Sie daraus gelernt haben"],
+ ["Is fast fashion acceptable?","La mode jetable est-elle acceptable ?","Ist Fast Fashion vertretbar?"],
+ ["The future of Africa's cities","L'avenir des villes africaines","Die Zukunft der Städte Afrikas"],
+ ["Should the minimum wage be raised?","Faut-il augmenter le salaire minimum ?","Sollte der Mindestlohn erhöht werden?"],
+ ["A book or film everyone should know","Un livre ou un film que tout le monde devrait connaître","Ein Buch oder Film, den jeder kennen sollte"],
+ ["Artificial intelligence in schools","L'intelligence artificielle à l'école","Künstliche Intelligenz in der Schule"],
+ ["Is honesty always the best policy?","L'honnêteté est-elle toujours la meilleure solution ?","Ist Ehrlichkeit immer der beste Weg?"],
+ ["Access for deaf people to public services","L'accès des personnes sourdes aux services publics","Barrierefreiheit für gehörlose Menschen in Behörden"],
+ ["The value of failure","La valeur de l'échec","Der Wert des Scheiterns"],
+ ["Should animals be kept in zoos?","Faut-il garder des animaux dans les zoos ?","Sollten Tiere in Zoos gehalten werden?"],
+ ["Your ideal job in ten years","Votre métier idéal dans dix ans","Ihr Traumberuf in zehn Jahren"],
+ ["Public transport should be free","Les transports en commun devraient être gratuits","Der öffentliche Nahverkehr sollte kostenlos sein"],
+ ["Traditions worth keeping","Des traditions à préserver","Traditionen, die es wert sind, bewahrt zu werden"],
+ ["Space exploration: worth the money?","L'exploration spatiale vaut-elle son coût ?","Ist die Raumfahrt das Geld wert?"],
+ ["How to handle stress before an exam","Gérer le stress avant un examen","Wie man mit Prüfungsstress umgeht"],
+ ["Should there be a four-day working week?","Faut-il passer à la semaine de quatre jours ?","Sollte es eine Viertagewoche geben?"],
+ ["The role of the United Nations today","Le rôle des Nations unies aujourd'hui","Die Rolle der Vereinten Nationen heute"],
+ ["A festival or celebration you love","Une fête que vous aimez","Ein Fest, das Sie lieben"],
+ ["Online shopping or local markets?","Achats en ligne ou marchés locaux ?","Onlineshopping oder lokale Märkte?"],
+ ["What makes a speech memorable?","Qu'est-ce qui rend un discours mémorable ?","Was macht eine Rede unvergesslich?"],
+ ["Is the press too powerful?","La presse a-t-elle trop de pouvoir ?","Ist die Presse zu mächtig?"],
+ ["Should journalists ever protect anonymous sources?","Les journalistes doivent-ils protéger leurs sources anonymes ?","Sollten Journalisten anonyme Quellen schützen?"]
+];
+const TOPIC_UI = {
+ en:{tab:"Topic card",h:"Topic card",p:"Draw a random topic or choose one, take a short moment to prepare, then speak without stopping until the time runs out.",
+  topic:"Topic",random:"Random topic",lang:"Language",prep:"Preparation",speak:"Speaking time",draw:"Draw topic",go:"Start",stop:"Stop",again:"New topic",
+  prepping:"PREPARE",live:"● SPEAKING",over:"TIME",challenge:"Idiom challenge: use these naturally in your talk",none:"none",
+  idl:"Idioms",tips:["Open with a clear position or a short story.","Make two or three points, each with an example.","If you stall, rephrase your last point and keep going.","Close by summing up in one sentence."],
+  done:"Time! How did it go?",self:["Ran out of things to say","Kept going with pauses","Fluent to the end"],sec:"s",min:"min"},
+ fr:{tab:"Carte sujet",h:"Carte sujet",p:"Tirez un sujet au hasard ou choisissez-le, préparez-vous un court instant, puis parlez sans vous arrêter jusqu'à la fin du temps.",
+  topic:"Sujet",random:"Sujet au hasard",lang:"Langue",prep:"Préparation",speak:"Temps de parole",draw:"Tirer un sujet",go:"Commencer",stop:"Arrêter",again:"Nouveau sujet",
+  prepping:"PRÉPARATION",live:"● À VOUS",over:"TERMINÉ",challenge:"Défi : placez ces expressions naturellement dans votre intervention",none:"aucun",
+  idl:"Expressions",tips:["Commencez par une position claire ou une courte anecdote.","Développez deux ou trois idées, chacune avec un exemple.","Si vous bloquez, reformulez votre dernière idée et continuez.","Concluez en une phrase."],
+  done:"Temps écoulé ! Comment ça s'est passé ?",self:["Je n'avais plus rien à dire","J'ai tenu avec des pauses","Fluide jusqu'au bout"],sec:"s",min:"min"},
+ de:{tab:"Themenkarte",h:"Themenkarte",p:"Ziehen Sie ein Thema oder wählen Sie eines, bereiten Sie sich kurz vor und sprechen Sie dann ohne Pause, bis die Zeit abläuft.",
+  topic:"Thema",random:"Zufälliges Thema",lang:"Sprache",prep:"Vorbereitung",speak:"Redezeit",draw:"Thema ziehen",go:"Starten",stop:"Stopp",again:"Neues Thema",
+  prepping:"VORBEREITUNG",live:"● SIE SPRECHEN",over:"ZEIT",challenge:"Herausforderung: Bauen Sie diese Wendungen natürlich ein",none:"keine",
+  idl:"Wendungen",tips:["Beginnen Sie mit einer klaren Position oder einer kurzen Geschichte.","Bringen Sie zwei oder drei Punkte, jeweils mit Beispiel.","Wenn Sie stocken, formulieren Sie Ihren letzten Punkt neu und reden Sie weiter.","Schließen Sie mit einem Satz Zusammenfassung."],
+  done:"Zeit! Wie lief es?",self:["Mir ging der Stoff aus","Mit Pausen durchgehalten","Flüssig bis zum Schluss"],sec:"s",min:"Min."}
+};
+let topicTimer=null;
+function topicMode(st, uiLang, langs, idiomsFor){
+  const U=TOPIC_UI[uiLang], LI={en:0,fr:1,de:2};
+  let lang=langs[0], prep=30, speak=120, idiomCount=2;
+  const stopT=()=>{ if(topicTimer){ cancelAnimationFrame(topicTimer); topicTimer=null; } };
+  stopT();
+  const tsel=h("select",{id:"tp-topic","aria-label":U.topic,style:"flex:1 1 12rem;width:12rem;min-width:0"});
+  const fillTopics=()=>{ tsel.innerHTML=""; tsel.append(h("option",{value:"-1"},U.random)); TOPICS.forEach((t,i)=>tsel.append(h("option",{value:i},t[LI[lang]]))); };
+  fillTopics();
+  const lsel=langs.length>1?h("select",{id:"tp-lang","aria-label":U.lang},langs.map(l=>h("option",{value:l},l.toUpperCase()))):null;
+  if(lsel) lsel.onchange=()=>{ lang=lsel.value; fillTopics(); };
+  const psel=h("select",{id:"tp-prep","aria-label":U.prep},[0,15,30,60].map(v=>h("option",{value:v,selected:v===prep},v+" "+U.sec)));
+  psel.onchange=()=>{prep=+psel.value};
+  const ssel=h("select",{id:"tp-speak","aria-label":U.speak},[60,120,180,300].map(v=>h("option",{value:v,selected:v===speak},(v/60)+" "+U.min)));
+  ssel.onchange=()=>{speak=+ssel.value};
+  const isel=h("select",{id:"tp-idioms","aria-label":U.challenge},[0,1,2,3].map(v=>h("option",{value:v,selected:v===idiomCount},v===0?U.none:String(v))));
+  isel.onchange=()=>{idiomCount=+isel.value};
+  const body=h("div",{style:"display:grid;gap:16px"});
+  st.append(h("h2",{},U.h),h("p",{class:"small"},U.p),
+    h("div",{class:"row"},lsel?h("span",{class:"lbl"},U.lang):null,lsel,h("span",{class:"lbl"},U.topic),tsel),
+    h("div",{class:"row"},h("span",{class:"lbl"},U.prep),psel,h("span",{class:"lbl"},U.speak),ssel,h("span",{class:"lbl"},U.idl),isel),
+    h("div",{class:"row"},h("button",{class:"primary",id:"tp-draw",onclick:()=>draw()},U.draw)),body);
+  const fmt=s=>{ s=Math.ceil(s); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); };
+  function draw(){
+    stopT(); body.innerHTML="";
+    const idx=+tsel.value<0?Math.floor(Math.random()*TOPICS.length):+tsel.value;
+    const topic=TOPICS[idx][LI[lang]];
+    const ids=pick(idiomsFor(lang),idiomCount);
+    const air=h("span",{class:"air"},U.prepping), clock=h("span",{class:"prompt mono",style:"font-size:28px"},fmt(prep||speak)), bar=h("i");
+    body.append(h("div",{class:"row spread"},langTag(lang),air),
+      h("div",{class:"prompt"},topic),
+      ids.length?h("div",{class:"note"},h("div",{},h("b",{},U.challenge)),ids.map(x=>h("div",{},"• "+x))):null,
+      h("div",{class:"row spread"},clock),h("div",{class:"timer"},bar),
+      h("div",{class:"note small"},U.tips.map(t=>h("div",{},t))));
+    const ctr=h("div",{class:"row"}); body.append(ctr);
+    const run=(secs,phase,next)=>{ const t0=performance.now();
+      air.textContent=phase==="prep"?U.prepping:U.live; air.classList.toggle("on",phase==="speak");
+      const tick=t=>{ const left=secs-(t-t0)/1000; clock.textContent=fmt(Math.max(0,left)); bar.style.width=Math.max(0,left/secs*100)+"%";
+        if(left<=0){ topicTimer=null; next(); } else topicTimer=requestAnimationFrame(tick); };
+      topicTimer=requestAnimationFrame(tick); };
+    const finish=()=>{ stopT(); air.classList.remove("on"); air.textContent=U.over; bar.style.width="0%"; ctr.innerHTML="";
+      body.append(h("div",{class:"feedback"},h("b",{},U.done),h("div",{class:"grade"},U.self.map(s=>h("button",{onclick:()=>draw()},s))),
+        h("div",{class:"row"},h("button",{class:"primary",onclick:()=>draw()},U.again)))); };
+    const startSpeak=()=>{ ctr.innerHTML=""; ctr.append(h("button",{onclick:finish},U.stop)); run(speak,"speak",finish); };
+    ctr.append(h("button",{class:"primary",id:"tp-go",onclick:()=>{ ctr.innerHTML=""; ctr.append(h("button",{onclick:finish},U.stop)); if(prep>0) run(prep,"prep",startSpeak); else startSpeak(); }},U.go));
+  }
+}
+
+// "Used to describe / express …" line and a second example per idiom, per language.
+// [type, phrase, second example]  type d = describe, e = express
+const USAGE = {
+en:{
+ rain:["d","very heavy rain","Don't forget your umbrella, it's raining cats and dogs out there."],
+ ice:["d","starting a conversation and easing tension with people you don't know","The host broke the ice by asking everyone where they were from."],
+ bush:["d","someone who avoids saying something directly","He beat around the bush for ten minutes before asking for a raise."],
+ birds:["d","one action that achieves two goals","Cycling to work kills two birds with one stone: exercise and no traffic."],
+ cake:["d","a task that is very easy","For her, translating a menu is a piece of cake."],
+ armleg:["d","something that is very expensive","Flights at Christmas cost an arm and a leg."],
+ frog:["d","a voice that is hoarse for a moment","The speaker paused and coughed; he had a frog in his throat."],
+ pigs:["e","that something will never happen","Sure, he'll arrive on time when pigs fly."],
+ leg:["d","teasing someone by telling them something untrue","Relax, she's pulling your leg: there's no exam tomorrow."],
+ moon:["e","great happiness","My parents were over the moon when I got into the Master's."],
+ greek:["e","that you do not understand something at all","The statistics in this report are all Greek to me."],
+ catbag:["d","revealing a secret, often by accident","We planned a surprise party, but his sister let the cat out of the bag."],
+ poke:["d","buying something without checking it first","Signing the lease without visiting the flat is buying a pig in a poke."],
+ nail:["d","a comment that is exactly right","When she said the problem was communication, she hit the nail on the head."],
+ boat:["d","people who share the same difficult situation","Don't feel bad about the deadline; we're all in the same boat."],
+ straw:["d","the final problem that makes someone lose patience","When the printer broke too, that was the last straw."],
+ fuel:["d","an action that makes a conflict worse","Responding angrily on social media will only add fuel to the fire."],
+ log:["d","very deep sleep","The baby finally slept like a log."],
+ bull:["d","facing a difficult problem directly","She took the bull by the horns and called the angry client herself."],
+ tea:["e","that you don't really like something","Football isn't my cup of tea, but I'll come to the match."],
+ butterflies:["d","feeling nervous before something important","Even after years in the booth, I still get butterflies before a big conference."],
+ breakleg:["e","good luck to someone before a performance","Your first conference is tomorrow? Break a leg!"],
+ cuff:["d","speaking without preparation","Asked to say a few words, the mayor spoke off the cuff."],
+ thread:["d","forgetting what you were going to say","The question surprised him and he lost his train of thought."],
+ point:["d","talking about the essential thing directly","The chair asked the delegate to get to the point."],
+ tongue:["d","a word you almost remember","The French term is on the tip of my tongue."],
+ lines:["d","understanding what is implied but not said","Read between the lines: they are not happy with the offer."],
+ foot:["d","saying something tactless by accident","He put his foot in it by asking when the baby was due."],
+ bone:["e","that you have a complaint to discuss with someone","I've got a bone to pick with you: you ate my lunch!"],
+ wits:["d","not knowing what to do any more","The parents were at their wits' end with the noisy neighbours."],
+ wolf:["d","giving false alarms until nobody believes you","The company cried wolf about bankruptcy so often that investors stopped listening."],
+ fence:["d","refusing to take a side","You can't sit on the fence forever; you have to vote."],
+ blue:["d","something that happens suddenly and unexpectedly","Out of the blue, my old teacher called me."],
+ earlybird:["e","that starting early brings an advantage","Get to the registration desk at eight: the early bird catches the worm."],
+ chickens:["e","that you should not assume success too early","We might win the contract, but don't count your chickens before they hatch."],
+ molehill:["d","exaggerating a small problem","One late email is not a crisis; don't make a mountain out of a molehill."],
+ fish:["e","that you have more important things to deal with","I can't worry about the decorations; I have bigger fish to fry."],
+ peas:["d","two people or things that are very similar","My brother and I are like two peas in a pod."],
+ dust:["d","something or someone that fails or is defeated","Our old printer finally bit the dust."],
+ cards:["d","being completely open about your intentions","Let me lay my cards on the table: we can't afford this."],
+ fingers:["e","hope for good luck","The results come out tomorrow, so keep your fingers crossed!"],
+ blindeye:["d","deliberately ignoring something wrong","The teacher turned a blind eye to the students using their phones."],
+ bed:["d","someone in a bad mood","Don't ask the boss today; she got out of bed on the wrong side."],
+ fishwater:["d","feeling uncomfortable in an unfamiliar place","As the only interpreter at the engineering fair, I felt like a fish out of water."],
+ ears:["e","that you are ready to listen carefully","You have news? I'm all ears."],
+ coldfeet:["d","losing courage just before doing something","He got cold feet and cancelled his speech."],
+ nutshell:["e","a very short summary","In a nutshell, we need more money and more time."],
+ endday:["e","what matters most in the end","At the end of the day, the client decides."],
+ hotwater:["d","being in trouble","The minister is in hot water over his expenses."],
+ salt:["e","doubt about how true something is","Take online reviews with a pinch of salt."],
+ spade:["d","speaking plainly and honestly","I'll call a spade a spade: your report is late."],
+ towel:["d","giving up","After failing the test twice, he almost threw in the towel."],
+ devil:["e","surprise when the person you are talking about arrives","Speak of the devil! We were just talking about you."],
+ neck:["d","an annoying person or thing","Filling in visa forms is a real pain in the neck."],
+ heaven:["d","making every possible effort","She moved heaven and earth to find a sign language interpreter."],
+ belt:["d","spending less money","After the price rises, many families are tightening their belts."],
+ can:["d","postponing a problem instead of solving it","Raising the debt limit again is just kicking the can down the road."],
+ drop:["d","an amount that is far too small to help","Ten new teachers is a drop in the ocean for a school of two thousand."],
+ elephant:["d","an obvious problem that nobody wants to discuss","At the meeting, the budget deficit was the elephant in the room."],
+ thinice:["d","a risky situation","If you criticise the director in public, you're on thin ice."],
+ eggshells:["d","being very careful not to upset someone","Since the argument, I've been walking on eggshells around my flatmate."],
+ tunnel:["e","hope that a difficult period is ending","With exams almost over, I can see the light at the end of the tunnel."],
+ hands:["e","that you cannot act because of rules or circumstances","The receptionist wanted to help, but her hands were tied."],
+ wave:["d","people who understand each other easily","My booth partner and I are on the same wavelength."],
+ sources:["d","information from unnamed people near the government","Sources close to the government deny any change of plan."],
+ breaking:["d","news reported as it happens","Breaking news: the summit has been cancelled."],
+ headlines:["d","a story that gets a lot of media attention","The young interpreter made headlines after the summit."],
+ offrecord:["d","something said to a journalist that must not be published","Off the record, the ambassador admitted the talks were failing."],
+ wordwar:["d","a public exchange of sharp criticism","The two ministers are locked in a war of words over migration."],
+ underfire:["d","someone who is being strongly criticised","The referee came under fire after the match."],
+ uturn:["d","a complete reversal of a decision","After the protests, the city made a U-turn on bus fares."],
+ landslide:["d","an election won by a huge margin","Polls predict a landslide victory for the president."],
+ neckneck:["d","a competition that is extremely close","With one week to go, the candidates are neck and neck."],
+ record:["d","correcting a false report","I want to set the record straight: I never said that."],
+ court:["e","that it is now someone else's turn to act","We've sent the proposal; the ball is in their court."],
+ closeddoors:["d","something done in private, without the press","The deal was agreed behind closed doors."],
+ redline:["d","a limit that must not be crossed","For the union, job cuts are a red line."],
+ frank:["d","talks where the two sides disagreed strongly (diplomatic code)","The communiqué spoke of a frank exchange of views, which means they argued."],
+ leak:["d","secret information reaching journalists","The draft law was leaked to the press last night."],
+ smear:["d","an organised attack on someone's reputation","The party denies running a smear campaign against its rival."],
+ lameduck:["d","a leader with little power left before leaving office","Congress ignored the lame duck president's proposals."],
+ bombshell:["d","a shocking announcement","The minister dropped a bombshell: she is resigning."],
+ callday:["d","stopping work for the day","It's six o'clock; let's call it a day."],
+ ballrolling:["d","starting an activity or discussion","Who wants to get the ball rolling with the first question?"],
+ bluemoon:["d","something that happens very rarely","We eat out once in a blue moon."],
+ weather:["d","feeling slightly ill","She stayed home because she was under the weather."],
+ corners:["d","doing something badly to save time or money","If you cut corners on terminology, the client will notice."],
+ bothworlds:["d","having the advantages of two things at once","Living near the city but in a quiet street is the best of both worlds."],
+ missboat:["d","missing an opportunity","Applications closed yesterday; I missed the boat."],
+ sack:["d","going to bed","Big day tomorrow, so I'll hit the sack early."],
+ samepage:["d","people who share the same understanding","Let's check that the whole team is on the same page about the deadline."],
+ box:["d","creative, unconventional thinking","To solve this, we have to think outside the box."],
+ squareone:["d","having to start again from the beginning","The file was deleted, so we're back to square one."],
+ extramile:["d","making more effort than expected","She went the extra mile and prepared a glossary for the whole team."],
+ blessing:["d","something bad that turned out to be good","Missing the train was a blessing in disguise: I met my future boss."],
+ beans:["d","revealing a secret","Don't spill the beans about the surprise."],
+ bullet:["d","accepting something unpleasant you have been avoiding","I bit the bullet and asked for feedback on my interpreting."],
+ chase:["e","that someone should get to the main point","Cut to the chase: did we get the contract?"],
+ late:["e","that doing something late is better than not doing it","You finished your thesis! Better late than never."],
+ second:["d","starting to doubt a decision","After signing up, she had second thoughts."],
+ air:["d","something that is not yet decided","Our holiday plans are still up in the air."],
+ hang:["d","learning how to do something","Note-taking is tricky, but you'll get the hang of it."],
+ together:["d","regaining control of your emotions","Pull yourself together; the audience is waiting."],
+ base:["d","making brief contact with someone","I'll touch base with the organisers tomorrow."],
+ sleepon:["d","waiting until the next day to decide","It's a big decision; sleep on it."],
+ eye:["d","watching something carefully","Keep an eye on the time during your presentation."],
+ ball:["d","someone who is alert and quick","Our new colleague is really on the ball."]
+},
+fr:{
+ rain:["d","une pluie très forte","Reste à l'intérieur, il pleut des cordes."],
+ ice:["d","le fait de détendre l'atmosphère avec des inconnus","L'animatrice a brisé la glace en demandant à chacun d'où il venait."],
+ bush:["d","quelqu'un qui évite de dire les choses directement","Il a tourné autour du pot dix minutes avant de demander une augmentation."],
+ birds:["d","une seule action qui atteint deux objectifs","En allant au travail à vélo, je fais d'une pierre deux coups : du sport et pas d'embouteillages."],
+ cake:["d","une tâche très facile","Pour elle, traduire un menu, c'est du gâteau."],
+ armleg:["d","quelque chose de très cher","À Noël, les billets d'avion coûtent les yeux de la tête."],
+ frog:["d","une voix enrouée pendant un moment","L'orateur a toussé : il avait un chat dans la gorge."],
+ pigs:["e","qu'une chose n'arrivera jamais","Lui, ponctuel ? Quand les poules auront des dents !"],
+ leg:["d","le fait de taquiner quelqu'un en lui racontant une chose fausse","Mais non, il n'y a pas d'examen demain, je te fais marcher."],
+ moon:["e","un grand bonheur","Mes parents étaient aux anges quand j'ai été admis en master."],
+ greek:["e","qu'on ne comprend rien du tout","Ces statistiques, pour moi, c'est du chinois."],
+ catbag:["d","le fait de révéler un secret, souvent sans le vouloir","On préparait une surprise, mais sa sœur a vendu la mèche."],
+ poke:["d","un achat fait sans vérifier ce qu'on achète","Signer le bail sans visiter, c'est acheter chat en poche."],
+ nail:["d","une remarque qui identifie exactement le problème","Quand elle a parlé de communication, elle a mis le doigt dessus."],
+ boat:["d","des personnes qui partagent la même situation difficile","Ne t'inquiète pas pour le délai, nous sommes tous dans le même bateau."],
+ straw:["d","le dernier problème qui fait perdre patience","La panne de l'imprimante, ça a été la goutte d'eau qui fait déborder le vase."],
+ fuel:["d","une action qui aggrave un conflit","Répondre avec colère sur les réseaux sociaux, c'est jeter de l'huile sur le feu."],
+ log:["d","un sommeil très profond","Le bébé a enfin dormi comme une souche."],
+ bull:["d","le fait d'affronter un problème difficile de face","Elle a pris le taureau par les cornes et a appelé elle-même le client mécontent."],
+ tea:["e","qu'on n'aime pas vraiment quelque chose","Le foot, ce n'est pas mon truc, mais je viendrai au match."],
+ butterflies:["d","la nervosité avant une prestation ou une prise de parole","Même après des années en cabine, j'ai encore le trac avant une grande conférence."],
+ breakleg:["e","des vœux de réussite avant un spectacle (milieu artistique)","Ta première sur scène, c'est ce soir ? Merde !"],
+ thread:["d","le fait d'oublier ce qu'on allait dire","La question l'a surpris et il a perdu le fil."],
+ point:["d","le fait de parler directement de l'essentiel","Le président a demandé au délégué d'en venir au fait."],
+ tongue:["d","un mot qu'on a presque retrouvé","Le terme anglais, je l'ai sur le bout de la langue."],
+ lines:["d","le fait de comprendre ce qui est sous-entendu","Lis entre les lignes : ils ne sont pas satisfaits de l'offre."],
+ foot:["d","une parole maladroite dite sans le vouloir","Il a fait une gaffe en lui demandant pour quand était le bébé."],
+ bone:["e","qu'on a un reproche à faire à quelqu'un","J'ai deux mots à te dire : tu as mangé mon déjeuner !"],
+ wits:["d","le fait de ne plus savoir quoi faire","Avec ces voisins bruyants, les parents ne savaient plus à quel saint se vouer."],
+ wolf:["d","le fait de donner de fausses alertes jusqu'à ne plus être cru","L'entreprise a crié au loup si souvent que plus personne ne l'écoute."],
+ fence:["d","le fait d'éviter de prendre parti","Tu ne peux pas ménager la chèvre et le chou éternellement, il faut voter."],
+ blue:["d","quelque chose qui arrive soudainement","Mon ancien professeur m'a appelé sans crier gare."],
+ earlybird:["e","que commencer tôt donne un avantage","Sois à l'accueil à huit heures : l'avenir appartient à ceux qui se lèvent tôt."],
+ chickens:["e","qu'il ne faut pas considérer un succès comme acquis trop tôt","On aura peut-être le contrat, mais il ne faut pas vendre la peau de l'ours avant de l'avoir tué."],
+ molehill:["d","l'exagération d'un petit problème","Un e-mail en retard, ce n'est pas un drame : n'en fais pas tout un plat."],
+ fish:["e","qu'on a des choses plus importantes à faire","La décoration ? J'ai d'autres chats à fouetter."],
+ peas:["d","deux personnes ou choses presque identiques","Mon frère et moi, on se ressemble comme deux gouttes d'eau."],
+ dust:["d","une défaite","Le champion en titre a mordu la poussière dès le premier tour."],
+ cards:["d","le fait d'être totalement franc sur ses intentions","Jouons cartes sur table : nous n'avons pas le budget."],
+ fingers:["e","l'espoir que tout se passe bien","Les résultats sortent demain, je croise les doigts !"],
+ blindeye:["d","le fait d'ignorer volontairement quelque chose de répréhensible","Le professeur ferme les yeux sur les téléphones en classe."],
+ bed:["d","quelqu'un de mauvaise humeur","Évite la directrice aujourd'hui, elle s'est levée du pied gauche."],
+ fishwater:["d","un malaise dans un milieu inhabituel","Seule interprète au salon de l'ingénierie, je me sentais comme un poisson hors de l'eau."],
+ ears:["e","qu'on est prêt à écouter attentivement","Tu as des nouvelles ? Je suis tout ouïe."],
+ coldfeet:["d","le fait de perdre courage au dernier moment","Il s'est dégonflé et a annulé son discours."],
+ nutshell:["e","un résumé très court","En un mot, il nous faut plus d'argent et plus de temps."],
+ endday:["e","ce qui compte vraiment à la fin","En fin de compte, c'est le client qui décide."],
+ hotwater:["d","une situation où l'on a de gros ennuis","Le ministre est dans le pétrin à cause de ses notes de frais."],
+ salt:["e","un doute sur la fiabilité d'une information","Les avis en ligne sont à prendre avec des pincettes."],
+ spade:["d","le fait de parler franchement","Appelons un chat un chat : ton rapport est en retard."],
+ towel:["d","le fait d'abandonner","Après deux échecs, il a failli jeter l'éponge."],
+ devil:["e","la surprise quand arrive la personne dont on parle","Quand on parle du loup ! On parlait justement de toi."],
+ neck:["d","une personne très agaçante","Ce client est un vrai casse-pieds."],
+ heaven:["d","le fait de tout faire pour obtenir quelque chose","Elle a remué ciel et terre pour trouver un interprète en langue des signes."],
+ belt:["d","le fait de réduire ses dépenses","Avec la hausse des prix, beaucoup de familles se serrent la ceinture."],
+ cuff:["d","le fait de parler sans préparation","Invité à dire quelques mots, le maire a improvisé sans notes."],
+ can:["d","le fait de remettre un problème à plus tard au lieu de le régler","Relever encore le plafond de la dette, c'est repousser le problème à plus tard."],
+ elephant:["d","un problème évident que personne ne veut aborder","Pendant la réunion, le déficit était le sujet que tout le monde évitait."],
+ drop:["d","une quantité bien trop faible pour changer les choses","Dix enseignants de plus, c'est une goutte d'eau dans la mer pour deux mille élèves."],
+ thinice:["d","une situation risquée","Critiquer le directeur en public, c'est s'aventurer sur un terrain glissant."],
+ eggshells:["d","le fait de faire très attention à ne froisser personne","Depuis la dispute, je marche sur des œufs avec ma colocataire."],
+ tunnel:["e","l'espoir qu'une période difficile se termine","Les examens sont presque finis, je vois le bout du tunnel."],
+ hands:["e","qu'on ne peut pas agir à cause des règles ou des circonstances","La réceptionniste voulait nous aider, mais elle avait les mains liées."],
+ wave:["d","des personnes qui se comprennent facilement","Ma collègue de cabine et moi sommes sur la même longueur d'onde."],
+ sources:["d","une information venant de personnes anonymes proches du gouvernement","De source proche du gouvernement, on dément tout changement de cap."],
+ breaking:["d","une nouvelle annoncée au moment où elle se produit","Information de dernière minute : le sommet est annulé."],
+ headlines:["d","un sujet très présent dans les médias","La jeune interprète a fait la une après le sommet."],
+ offrecord:["d","des propos tenus à un journaliste qui ne doivent pas être publiés","En off, l'ambassadeur a reconnu que les négociations échouaient."],
+ wordwar:["d","un échange public de critiques vives","Les deux ministres se sont livrés à une passe d'armes sur l'immigration."],
+ underfire:["d","quelqu'un qui est vivement critiqué","L'arbitre est sous le feu des critiques après le match."],
+ uturn:["d","un changement complet de décision","Après les manifestations, la mairie a opéré un revirement sur le prix des bus."],
+ landslide:["d","une élection gagnée avec une très large avance","Les sondages prédisent une victoire écrasante du président."],
+ neckneck:["d","une compétition très serrée","À une semaine du scrutin, les candidats sont au coude-à-coude."],
+ record:["d","la correction d'une information fausse","Je tiens à remettre les pendules à l'heure : je n'ai jamais dit cela."],
+ court:["e","que c'est maintenant à l'autre partie d'agir","Nous avons envoyé la proposition, la balle est dans leur camp."],
+ closeddoors:["d","quelque chose qui se passe en privé, sans public ni presse","L'accord a été conclu à huis clos."],
+ redline:["d","une limite à ne pas franchir","Pour le syndicat, les suppressions d'emplois sont une ligne rouge."],
+ frank:["d","des discussions marquées par un désaccord profond (langage diplomatique)","Le communiqué évoque un échange de vues franc : autrement dit, ils se sont disputés."],
+ leak:["d","des informations secrètes qui parviennent aux journalistes","Le projet de loi a fuité dans la presse hier soir."],
+ smear:["d","une attaque organisée contre la réputation de quelqu'un","Le parti dément mener une campagne de dénigrement contre son rival."],
+ lameduck:["d","un dirigeant qui n'a plus guère de pouvoir avant son départ","Dans ses derniers mois, le président en fin de mandat n'a plus fait passer aucune loi."],
+ bombshell:["d","une annonce soudaine et choquante","L'annonce de sa démission a été un coup de tonnerre."],
+ cafard:["d","un moment de tristesse ou de déprime","Le dimanche soir, j'ai souvent le cafard."],
+ lapin:["d","le fait de ne pas venir à un rendez-vous","Mon correspondant m'a encore posé un lapin."],
+ flemme:["e","le manque d'envie de faire un effort","J'ai la flemme d'aller courir ce matin."],
+ peche:["d","quelqu'un en pleine forme","Elle a la pêche aujourd'hui, elle a déjà fini son glossaire !"],
+ pommes:["d","un évanouissement","Un spectateur est tombé dans les pommes pendant le concert."],
+ salades:["d","des mensonges ou des excuses inventées","Ne me raconte pas de salades, je sais que tu étais au cinéma."],
+ graindesel:["d","quelqu'un qui donne son avis sans qu'on le lui demande","Ma tante met toujours son grain de sel dans nos projets."],
+ poil:["d","une personne très paresseuse","Mon colocataire a un poil dans la main, il ne fait jamais la vaisselle."],
+ farine:["d","le fait de se faire tromper","Je me suis fait rouler dans la farine par ce site de location."],
+ lune:["d","quelqu'un de distrait ou rêveur","Pendant le cours, il était complètement dans la lune."],
+ pain:["d","une grande quantité de travail à faire","Avec trois conférences cette semaine, j'ai du pain sur la planche."],
+ pate:["d","le fait de participer soi-même au travail","Le directeur a mis la main à la pâte pour préparer la salle."],
+ guidon:["d","quelqu'un trop absorbé par son travail pour prendre du recul","Prends des vacances, tu as la tête dans le guidon."],
+ poire:["d","un compromis à mi-chemin","Tu proposes cent, moi deux cents : coupons la poire en deux."],
+ canard:["e","que quelque chose n'a rien d'exceptionnel","Son discours ne cassait pas trois pattes à un canard."],
+ pic:["d","quelque chose qui arrive au bon moment","Cette prime tombe à pic, je dois payer mon loyer."],
+ foudre:["d","un amour immédiat pour une personne ou une chose","J'ai eu le coup de foudre pour cette ville."],
+ langue:["d","le fait de renoncer à trouver une réponse","Tu donnes ta langue au chat ? La réponse est Ottawa."],
+ grasse:["d","le fait de se lever tard","Pendant les vacances, je fais la grasse matinée tous les jours."],
+ rouleau:["d","un état d'épuisement total","Après cette semaine de cabine, je suis au bout du rouleau."],
+ haricots:["e","qu'une situation est catastrophique","Si on perd aussi ce client, c'est la fin des haricots."],
+ points:["d","le fait de préciser les choses sans ambiguïté","Le président a mis les points sur les i : aucun retard ne sera toléré."],
+ moutons:["d","le retour au sujet principal","Bon, revenons à nos moutons : qui prend la cabine anglaise ?"],
+ anguille:["e","le soupçon que quelque chose est caché","Ils se taisent quand j'entre : il y a anguille sous roche."],
+ oreilles:["d","un bruit ou une répétition très agaçants","Les travaux du voisin me cassent les oreilles."]
+},
+de:{
+ rain:["d","sehr starken Regen","Bleib drinnen, es regnet in Strömen."],
+ ice:["d","das Lösen der Anspannung unter Fremden","Die Moderatorin brach das Eis mit einer Frage nach den Herkunftsorten."],
+ bush:["d","das Vermeiden einer direkten Aussage","Er redete zehn Minuten um den heißen Brei herum, bevor er nach einer Gehaltserhöhung fragte."],
+ birds:["d","eine Handlung, die zwei Ziele zugleich erreicht","Mit dem Rad zur Arbeit schlage ich zwei Fliegen mit einer Klappe: Sport und kein Stau."],
+ cake:["d","eine sehr leichte Aufgabe","Eine Speisekarte zu übersetzen ist für sie ein Kinderspiel."],
+ armleg:["d","etwas sehr Teures","Flüge zu Weihnachten kosten ein Vermögen."],
+ frog:["d","eine vorübergehend heisere Stimme","Der Redner hustete, er hatte einen Frosch im Hals."],
+ pigs:["e","dass etwas nie geschehen wird","Pünktlich? Das wird er am Sankt-Nimmerleinstag."],
+ leg:["d","das Necken mit einer erfundenen Geschichte","Keine Panik, es gibt morgen keine Prüfung, ich nehme dich nur auf den Arm."],
+ moon:["e","großes Glück","Meine Eltern waren im siebten Himmel, als ich den Masterplatz bekam."],
+ greek:["e","dass man gar nichts versteht","Bei diesen Statistiken verstehe ich nur Bahnhof."],
+ catbag:["d","das Verraten eines Geheimnisses","Wir planten eine Überraschung, aber seine Schwester hat die Katze aus dem Sack gelassen."],
+ poke:["d","einen Kauf ohne vorherige Prüfung","Einen Mietvertrag ohne Besichtigung zu unterschreiben heißt, die Katze im Sack zu kaufen."],
+ nail:["d","eine genau zutreffende Bemerkung","Mit dem Stichwort Kommunikation hat sie den Nagel auf den Kopf getroffen."],
+ boat:["d","Menschen in derselben schwierigen Lage","Mach dir keine Sorgen wegen der Frist, wir sitzen alle im selben Boot."],
+ straw:["d","das letzte Problem, das die Geduld sprengt","Der kaputte Drucker war der Tropfen, der das Fass zum Überlaufen brachte."],
+ fuel:["d","eine Handlung, die einen Konflikt verschärft","Wütende Antworten in sozialen Medien gießen nur Öl ins Feuer."],
+ log:["d","sehr tiefen Schlaf","Das Baby hat endlich wie ein Murmeltier geschlafen."],
+ bull:["d","das entschlossene Angehen eines schwierigen Problems","Sie packte den Stier bei den Hörnern und rief den verärgerten Kunden selbst an."],
+ tea:["e","dass einem etwas nicht besonders gefällt","Fußball ist nicht so mein Fall, aber ich komme mit ins Stadion."],
+ butterflies:["d","Nervosität vor einem Auftritt","Selbst nach Jahren in der Kabine habe ich vor großen Konferenzen noch Lampenfieber."],
+ breakleg:["e","gute Wünsche vor einem Auftritt","Morgen ist deine erste Konferenz? Toi, toi, toi!"],
+ cuff:["d","freies Sprechen ohne Vorbereitung","Der Bürgermeister hielt seine Ansprache aus dem Stegreif."],
+ thread:["d","das Vergessen dessen, was man sagen wollte","Die Frage überraschte ihn, und er verlor den Faden."],
+ point:["d","das direkte Ansprechen des Wesentlichen","Die Vorsitzende bat den Delegierten, zur Sache zu kommen."],
+ tongue:["d","ein Wort, an das man sich fast erinnert","Der englische Fachbegriff liegt mir auf der Zunge."],
+ lines:["d","das Verstehen von Andeutungen","Wenn man zwischen den Zeilen liest, sind sie mit dem Angebot unzufrieden."],
+ foot:["d","eine versehentlich taktlose Bemerkung","Mit der Frage nach dem Geburtstermin ist er ins Fettnäpfchen getreten."],
+ bone:["e","dass man mit jemandem etwas zu klären hat","Mit dir habe ich noch ein Hühnchen zu rupfen: Du hast mein Mittagessen gegessen!"],
+ wits:["d","völlige Ratlosigkeit","Mit den lauten Nachbarn waren die Eltern mit ihrem Latein am Ende."],
+ wolf:["d","wiederholten Fehlalarm, dem man irgendwann nicht mehr glaubt","Die Firma hat so oft blinden Alarm geschlagen, dass ihr niemand mehr zuhört."],
+ fence:["d","das Vermeiden einer klaren Position","Die Partei will sich vor der Wahl nicht festlegen."],
+ blue:["d","etwas plötzlich und unerwartet Eintretendes","Aus heiterem Himmel rief mich mein alter Lehrer an."],
+ earlybird:["e","dass ein früher Start Vorteile bringt","Sei um acht an der Anmeldung, Morgenstund hat Gold im Mund."],
+ chickens:["e","dass man einen Erfolg nicht zu früh feiern soll","Vielleicht bekommen wir den Auftrag, aber man soll den Tag nicht vor dem Abend loben."],
+ molehill:["d","das Übertreiben eines kleinen Problems","Eine verspätete E-Mail ist keine Krise, mach nicht aus einer Mücke einen Elefanten."],
+ fish:["e","dass man Dringenderes zu erledigen hat","Um die Dekoration kann ich mich nicht kümmern, ich habe Wichtigeres zu tun."],
+ peas:["d","zwei fast identische Personen oder Dinge","Mein Bruder und ich gleichen uns wie ein Ei dem anderen."],
+ dust:["d","ein Scheitern","Das Projekt ist an der Finanzierung gescheitert."],
+ cards:["d","völlige Offenheit über die eigenen Absichten","Legen wir die Karten auf den Tisch: Wir haben das Budget nicht."],
+ fingers:["e","die Hoffnung auf Glück","Die Ergebnisse kommen morgen, drück mir die Daumen!"],
+ blindeye:["d","das bewusste Ignorieren eines Missstands","Die Schulleitung verschließt die Augen vor dem Mobbing."],
+ bed:["d","jemanden mit schlechter Laune","Frag die Chefin heute lieber nicht, sie ist mit dem linken Fuß zuerst aufgestanden."],
+ fishwater:["d","Unbehagen in einer fremden Umgebung","Als einzige Dolmetscherin auf der Ingenieursmesse fühlte ich mich wie ein Fisch auf dem Trockenen."],
+ ears:["e","dass man bereit ist, aufmerksam zuzuhören","Du hast Neuigkeiten? Ich bin ganz Ohr."],
+ coldfeet:["d","Mutverlust kurz vor einer Handlung","Er bekam kalte Füße und sagte seine Rede ab."],
+ nutshell:["e","eine sehr kurze Zusammenfassung","Kurz gesagt: Wir brauchen mehr Geld und mehr Zeit."],
+ endday:["e","das, worauf es am Ende ankommt","Letzten Endes entscheidet der Kunde."],
+ hotwater:["d","eine schwierige, unangenehme Lage","Der Minister steckt wegen seiner Spesen in der Klemme."],
+ salt:["e","Zweifel an der Zuverlässigkeit einer Information","Online-Bewertungen sind mit Vorsicht zu genießen."],
+ spade:["d","offenes, ehrliches Sprechen","Nennen wir das Kind beim Namen: Dein Bericht ist zu spät."],
+ towel:["d","das Aufgeben","Nach zwei Fehlversuchen hätte er fast das Handtuch geworfen."],
+ devil:["e","Überraschung, wenn die besprochene Person erscheint","Wenn man vom Teufel spricht! Wir haben gerade über dich geredet."],
+ neck:["d","eine sehr lästige Person","Dieser Kunde ist eine echte Nervensäge."],
+ heaven:["d","den Einsatz aller Mittel für ein Ziel","Sie setzte Himmel und Hölle in Bewegung, um eine Gebärdensprachdolmetscherin zu finden."],
+ belt:["d","das Einschränken der Ausgaben","Wegen der Preiserhöhungen müssen viele Familien den Gürtel enger schnallen."],
+ can:["d","das ständige Aufschieben eines Problems","Die Reform wird schon seit Jahren auf die lange Bank geschoben."],
+ drop:["d","eine Menge, die viel zu klein ist, um zu helfen","Zehn neue Lehrkräfte für zweitausend Schüler sind ein Tropfen auf den heißen Stein."],
+ elephant:["d","ein offensichtliches Problem, über das niemand spricht","In der Sitzung war das Haushaltsdefizit der Elefant im Raum."],
+ thinice:["d","eine riskante Lage","Wer den Direktor öffentlich kritisiert, bewegt sich auf dünnem Eis."],
+ eggshells:["d","übergroße Vorsicht, um niemanden zu verärgern","Seit dem Streit gehe ich bei meiner Mitbewohnerin wie auf Eiern."],
+ tunnel:["e","die Hoffnung auf das Ende einer schweren Zeit","Die Prüfungen sind fast vorbei, ich sehe Licht am Ende des Tunnels."],
+ hands:["e","dass man wegen Regeln oder Umständen nicht handeln kann","Die Rezeptionistin wollte helfen, aber ihr waren die Hände gebunden."],
+ wave:["d","Menschen, die sich mühelos verstehen","Meine Kabinenpartnerin und ich liegen auf derselben Wellenlänge."],
+ sources:["d","Informationen von ungenannten Personen aus dem Regierungsumfeld","Aus Regierungskreisen wird jede Kursänderung dementiert."],
+ breaking:["d","eine Nachricht, die sofort gemeldet wird","Eilmeldung: Der Gipfel ist abgesagt."],
+ headlines:["d","ein Ereignis mit großer Medienaufmerksamkeit","Die junge Dolmetscherin machte nach dem Gipfel Schlagzeilen."],
+ offrecord:["d","vertrauliche Aussagen gegenüber Journalisten","Unter drei räumte der Botschafter ein, dass die Gespräche scheitern."],
+ wordwar:["d","einen öffentlichen Austausch scharfer Kritik","Die beiden Minister lieferten sich einen verbalen Schlagabtausch über Migration."],
+ underfire:["d","jemanden, der stark kritisiert wird","Der Schiedsrichter ist nach dem Spiel in die Kritik geraten."],
+ uturn:["d","eine vollständige Umkehr einer Entscheidung","Nach den Protesten vollzog die Stadt eine Kehrtwende bei den Busfahrpreisen."],
+ landslide:["d","einen Wahlsieg mit riesigem Vorsprung","Umfragen sagen dem Präsidenten einen Erdrutschsieg voraus."],
+ neckneck:["d","einen äußerst knappen Wettbewerb","Eine Woche vor der Wahl liefern sich die Kandidaten ein Kopf-an-Kopf-Rennen."],
+ record:["d","die Korrektur einer falschen Meldung","Ich möchte etwas richtigstellen: Das habe ich nie gesagt."],
+ court:["e","dass nun die andere Seite handeln muss","Wir haben den Vorschlag geschickt, jetzt sind sie am Zug."],
+ closeddoors:["d","etwas, das ohne Öffentlichkeit geschieht","Die Einigung wurde hinter verschlossenen Türen erzielt."],
+ redline:["d","eine Grenze, die nicht überschritten werden darf","Für die Gewerkschaft ist Stellenabbau eine rote Linie."],
+ frank:["d","Gespräche mit deutlichem Dissens (diplomatische Formel)","Im Kommuniqué ist von einem offenen Meinungsaustausch die Rede, sprich: Man hat gestritten."],
+ leak:["d","geheime Informationen, die zu Journalisten gelangen","Der Gesetzentwurf ist gestern an die Presse durchgesickert."],
+ smear:["d","einen gezielten Angriff auf jemandes Ruf","Die Partei bestreitet, eine Schmutzkampagne gegen den Rivalen zu führen."],
+ lameduck:["d","einen Amtsinhaber mit wenig Macht kurz vor dem Abschied","Der Kongress ignorierte die Vorschläge der lahmen Ente im Weißen Haus."],
+ bombshell:["d","eine schockierende Ankündigung","Die Nachricht von ihrem Rücktritt war ein Paukenschlag."],
+ tomaten:["d","das Übersehen von etwas Offensichtlichem","Du hast wohl Tomaten auf den Augen, das Schild ist doch riesig!"],
+ nase:["e","dass man genug von etwas hat","Ich habe die Nase voll vom ständigen Regen."],
+ schwein:["d","unerwartetes Glück","Wir haben Schwein gehabt, der Zug hatte Verspätung."],
+ sand:["d","das Ausweichen vor Problemen","Bei schlechten Nachrichten steckt er gern den Kopf in den Sand."],
+ keks:["d","etwas oder jemanden, der nervt","Der ständige Lärm geht mir auf den Keks."],
+ bier:["e","dass einen etwas nichts angeht","Ob sie umzieht oder nicht, ist nicht mein Bier."],
+ kirche:["e","die Aufforderung, nicht zu übertreiben","Lass die Kirche im Dorf, wir haben nur einen Termin verschoben."],
+ halskopf:["d","eine überstürzte Handlung","Sie haben Hals über Kopf geheiratet."],
+ baer:["d","eine Veranstaltung mit toller Stimmung","Beim Stadtfest steppt jedes Jahr der Bär."],
+ baerauf:["d","das Erzählen einer Lüge","Er hat mir einen Bären aufgebunden, es gibt gar keinen Feiertag."],
+ vieraugen:["d","ein vertrauliches Gespräch zu zweit","Der Chef möchte dich unter vier Augen sprechen."],
+ butter:["e","dass alles in Ordnung ist","Der Techniker war da, jetzt ist alles in Butter."],
+ zeug:["d","großen Einsatz","Für die Prüfung hat sie sich mächtig ins Zeug gelegt."],
+ eulen:["d","eine völlig überflüssige Handlung","Einem Dolmetscher Grammatik zu erklären hieße, Eulen nach Athen zu tragen."],
+ fische:["e","die Aufforderung, konkret zu werden","Genug geredet, Butter bei die Fische: Machst du mit?"],
+ holzweg:["d","einen Irrtum","Wer glaubt, Dolmetschen sei nur Wortersetzung, ist auf dem Holzweg."],
+ glocke:["d","das Herumerzählen einer privaten Sache","Sie hängt ihre Beförderung nicht an die große Glocke."],
+ kater:["d","das Unwohlsein nach zu viel Alkohol","Am Neujahrsmorgen hatten alle einen Kater."],
+ wein:["d","das offene Aussprechen einer unangenehmen Wahrheit","Der Arzt schenkte ihm reinen Wein ein."],
+ wurst:["d","den entscheidenden Moment","Im Finale geht es um die Wurst."],
+ katzensprung:["d","eine sehr kurze Entfernung","Von hier bis zum Konferenzzentrum ist es nur ein Katzensprung."],
+ linke:["d","handwerkliche Ungeschicklichkeit","Bei Möbeln zum Selbstaufbauen merke ich, dass ich zwei linke Hände habe."],
+ blau:["d","das unentschuldigte Fernbleiben von Arbeit oder Schule","Am Montag nach dem Fest haben viele blaugemacht."],
+ spanisch:["e","Misstrauen gegenüber etwas Seltsamem","Dieses Angebot kommt mir spanisch vor, es ist zu billig."],
+ gras:["d","das Sterben (salopp)","Im Krimi beißt der Zeuge schon im ersten Kapitel ins Gras."]
+}};
+function usageLine(lang,id){
+  const u=(USAGE[lang]||{})[String(id).replace(/^n_/,"")]; if(!u) return "";
+  const [t,p]=u;
+  if(lang==="en") return (t==="d"?"Used to describe ":"Used to express ")+p+".";
+  if(lang==="fr") return (t==="d"?"S'emploie pour décrire ":"S'emploie pour exprimer ")+p+".";
+  if(t==="e"&&/^dass /.test(p)) return "Wird verwendet, um auszudrücken, "+p+".";
+  return "Wird verwendet, um "+p+(p.includes(", ")?",":"")+(t==="d"?" zu beschreiben.":" auszudrücken.");
+}
+function example2(lang,id){ const u=(USAGE[lang]||{})[String(id).replace(/^n_/,"")]; return u?u[2]:""; }
+
+/* ---------- DUEL: two players, sudden death, winner stays ---------- */
+const DUEL_UI={
+ en:{tab:"Duel",h:"Duel ladder",p:"Two players share this screen. Each round, both players get a usage line and pick the idiom it describes. If one misses and the other is right, the duel is over. The winner stays on as champion and the next challenger steps in.",
+  p1:"Champion",p2:"Challenger",lang:"Language",start:"Start the duel",turn:n=>n+", your turn",round:r=>"Round "+r,
+  wins:n=>n+" wins the duel!",tie:"Both right or both wrong: next round.",next:"Next",again:"Next challenger",streak:"Champion streak",best:"Best streak",newc:"Name of the next challenger",was:"The answer was",ex:"Example"},
+ fr:{tab:"Duel",h:"Duel à élimination",p:"Deux joueurs sur le même écran. À chaque manche, chacun reçoit une définition d'emploi et choisit l'expression qui correspond. Si l'un se trompe et l'autre a juste, le duel est terminé. Le gagnant reste champion et un nouveau challenger prend la place.",
+  p1:"Champion",p2:"Challenger",lang:"Langue",start:"Lancer le duel",turn:n=>n+", à vous",round:r=>"Manche "+r,
+  wins:n=>n+" remporte le duel !",tie:"Tous les deux justes ou tous les deux faux : manche suivante.",next:"Suivant",again:"Challenger suivant",streak:"Série du champion",best:"Meilleure série",newc:"Nom du prochain challenger",was:"La réponse était",ex:"Exemple"},
+ de:{tab:"Duell",h:"Duell-Leiter",p:"Zwei Personen an einem Bildschirm. In jeder Runde bekommt jede Person eine Verwendungsbeschreibung und wählt die passende Wendung. Liegt eine falsch und die andere richtig, ist das Duell vorbei. Wer gewinnt, bleibt Champion, und die nächste Person fordert heraus.",
+  p1:"Champion",p2:"Herausforderer",lang:"Sprache",start:"Duell starten",turn:n=>n+", Sie sind dran",round:r=>"Runde "+r,
+  wins:n=>n+" gewinnt das Duell!",tie:"Beide richtig oder beide falsch: nächste Runde.",next:"Weiter",again:"Nächste Herausforderung",streak:"Siegesserie",best:"Beste Serie",newc:"Name der nächsten Person",was:"Richtig war",ex:"Beispiel"}
+};
+let DUEL={champ:"",chal:"",streak:0,lang:null};
+function duelMode(st,uiLang,langs,itemsFor){
+  const D=DUEL_UI[uiLang], C=uiLang==="fr"?" : ":": "; if(!DUEL.lang||!langs.includes(DUEL.lang)) DUEL.lang=langs[0];
+  if(!DUEL.champ) DUEL.champ=D.p1; if(!DUEL.chal) DUEL.chal=D.p2;
+  const setup=()=>{
+    st.innerHTML="";
+    const n1=h("input",{type:"text",value:DUEL.champ,"aria-label":D.p1,style:"min-width:0;flex:1 1 8rem;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit"});
+    const n2=h("input",{type:"text",value:DUEL.chal,"aria-label":D.p2,style:"min-width:0;flex:1 1 8rem;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit"});
+    const ls=langs.length>1?h("select",{"aria-label":D.lang},langs.map(l=>h("option",{value:l,selected:l===DUEL.lang},l.toUpperCase()))):null;
+    if(ls) ls.onchange=()=>{DUEL.lang=ls.value;};
+    st.append(h("h2",{},D.h),h("p",{class:"small"},D.p),
+      h("div",{class:"row"},h("span",{class:"lbl"},D.p1),n1),
+      h("div",{class:"row"},h("span",{class:"lbl"},D.p2),n2),
+      ls?h("div",{class:"row"},h("span",{class:"lbl"},D.lang),ls):null,
+      h("div",{class:"row spread"},h("span",{class:"lbl"},D.streak+C+DUEL.streak),h("span",{class:"lbl"},D.best+C+(S.duelBest||0))),
+      h("div",{class:"row"},h("button",{class:"primary",id:"duel-start",onclick:()=>{DUEL.champ=n1.value.trim()||D.p1;DUEL.chal=n2.value.trim()||D.p2;play();}},D.start)));
+  };
+  const play=()=>{
+    const lang=DUEL.lang; const pool=shuffle(itemsFor(lang).filter(x=>x.u)); let k=0, round=1;
+    const players=[DUEL.champ,DUEL.chal]; let res=[];
+    const ask=(pi)=>{
+      st.innerHTML="";
+      const it=pool[k++%pool.length];
+      const wrong=pick(pool.filter(o=>o.id!==it.id&&o.e!==it.e),3).map(o=>o.e);
+      const grid=h("div",{class:"opts"});
+      st.append(h("div",{class:"row spread"},h("span",{class:"lbl"},D.round(round)),h("span",{class:"lbl"},D.streak+C+DUEL.streak)),
+        h("h2",{},D.turn(players[pi])),h("p",{class:"big-reveal"},it.u),grid);
+      shuffle([it.e].concat(wrong)).forEach(o=>grid.append(h("button",{class:"opt",onclick:(e)=>{
+        const right=o===it.e; res[pi]=right;
+        grid.querySelectorAll("button").forEach(b=>{b.disabled=true; if(b.textContent===it.e) b.classList.add("correct");});
+        if(!right) e.currentTarget.classList.add("wrong");
+        st.append(h("div",{class:"feedback"},right?null:h("p",{},h("b",{},D.was+C),it.e),
+          h("p",{class:"example"},it.ex),
+          h("div",{class:"row"},h("button",{class:"primary",id:"next",onclick:()=>after(pi)},D.next))));
+        $("#next").focus();
+      }},o)));
+    };
+    const after=(pi)=>{
+      if(pi===0){ ask(1); return; }
+      if(res[0]!==res[1]){
+        const w=res[0]?0:1;
+        if(w===0){ DUEL.streak++; } else { DUEL.champ=DUEL.chal; DUEL.streak=1; }
+        DUEL.chal=D.p2;
+        if(DUEL.streak>(S.duelBest||0)){ S.duelBest=DUEL.streak; save(); }
+        st.innerHTML="";
+        st.append(h("h2",{},D.wins(players[w])),
+          h("div",{class:"row spread"},h("span",{class:"lbl"},D.streak+C+DUEL.streak),h("span",{class:"lbl"},D.best+C+(S.duelBest||0))),
+          h("div",{class:"row"},h("button",{class:"primary",id:"duel-again",onclick:setup},D.again)));
+        return;
+      }
+      round++; res=[];
+      st.innerHTML=""; st.append(h("p",{},D.tie),h("div",{class:"row"},h("button",{class:"primary",id:"next",onclick:()=>ask(0)},D.next)));
+      $("#next").focus();
+    };
+    ask(0);
+  };
+  setup();
+}
+
+UI.en.cats["Media & press"]="Media & press";UI.fr.cats["Media & press"]="Médias et presse";UI.de.cats["Media & press"]="Medien und Presse";
+/* ---------- SINGLE-LANGUAGE EDITION ---------- */
+const T = UI[L];
+const ITEMS = IDIOMS.filter(i=>!SKIP[L].includes(i.id)).map(i=>({
+  id:i.id, c:i.c, r:i.r, e:i[L], ex:i.x[{en:0,fr:1,de:2}[L]],
+  m: L==="en"?i.m : L==="fr"?M_FR[i.id] : M_DE[i.id], note: MN[L][i.id]||""
+})).concat(NATIVE[L].map(([id,c,r,e,m,ex])=>({id:"n_"+id,c,r,e,m,ex,note:""})));
+const KEY="idiomBooth.mono."+L+".v1";
+const INTERVALS=[0,1,2,4,8,16,32], DAY=86400000;
+let S={cards:{},best:0,mode:"review"};
+try{ const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw)); }catch(e){}
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+function $(s,r=document){return r.querySelector(s)}
+function h(tag,attrs={},...kids){ const el=document.createElement(tag); for(const [k,v] of Object.entries(attrs)){ if(k==="class") el.className=v; else if(k.startsWith("on")) el.addEventListener(k.slice(2),v); else if(v!==false&&v!=null) el.setAttribute(k,v===true?"":v); } kids.flat().forEach(k=>{ if(k==null||k===false) return; el.append(k.nodeType?k:document.createTextNode(k)); }); return el; }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function pick(a,n){ return shuffle(a).slice(0,n); }
+const card=id=>S.cards[id]||null;
+function today0(){ const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+const isDue=id=>{ const c=card(id); return c && c.due<=Date.now(); };
+function grade(id,q){ const c=card(id)||{box:0,due:0,seen:0}; c.seen++;
+  if(q===0) c.box=1; else if(q===1) c.box=Math.max(1,c.box); else if(q===2) c.box=Math.min(6,c.box+1); else c.box=Math.min(6,c.box+2);
+  c.due = q===0 ? Date.now()+5*60000 : today0()+INTERVALS[c.box]*DAY;
+  S.cards[id]=c; save(); renderStats(); }
+function miss(id){ const c=card(id)||{box:0,due:0,seen:0}; c.box=1; c.seen++; c.due=Date.now(); S.cards[id]=c; save(); renderStats(); }
+function streak(n){ if(n>S.best){ S.best=n; save(); renderStats(); } }
+function renderStats(){ let due=0,learn=0,mast=0,nw=0;
+  ITEMS.forEach(i=>{ const c=card(i.id); if(!c) nw++; else { if(c.box>=4) mast++; else learn++; if(c.due<=Date.now()) due++; } });
+  $("#s-due").textContent=due; $("#s-learn").textContent=learn; $("#s-mast").textContent=mast; $("#s-new").textContent=nw; $("#s-streak").textContent=S.best; }
+const langTag=l=>h("span",{class:"tag t-"+l},l==="sl"?"ASL":l.toUpperCase());
+const regTag=r=>h("span",{class:"tag",style:"color:var(--muted)"},T.reg[r]);
+const exList=it=>h("div",{class:"usage-ex"},[it.ex,example2(L,it.id)].filter(Boolean).map(x=>h("p",{class:"example",style:"margin:4px 0"},(L==="fr"?"« "+x+" »":L==="de"?"„"+x+"“":"“"+x+"”"))));
+const noteBlock=it=>h("div",{class:"note"},usageLine(L,it.id)?h("div",{class:"usage"},h("b",{},usageLine(L,it.id))," ",regTag(it.r)):h("div",{},h("b",{},T.meaning+(L==="fr"?" : ":": ")),it.m," ",regTag(it.r)),exList(it),it.note?h("div",{},it.note):null);
+const nextQueue=()=>shuffle(ITEMS.filter(i=>isDue(i.id))).concat(shuffle(ITEMS.filter(i=>!card(i.id))),shuffle(ITEMS.filter(i=>card(i.id)&&!isDue(i.id))));
+const MODES={}; let timerHandle=null;
+const clearTimer=()=>{ if(timerHandle){ cancelAnimationFrame(timerHandle); timerHandle=null; } };
+function setMode(m){ clearTimer(); if(topicTimer){cancelAnimationFrame(topicTimer);topicTimer=null;} S.mode=m; save();
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.mode===m?"true":"false"));
+  const st=$("#stage"); st.innerHTML=""; MODES[m](st); }
+
+MODES.review=(st)=>{
+  const q=shuffle(ITEMS.filter(i=>isDue(i.id))).concat(shuffle(ITEMS.filter(i=>!card(i.id))).slice(0,8));
+  if(!q.length){ st.append(h("h2",{},T.caught),h("p",{},T.caughtP),h("div",{class:"row"},h("button",{class:"primary",onclick:()=>setMode("drill")},T.startDrill))); return; }
+  let i=0;
+  const show=()=>{ st.innerHTML="";
+    if(i>=q.length){ st.append(h("h2",{},T.done),h("p",{},T.doneP(q.length)),h("div",{class:"row"},h("button",{class:"primary",onclick:()=>setMode("review")},T.more))); return; }
+    const it=q[i];
+    st.append(h("div",{class:"row spread"},h("span",{class:"lbl"},`${T.card} ${i+1} ${T.of} ${q.length}${card(it.id)?"":" · "+T.isnew}`),h("span",{class:"lbl"},T.cats[it.c])),
+      h("div",{class:"progress"},h("i",{style:`width:${i/q.length*100}%`})),
+      h("div",{class:"prompt"},it.e),h("p",{class:"example"},it.ex),h("p",{class:"small"},T.recall));
+    const rev=h("button",{class:"primary",id:"reveal",onclick:()=>{ rev.remove();
+      st.append(h("div",{class:"feedback"},noteBlock(it),h("div",{class:"grade"},
+        h("button",{onclick:()=>{grade(it.id,0);i++;show();}},T.again),
+        h("button",{onclick:()=>{grade(it.id,2);i++;show();}},T.gotit),
+        h("button",{onclick:()=>{grade(it.id,3);i++;show();}},T.easy)))); }},T.reveal);
+    st.append(rev); };
+  show(); };
+
+function quiz(st,title,sub,prompt,answerOf,optionsOf,promptExtra){
+  let score=0,n=0,run=0; const queue=nextQueue();
+  const sc=h("span",{class:"score"}); const body=h("div",{style:"display:grid;gap:16px"});
+  st.append(h("div",{class:"row spread"},h("h2",{},title),sc),h("p",{class:"small"},sub),body);
+  const upd=()=>{ sc.textContent=`${score}/${n} · ${run}`; };
+  const ask=()=>{ upd(); body.innerHTML=""; const it=queue[n%queue.length]; const ans=answerOf(it);
+    const grid=h("div",{class:"opts"});
+    body.append(h("span",{class:"lbl"},T.cats[it.c]),prompt(it),promptExtra?promptExtra(it):null,grid);
+    shuffle([ans].concat(optionsOf(it))).forEach(o=>grid.append(h("button",{class:"opt",onclick:(e)=>{
+      n++; const right=o===ans;
+      grid.querySelectorAll("button").forEach(b=>{ b.disabled=true; if(b.textContent===ans) b.classList.add("correct"); });
+      if(right){score++;run++;streak(run);} else {e.currentTarget.classList.add("wrong");run=0;miss(it.id);}
+      upd();
+      body.append(h("div",{class:"feedback"},noteBlock(it),h("p",{},h("b",{},T.register+(L==="fr"?" : ":": ")),T.regLong[it.r]),
+        h("div",{class:"row"},h("button",{class:"primary",id:"next",onclick:ask},T.next))));
+      $("#next").focus(); }},o))); };
+  ask(); }
+const others=(it,f)=>{ const same=ITEMS.filter(o=>o.id!==it.id&&o.c===it.c), rest=ITEMS.filter(o=>o.id!==it.id&&o.c!==it.c);
+  return pick(same,2).concat(pick(rest,3)).slice(0,3).map(f); };
+MODES.find=(st)=>quiz(st,T.findH,T.findP,it=>h("p",{class:"big-reveal"},usageLine(L,it.id)||it.m),it=>it.e,it=>others(it,o=>o.e));
+MODES.context=(st)=>quiz(st,T.ctxH,T.ctxP,it=>h("p",{class:"big-reveal"},(L==="fr"?"« "+it.ex+" »":L==="de"?"„"+it.ex+"“":"“"+it.ex+"”")),it=>it.m,it=>others(it,o=>o.m),it=>h("p",{class:"lbl"},it.e));
+
+MODES.drill=(st)=>{
+  let secs=8,i=0; const queue=nextQueue();
+  const ss=h("select",{id:"d-secs","aria-label":T.time},[4,6,8,12].map(v=>h("option",{value:v,selected:v===secs},v+" s"))); ss.onchange=()=>{secs=+ss.value};
+  const body=h("div",{style:"display:grid;gap:16px"});
+  st.append(h("h2",{},T.drillH),h("p",{class:"small"},T.drillP),h("div",{class:"row"},h("span",{class:"lbl"},T.time),ss),body);
+  const start=()=>{ clearTimer(); body.innerHTML=""; const it=queue[i%queue.length];
+    const air=h("span",{class:"air on"},T.onair), bar=h("i");
+    body.append(h("div",{class:"row spread"},langTag(L),air),h("div",{class:"timer"},bar),h("p",{class:"prompt",style:"font-family:var(--f-body);font-weight:600"},it.ex));
+    const t0=performance.now(); let done=false;
+    const key=e=>{ if(e.code==="Space"&&!["BUTTON","SELECT","INPUT"].includes(document.activeElement.tagName)){ e.preventDefault(); reveal(); } };
+    const reveal=()=>{ if(done) return; done=true; clearTimer(); air.classList.remove("on"); air.textContent=T.offair; bar.style.width="0%"; document.removeEventListener("keydown",key);
+      body.append(h("div",{class:"feedback"},h("div",{class:"lbl"},T.plain),h("p",{class:"big-reveal"},it.m),h("p",{},h("b",{},it.e)," ",regTag(it.r)),it.note?h("div",{class:"note"},it.note):null,
+        h("div",{class:"grade"},h("button",{onclick:()=>{grade(it.id,0);i++;start();}},T.missed),h("button",{onclick:()=>{grade(it.id,1);i++;start();}},T.close),h("button",{class:"primary",onclick:()=>{grade(it.id,2);i++;start();}},T.nailed)))); };
+    document.addEventListener("keydown",key);
+    body.append(h("div",{class:"row"},h("button",{onclick:reveal},T.revealNow)));
+    const tick=t=>{ const p=Math.max(0,1-(t-t0)/(secs*1000)); bar.style.width=(p*100)+"%"; if(p<=0) reveal(); else timerHandle=requestAnimationFrame(tick); };
+    timerHandle=requestAnimationFrame(tick); };
+  body.append(h("div",{class:"row"},h("button",{class:"primary",id:"d-start",onclick:start},T.start))); };
+
+MODES.topic=(st)=>topicMode(st,L,[L],()=>ITEMS.map(i=>i.e));
+MODES.duel=(st)=>duelMode(st,L,[L],()=>ITEMS.map(i=>({id:i.id,e:i.e,u:usageLine(L,i.id),ex:i.ex})));
+MODES.sign=(st)=>{ const A=T.asl;
+  st.append(h("h2",{},A.h),h("p",{},A.p),h("div",{class:"note"},h("div",{},h("b",{},A.howH)),A.steps.map(s=>h("div",{},s))),
+    h("p",{class:"note"},h("b",{},A.limitB),A.limit),h("h3",{},A.practH),h("p",{class:"small"},A.practP));
+  const box=h("div",{style:"display:grid;gap:12px"}); st.append(box); const q=shuffle(ITEMS); let i=0;
+  const show=()=>{ box.innerHTML=""; const it=q[i%q.length];
+    box.append(h("div",{class:"row"},langTag(L),h("span",{},"→"),langTag("sl")),h("div",{class:"prompt"},it.e),h("p",{class:"example"},it.ex));
+    const b=h("button",{class:"primary",onclick:()=>{ b.remove(); box.append(h("div",{class:"note"},h("b",{},A.signThis),it.m," ",regTag(it.r)),h("p",{class:"small"},A.check),h("div",{class:"row"},h("button",{onclick:()=>{i++;show();}},A.nextI))); }},A.btn);
+    box.append(b); };
+  show();
+  st.append(h("h3",{},A.ownH),h("p",{class:"small"},A.ownP),h("div",{class:"list"},A.idioms.map(([g,m])=>h("div",{class:"item"},h("b",{class:"mono"},g),h("span",{},m)))),
+    h("h3",{},A.dictH),h("div",{class:"links"},SIGN_LINKS.map(s=>h("a",{href:s.u,target:"_blank",rel:"noopener"},h("b",{},s.t),h("span",{},s.d))))); };
+
+MODES.lexicon=(st)=>{
+  const q=h("input",{type:"search",id:"lx-q",placeholder:T.search,"aria-label":T.search,style:"flex:1;min-width:0"});
+  const cs=h("select",{id:"lx-c","aria-label":"Category"},[h("option",{value:"All"},T.all)].concat([...new Set(ITEMS.map(i=>i.c))].map(c=>h("option",{value:c},T.cats[c]))));
+  const list=h("div",{class:"list"}); st.append(h("h2",{},T.lex(ITEMS.length)),h("div",{class:"row"},q,cs),list);
+  const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+  const draw=()=>{ list.innerHTML=""; const t=norm(q.value);
+    ITEMS.filter(i=>(cs.value==="All"||i.c===cs.value)&&(!t||norm(i.e+" "+i.m).includes(t))).forEach(it=>{ const c=card(it.id);
+      list.append(h("details",{class:"item"},h("summary",{},h("b",{},it.e),h("span",{class:"box-pill"},T.st[!c?"new":c.box>=4?"mastered":"learning"])),
+        h("div",{class:"body"},noteBlock(it)))); }); };
+  q.oninput=draw; cs.onchange=draw; draw(); };
+
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>setMode(b.dataset.mode)));
+renderStats(); setMode(MODES[S.mode]?S.mode:"review");
+
+</script>
+
+</body></html>

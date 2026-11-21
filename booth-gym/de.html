@@ -1,0 +1,396 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><a href="../" id="hub-back" style="position:fixed;z-index:9999;left:max(10px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));background:#16202c;color:#fff;font:600 14px/1 -apple-system,Segoe UI,Arial,sans-serif;padding:10px 14px;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">&larr; All games</a>
+<title>Booth Gym Deutsch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: an interpreter's console. Top strip = meters (level, streak, daily goal); body = four channel selectors, each opening a game. */
+:root{
+  --bg:#EDF1EF; --panel:#FFFFFF; --ink:#14232B; --muted:#5A6A6E; --line:#D2DBD9;
+  --accent:#0E6E6B; --accent-soft:#D8ECE9; --signal:#D97A12; --signal-soft:#FBEBD6;
+  --good:#2C7A4B; --good-soft:#DCEFE2; --bad:#B23A3A; --bad-soft:#F6DEDE;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1619; --panel:#16232A; --ink:#E5EEEC; --muted:#93A5A7; --line:#27383E;
+  --accent:#4DB6AF; --accent-soft:#163A3A; --signal:#F0A445; --signal-soft:#3A2A14;
+  --good:#5CC287; --good-soft:#173826; --bad:#E57A7A; --bad-soft:#3D1D1F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1619; --panel:#16232A; --ink:#E5EEEC; --muted:#93A5A7; --line:#27383E;
+  --accent:#4DB6AF; --accent-soft:#163A3A; --signal:#F0A445; --signal-soft:#3A2A14;
+  --good:#5CC287; --good-soft:#173826; --bad:#E57A7A; --bad-soft:#3D1D1F; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:880px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.1}
+h1{font-size:clamp(28px,6vw,40px);font-weight:800;font-stretch:80%;letter-spacing:-.01em}
+h2{font-size:24px;font-weight:750;font-stretch:85%}
+h3{font-size:18px;font-weight:700;font-stretch:90%}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--panel);padding:10px 18px;border-radius:6px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:default}
+select{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 10px}
+
+/* top strip */
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.lamp{width:14px;height:14px;border-radius:50%;background:var(--line);box-shadow:inset 0 0 0 2px var(--panel);flex:none;transition:background .3s}
+.lamp.on{background:var(--signal);box-shadow:0 0 0 4px var(--signal-soft)}
+.meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.meter{background:var(--panel);padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.meter b{font-family:var(--display);font-size:22px;font-weight:750;font-stretch:85%;font-variant-numeric:tabular-nums}
+.bar{height:6px;background:var(--accent-soft);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .6s}
+.ticks{display:flex;gap:4px}
+.ticks i{flex:1;height:6px;border-radius:3px;background:var(--signal-soft)}
+.ticks i.on{background:var(--signal)}
+
+/* channels */
+.channels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ch{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:start;transition:border-color .15s,transform .15s}
+.ch:hover{border-color:var(--accent);transform:translateY(-1px)}
+.knob{grid-row:span 3;width:48px;height:48px;border-radius:50%;border:2px solid var(--accent);display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:13px;color:var(--accent)}
+.ch p{margin:0;color:var(--muted);font-size:14px}
+.ch .best{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.today{background:var(--signal-soft);border-radius:10px;padding:16px;display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+.today .q{font-family:var(--display);font-size:20px;font-weight:700;font-stretch:88%;min-width:0;flex:1 1 280px}
+
+/* game stage */
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.stagehead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.hud{display:flex;gap:16px;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;flex-wrap:wrap}
+.hud b{color:var(--accent)}
+.timer{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.timer i{display:block;height:100%;background:var(--signal);width:100%}
+.prompt{font-family:var(--display);font-size:clamp(26px,6vw,44px);font-weight:800;font-stretch:78%;line-height:1.05;overflow-wrap:anywhere}
+.sub{font-size:16px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:15px;overflow-wrap:anywhere}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{background:var(--good-soft);border-color:var(--good)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.note{border-left:3px solid var(--accent);padding:4px 0 4px 12px;font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.combo{font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:10px;background:var(--signal-soft);color:var(--ink)}
+.trio{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;font-size:13px}
+.trio div{background:var(--bg);border-radius:6px;padding:8px;min-width:0;overflow-wrap:anywhere}
+.trio b{display:block;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.review{display:flex;flex-direction:column;gap:10px}
+
+/* floor time */
+.dial{display:grid;place-items:center;position:relative;width:200px;height:200px;margin:0 auto;max-width:100%}
+.dial svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.dial .t{font-family:var(--mono);font-size:44px;font-weight:600;font-variant-numeric:tabular-nums}
+.chip{display:inline-block;font-family:var(--mono);font-size:12px;padding:3px 10px;border-radius:12px;background:var(--accent-soft);color:var(--ink)}
+.checks{display:grid;gap:8px}
+.checks label{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.checks input{width:18px;height:18px;accent-color:var(--accent)}
+
+/* ladder */
+.tiles{display:grid;gap:8px}
+.tile{padding:14px;border:1px dashed var(--line);border-radius:8px;background:var(--bg);text-align:left;font-size:17px;display:flex;justify-content:space-between;gap:8px}
+.tile.picked{border-style:solid;border-color:var(--accent);background:var(--accent-soft)}
+.tile .n{font-family:var(--mono);font-size:13px;color:var(--accent)}
+.scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+.result{text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.big{font-family:var(--display);font-size:56px;font-weight:800;font-stretch:75%;font-variant-numeric:tabular-nums;color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.show{opacity:1}
+footer{font-size:13px;color:var(--muted)}
+@media (max-width:560px){.channels{grid-template-columns:1fr}.meters{grid-template-columns:1fr 1fr}.meters .meter:first-child{grid-column:span 2}.trio{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="lamp" id="lamp" title="Auf Sendung während eines Spiels"></span><div><div class="label">Dolmetsch-Trainingskonsole · deutsche Ausgabe</div><h1>Booth Gym <span style="color:var(--accent)">Deutsch</span></h1></div></div>
+    <button class="btn ghost" id="homeBtn" hidden>← Konsole</button>
+  </header>
+  <section class="meters" aria-label="Ihr Fortschritt">
+    <div class="meter"><span class="label">Stufe <span id="lvNum"></span></span><b id="lvName"></b><div class="bar"><i id="xpBar"></i></div><span class="muted" style="font-size:12px" id="xpText"></span></div>
+    <div class="meter"><span class="label">Serie</span><b id="streak"></b><span class="muted" style="font-size:12px" id="streakNote"></span></div>
+    <div class="meter"><span class="label">Heutige Schicht</span><b id="goalText"></b><div class="ticks" id="ticks"><i></i><i></i><i></i></div></div>
+  </section>
+  <main id="view"></main>
+  <footer>Ihr Fortschritt wird in diesem Browser gespeichert. Druckbare Karten für Gruppenspiele gibt es als separates PDF.</footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const ACRONYMS=[["UN","UN","United Nations","ONU","Organisation des Nations unies","UNO / VN","Vereinte Nationen","UN system"],["UNSC","UNSC","United Nations Security Council","CSNU","Conseil de sécurité des Nations unies","UN-Sicherheitsrat","Sicherheitsrat der Vereinten Nationen","UN system"],["ECOSOC","ECOSOC","Economic and Social Council","ECOSOC","Conseil économique et social","ECOSOC","Wirtschafts- und Sozialrat der Vereinten Nationen","UN system"],["ICJ","ICJ","International Court of Justice","CIJ","Cour internationale de justice","IGH","Internationaler Gerichtshof","Law"],["ICC","ICC","International Criminal Court","CPI","Cour pénale internationale","IStGH","Internationaler Strafgerichtshof","Law"],["WHO","WHO","World Health Organization","OMS","Organisation mondiale de la santé","WHO","Weltgesundheitsorganisation","UN system"],["UNESCO","UNESCO","United Nations Educational, Scientific and Cultural Organization","UNESCO","Organisation des Nations unies pour l'éducation, la science et la culture","UNESCO","Organisation der Vereinten Nationen für Bildung, Wissenschaft und Kultur","UN system"],["UNICEF","UNICEF","United Nations Children's Fund","UNICEF","Fonds des Nations unies pour l'enfance","UNICEF","Kinderhilfswerk der Vereinten Nationen","UN system"],["UNHCR","UNHCR","Office of the United Nations High Commissioner for Refugees","HCR","Haut-Commissariat des Nations unies pour les réfugiés","UNHCR","Hoher Flüchtlingskommissar der Vereinten Nationen","UN system"],["UNDP","UNDP","United Nations Development Programme","PNUD","Programme des Nations unies pour le développement","UNDP","Entwicklungsprogramm der Vereinten Nationen","UN system"],["WFP","WFP","World Food Programme","PAM","Programme alimentaire mondial","WFP","Welternährungsprogramm","UN system"],["FAO","FAO","Food and Agriculture Organization of the United Nations","FAO","Organisation des Nations unies pour l'alimentation et l'agriculture","FAO","Ernährungs- und Landwirtschaftsorganisation der Vereinten Nationen","UN system"],["ILO","ILO","International Labour Organization","OIT","Organisation internationale du travail","IAO","Internationale Arbeitsorganisation","UN system"],["IOM","IOM","International Organization for Migration","OIM","Organisation internationale pour les migrations","IOM","Internationale Organisation für Migration","UN system"],["WIPO","WIPO","World Intellectual Property Organization","OMPI","Organisation mondiale de la propriété intellectuelle","WIPO","Weltorganisation für geistiges Eigentum","UN system"],["IAEA","IAEA","International Atomic Energy Agency","AIEA","Agence internationale de l'énergie atomique","IAEO","Internationale Atomenergie-Organisation","UN system"],["IPCC","IPCC","Intergovernmental Panel on Climate Change","GIEC","Groupe d'experts intergouvernemental sur l'évolution du climat","IPCC","Weltklimarat","Climate"],["SDGs","SDGs","Sustainable Development Goals","ODD","Objectifs de développement durable","SDGs","Ziele für nachhaltige Entwicklung","Development"],["AU","AU","African Union","UA","Union africaine","AU","Afrikanische Union","Africa"],["PSC","PSC","Peace and Security Council (African Union)","CPS","Conseil de paix et de sécurité (UA)","PSC","Friedens- und Sicherheitsrat der Afrikanischen Union","Africa"],["ECOWAS","ECOWAS","Economic Community of West African States","CEDEAO","Communauté économique des États de l'Afrique de l'Ouest","ECOWAS","Wirtschaftsgemeinschaft der Westafrikanischen Staaten","Africa"],["ECCAS","ECCAS","Economic Community of Central African States","CEEAC","Communauté économique des États de l'Afrique centrale","ECCAS","Wirtschaftsgemeinschaft der Zentralafrikanischen Staaten","Africa"],["SADC","SADC","Southern African Development Community","SADC","Communauté de développement de l'Afrique australe","SADC","Entwicklungsgemeinschaft des Südlichen Afrika","Africa"],["WAEMU","WAEMU","West African Economic and Monetary Union","UEMOA","Union économique et monétaire ouest-africaine","UEMOA","Westafrikanische Wirtschafts- und Währungsunion","Africa"],["AfCFTA","AfCFTA","African Continental Free Trade Area","ZLECAf","Zone de libre-échange continentale africaine","AfCFTA","Afrikanische Kontinentale Freihandelszone","Africa"],["AfDB","AfDB","African Development Bank","BAD","Banque africaine de développement","AfDB","Afrikanische Entwicklungsbank","Africa"],["NEPAD","NEPAD","New Partnership for Africa's Development","NEPAD","Nouveau partenariat pour le développement de l'Afrique","NEPAD","Neue Partnerschaft für Afrikas Entwicklung","Africa"],["EU","EU","European Union","UE","Union européenne","EU","Europäische Union","Europe"],["ECB","ECB","European Central Bank","BCE","Banque centrale européenne","EZB","Europäische Zentralbank","Europe"],["MEP","MEP","Member of the European Parliament","—","député européen / députée européenne","MdEP","Mitglied des Europäischen Parlaments","Europe"],["NATO","NATO","North Atlantic Treaty Organization","OTAN","Organisation du traité de l'Atlantique nord","NATO","Organisation des Nordatlantikvertrags","Security"],["OECD","OECD","Organisation for Economic Co-operation and Development","OCDE","Organisation de coopération et de développement économiques","OECD","Organisation für wirtschaftliche Zusammenarbeit und Entwicklung","Economy"],["IMF","IMF","International Monetary Fund","FMI","Fonds monétaire international","IWF","Internationaler Währungsfonds","Economy"],["WTO","WTO","World Trade Organization","OMC","Organisation mondiale du commerce","WTO","Welthandelsorganisation","Economy"],["OPEC","OPEC","Organization of the Petroleum Exporting Countries","OPEP","Organisation des pays exportateurs de pétrole","OPEC","Organisation erdölexportierender Länder","Economy"],["GDP","GDP","Gross Domestic Product","PIB","Produit intérieur brut","BIP","Bruttoinlandsprodukt","Economy"],["FDI","FDI","Foreign Direct Investment","IDE","Investissements directs étrangers","ADI","Ausländische Direktinvestitionen","Economy"],["VAT","VAT","Value Added Tax","TVA","Taxe sur la valeur ajoutée","MwSt.","Mehrwertsteuer","Economy"],["CPI","CPI","Consumer Price Index","IPC","Indice des prix à la consommation","VPI","Verbraucherpreisindex","Economy"],["NGO","NGO","Non-Governmental Organization","ONG","Organisation non gouvernementale","NRO / NGO","Nichtregierungsorganisation","Civil society"],["OHCHR","OHCHR","Office of the United Nations High Commissioner for Human Rights","HCDH","Haut-Commissariat des Nations unies aux droits de l'homme","OHCHR","Büro des Hohen Kommissars der Vereinten Nationen für Menschenrechte","Human rights"],["OIF","OIF","International Organisation of La Francophonie","OIF","Organisation internationale de la Francophonie","OIF","Internationale Organisation der Frankophonie","Languages"],["AIIC","AIIC","International Association of Conference Interpreters","AIIC","Association internationale des interprètes de conférence","AIIC","Internationaler Verband der Konferenzdolmetscher","Profession"],["COP","COP","Conference of the Parties (UN climate talks)","COP","Conférence des Parties","COP","Vertragsstaatenkonferenz","Climate"],["UNGA","UNGA","United Nations General Assembly","AGNU","Assemblée générale des Nations unies","UN-Generalversammlung","Generalversammlung der Vereinten Nationen","UN system"],["WB","—","World Bank","BM","Banque mondiale","—","Weltbank","Economy"]];
+const LADDERS=[["DE","Geld",["Kohle","Geld","finanzielle Mittel"]],["DE","ein Auto",["eine Karre","ein Auto","ein Fahrzeug"]],["DE","essen",["futtern","essen","speisen"]],["DE","gehen",["abhauen","gehen","sich verabschieden"]],["DE","ein Polizist",["ein Bulle","ein Polizist","ein Polizeibeamter"]],["DE","ein Kind",["ein Knirps","ein Kind","ein Minderjähriger"]],["DE","eine Wohnung",["eine Bude","eine Wohnung","ein Wohnsitz"]],["DE","arbeiten",["schuften","arbeiten","tätig sein"]],["DE","verstehen",["kapieren","verstehen","nachvollziehen"]],["DE","eine Arbeit",["ein Job","eine Arbeit","eine Erwerbstätigkeit"]],["DE","kaufen",["sich holen","kaufen","erwerben"]],["DE","beginnen",["loslegen","anfangen","beginnen"]],["DE","sagen",["sagen","mitteilen","zur Kenntnis bringen"]],["DE","helfen",["mit anpacken","helfen","Unterstützung leisten"]]];
+const TOPICS=["Sollte Afrika einen ständigen Sitz im UN-Sicherheitsrat haben?","Wird KI Dolmetscher ersetzen?","Der Verkehr in Lagos: eine Lösung in sechzig Sekunden","Erklären Sie Ihrer Großmutter die Inflation","Sollte Pidgin Amtssprache werden?","Die meistunterschätzte Erfindung aller Zeiten","Homeoffice: Freiheit oder Isolation?","Sollte es eine Wahlpflicht geben?","Was eine Zentralbank eigentlich tut","Fast Fashion sollte verboten werden","Ihre Stadt im Jahr 2050","Mobile Money hat alles verändert","Ein Buch, das Ihre Meinung geändert hat","Gebärdensprache sollte an jeder Schule unterrichtet werden","Klimafinanzierung: Wer soll zahlen?","Sind soziale Medien gut für die Demokratie?","Schweigen ist eine kommunikative Fähigkeit","Warum jeder Deutsch lernen sollte","Tourismus: Segen oder Last für die Einheimischen?","Wie man die perfekte Sitzung leitet","Afrobeats als Soft Power","Ist Lügen jemals richtig?","Freihandel in Afrika: Wer gewinnt, wer verliert?","Was eine ideale Dolmetschkraft ausmacht","Braindrain: bleiben oder gehen?","Der öffentliche Nahverkehr sollte kostenlos sein","Ist die Raumfahrt das Geld wert?","Schuluniformen: ja oder nein?","Das Gericht, das Ihr Land am besten verkörpert","Das nächste Kapitel von Nollywood","Sollte das Wahlalter auf 16 gesenkt werden?","Mehrsprachigkeit macht klüger","Führung in der Krise","Einwegplastik jetzt verbieten","Fußball und nationale Identität","Was eine großartige Rede ausmacht","Ein Tag ohne Strom","Sollten Museen Kulturgüter an ihre Herkunftsländer zurückgeben?","Das bedingungslose Grundeinkommen","Die Viertagewoche","Schuldenerlass für Entwicklungsländer","Wie man Falschnachrichten erkennt","Begrüßung und Respekt in verschiedenen Kulturen","Hausaufgaben sollten abgeschafft werden","Urbane Landwirtschaft in Megastädten","Eine Sprache, die niemals aussterben darf","Die Generation Z und die Arbeitswelt","Atomenergie: Freund oder Feind?","Frauen am Verhandlungstisch für den Frieden","Elektroautos in Afrika: wann?","Die perfekte Entschuldigung","Warum jeder einen Mentor braucht","Warum ich dolmetschen möchte","Jugendarbeitslosigkeit: eine mutige Idee","Sollten reiche Länder ihre Grenzen für Arbeitskräfte öffnen?","Das Bargeld stirbt. Gut oder schlecht?","Verdrängt Englisch andere Sprachen?","Gehörlosenkultur und warum sie wichtig ist","Der beste Rat, den Sie je bekommen haben","Wenn Sie für eine historische Person dolmetschen könnten"];
+const TWISTS=["Argumentieren Sie DAFÜR","Argumentieren Sie DAGEGEN","Erklären Sie es einem zehnjährigen Kind","Beginnen Sie wie vor der UN-Generalversammlung","Nutzen Sie die Dreierregel","Beginnen Sie mit einer Frage","Erzählen Sie es als persönliche Geschichte","Enden Sie mit einem klaren Handlungsaufruf","Bauen Sie mindestens eine Zahl und ein Zitat ein","Sprechen Sie wie eine vorsichtige Diplomatin","Sprechen Sie wie ein leidenschaftlicher Aktivist","Kein „äh“: machen Sie stattdessen eine Pause"];
+const DILEMMAS=[{"cat":"Vertraulichkeit","s":"Nach einer Verhandlung hinter verschlossenen Türen schreibt Ihnen ein befreundeter Journalist: „Ganz unter uns, was hat der Minister wirklich gesagt?“","o":["Eine vage Zusammenfassung geben, es bleibt ja unter uns","Höflich ablehnen: Alles, was Sie im Einsatz hören, bleibt vertraulich","Ihn an die Pressestelle verweisen und dann das Ergebnis andeuten"],"a":1,"w":"Vertraulichkeit kennt kein „unter uns“. Was Sie in einer geschlossenen Sitzung hören, bleibt bei Ihnen, auch Andeutungen und Zusammenfassungen."},{"cat":"Genauigkeit","s":"Vor zwei Minuten haben Sie „15 Millionen“ gesagt, obwohl der Redner „50 Millionen“ sagte. Niemand scheint es bemerkt zu haben.","o":["Es lassen, eine Korrektur wirkt schlecht","Bei der nächsten natürlichen Pause korrigieren: „Korrektur der Dolmetscherin: 50 Millionen“","Die richtige Zahl später wiederholen, als hätte der Redner sie zweimal gesagt"],"a":1,"w":"Genauigkeit geht vor Eitelkeit. Eine kurze, klare Korrektur an einer natürlichen Pause schützt das Publikum und Ihre Glaubwürdigkeit."},{"cat":"Genauigkeit","s":"Der Redner macht einen derben Witz, der beim Publikum in der anderen Sprache schlecht ankommen wird.","o":["Ihn weglassen, um den Redner zu schützen","Absicht und Ton treu wiedergeben und die Form so anpassen, dass die Wirkung gleichwertig ist","Hinzufügen: „Der Redner scherzt, bitte nicht übel nehmen“"],"a":1,"w":"Sie sind nicht die Zensur des Redners. Vermitteln Sie Sinn und Absicht; die Form für eine gleichwertige Wirkung anzupassen ist erlaubt, den Inhalt zu ändern nicht."},{"cat":"Kompetenz","s":"Eine Agentur bietet Ihnen einen gut bezahlten Medizinkongress an, bei dem Sie ins Deutsche dolmetschen müssten, das nur Ihre passive Sprache (C) ist.","o":["Annehmen, Sie bereiten sich gründlich vor","Annehmen und die Agentur nur informieren, wenn es schiefgeht","Ablehnen oder Ihre echte Sprachkombination erklären, damit richtig besetzt wird"],"a":2,"w":"Nehmen Sie nur Aufträge an, die Sie auf professionellem Niveau erfüllen können. Ehrlichkeit über Ihre Kombination schafft langfristig Vertrauen."},{"cat":"Teamarbeit","s":"Ihre Kabinenpartnerin kämpft sichtlich mit einer Reihe von Zahlen und Namen.","o":["Die Zahlen und Namen still für sie aufschreiben","Ohne Vorwarnung das Mikrofon übernehmen","Die Kabine für eine Pause verlassen, sie ist dran"],"a":0,"w":"Die passive Partnerin ist eine aktive Partnerin: Zahlen, Namen und Begriffe zu notieren gehört zur Arbeit."},{"cat":"Rolle","s":"Im Krankenhaus wendet sich der Patient an Sie: „Glauben Sie, der Arzt irrt sich? Was würden Sie tun?“","o":["Ihre ehrliche Meinung sagen, er vertraut Ihnen","Erklären, dass Sie zum Dolmetschen da sind, und anbieten, die Frage an den Arzt weiterzugeben","Die Frage ignorieren und abwarten"],"a":1,"w":"Bleiben Sie in Ihrer Rolle. Sie beraten nicht, aber Sie sorgen dafür, dass die Frage die Person erreicht, die sie beantworten kann."},{"cat":"Verhalten","s":"Ein Redner liest sehr schnell einen Text vor, den Sie nie erhalten haben.","o":["So tun, als kämen Sie mit, und plausiblen Inhalt erfinden","Dem Vorsitz oder der Technik einen Zettel schicken mit der Bitte um den Text oder ein langsameres Tempo, und bis dahin Ihr Bestes geben","Aus Protest das Mikrofon abschalten"],"a":1,"w":"Bitten Sie über den richtigen Kanal um das, was Sie brauchen, dolmetschen Sie so gut wie möglich weiter und erfinden Sie nie etwas."},{"cat":"Unparteilichkeit","s":"Während laufender Verhandlungen schenkt Ihnen eine Delegation eine teure Uhr „als Dankeschön“.","o":["Annehmen, ablehnen wäre unhöflich","Annehmen, aber neutral bleiben","Höflich ablehnen: Ein wertvolles Geschenk während der Verhandlungen gefährdet die Unparteilichkeit"],"a":2,"w":"Unparteilichkeit muss auch sichtbar sein. Kleine Aufmerksamkeiten sind in Ordnung, wertvolle Geschenke einer Seite nicht."},{"cat":"Unparteilichkeit","s":"Sie sind für eine Gerichtsverhandlung gebucht und stellen fest, dass der Angeklagte Ihr Cousin ist.","o":["Nichts sagen, Sie sind Profi","Den Interessenkonflikt offenlegen und zurücktreten","Ihren Cousin fragen, ob es ihn stört"],"a":1,"w":"Jede persönliche Verbindung zu einer Partei muss offengelegt werden. Treten Sie zurück, damit die Justiz unparteiisch ist und so wirkt."},{"cat":"Rolle","s":"Bei einem Vorstellungsgespräch mit einem gehörlosen Bewerber sagt die Personalerin zu Ihnen: „Das nicht gebärden, aber sagen Sie ihm, er soll mehr lächeln.“","o":["Es dolmetschen: Alles, was im Raum gesagt wird, wird gedolmetscht, und Sie sagen ihr das","Es wie gewünscht für sich behalten","Es als freundlichen Tipp umformulieren"],"a":0,"w":"Gehörlose Menschen haben ein Recht auf vollen Zugang. Alles, was in ihrer Gegenwart gesagt wird, wird gedolmetscht, auch Nebenbemerkungen."},{"cat":"Genauigkeit","s":"Der Redner verwendet einen Fachbegriff, den Sie noch nie gehört haben.","o":["Einen plausibel klingenden Begriff erfinden","Ein allgemeineres Wort oder eine Umschreibung nutzen, damit der Sinn erhalten bleibt, und bei der Kabinenpartnerin nachfragen","Anhalten und sagen: „Dieses Wort kenne ich nicht“"],"a":1,"w":"Verallgemeinern oder umschreiben Sie, damit die Kommunikation weiterläuft, und korrigieren Sie, sobald Sie oder Ihre Partnerin den Begriff gefunden haben."},{"cat":"Teamarbeit","s":"Nach der Sitzung kritisiert ein Delegierter Ihnen gegenüber die Arbeit Ihres Kollegen.","o":["Zustimmen, er hatte wirklich Mühe","Professionell und loyal bleiben; falls nötig, dem Kollegen unter vier Augen Feedback geben","Es sofort der Agentur melden"],"a":1,"w":"Kolleginnen und Kollegen macht man vor Kunden nicht schlecht. Feedback gibt es unter vier Augen, freundlich und direkt."},{"cat":"Vertraulichkeit","s":"Sie freuen sich, bei einem Gipfel zu sein, und wollen ein Kabinen-Selfie mit sichtbarer Tagesordnung posten.","o":["Posten, das ist gut für Ihr Profil","Posten, aber die Tagesordnung verpixeln","Nichts posten, was Inhalt oder Existenz einer geschlossenen Sitzung verrät"],"a":2,"w":"Vertraulichkeit umfasst Dokumente, Tagesordnungen und manchmal die Sitzung selbst. Feiern Sie privat oder wenn alles öffentlich ist."},{"cat":"Genauigkeit","s":"Der Redner irrt sich offensichtlich: „Abuja, die Hauptstadt Ghanas …“","o":["Stillschweigend zu „Nigeria“ korrigieren","Dolmetschen, was gesagt wurde: Der Inhalt gehört dem Redner","In eigenem Namen hinzufügen: „Der Redner meint Nigeria“"],"a":1,"w":"Sie geben den Redner wieder, Fehler eingeschlossen. (Viele korrigieren einen offensichtlichen Versprecher bei einer Zahl, wenn der Kontext eindeutig ist, aber die Fakten des Redners korrigiert man nicht.)"},{"cat":"Verhalten","s":"Ihre Kollegin ist 40 Minuten zu spät, und Sie dolmetschen allein und werden immer erschöpfter.","o":["Still weitermachen, bis sie kommt","Den Veranstalter informieren, dass Sie allein arbeiten und die Qualität leiden wird","Mitten im Satz aufhören und die Kabine verlassen"],"a":1,"w":"Simultandolmetschen ist aus gutem Grund Teamarbeit. Informieren Sie den Veranstalter, statt die Qualität still einbrechen zu lassen."},{"cat":"Rolle","s":"Ein Kunde bittet Sie: „Wenn Sie unsere Geschäftsführerin dolmetschen, lassen Sie sie selbstsicherer klingen, als sie ist.“","o":["Zustimmen, der Kunde zahlt","Klar und flüssig dolmetschen, aber keine Selbstsicherheit oder Aussagen hinzufügen, die nicht in ihren Worten stehen","Den Auftrag ablehnen"],"a":1,"w":"Gute Vortragsweise ist Ihre Aufgabe. Haltung oder Inhalt zu ändern nicht: Sie sind die Stimme der Rednerin, nicht ihre Imageberatung."},{"cat":"Unparteilichkeit","s":"In einer Pause fragt ein Delegierter nach Ihrer persönlichen Meinung zur Abstimmung morgen.","o":["Sie sagen, es ist ja Pause","Lächeln und neutral bleiben: Ihre Meinung bleibt draußen","Sagen, was er hören will"],"a":1,"w":"Neutralität endet nicht an der Kabinentür. Behalten Sie Ihre Ansichten während des Einsatzes für sich."},{"cat":"Verhalten","s":"Sie erhalten die Sitzungsunterlagen erst am Morgen der Konferenz.","o":["Sich in der Pause bei den Delegierten beschweren","Jede Minute nutzen, um ein Glossar mit Schlüsselbegriffen und Namen anzulegen, und nach Kontakt zu den Rednern fragen","Sie ignorieren, es ist keine Zeit"],"a":1,"w":"Vorbereitung ist Ihre Verantwortung. Machen Sie das Beste aus dem, was Sie bekommen, und geben Sie dem Veranstalter danach ruhig Rückmeldung."},{"cat":"Verhalten","s":"Bei einem lauten Abendessen sollen Sie für sechs Personen gleichzeitig flüsterdolmetschen.","o":["Für alle sechs Ihr Bestes geben","Die Grenzen erklären und eine mobile Anlage vorschlagen oder auf ein bis zwei Personen beschränken","Ohne es zu sagen nur für die ranghöchste Person dolmetschen"],"a":1,"w":"Flüsterdolmetschen funktioniert für ein bis zwei Personen. Erklären Sie warum und bieten Sie eine machbare Alternative an."},{"cat":"Berufsstand","s":"Als Berufseinsteiger wird Ihnen die Hälfte des üblichen Honorars „für die Erfahrung“ angeboten.","o":["Alles annehmen, um anzufangen","Ein faires Honorar verhandeln und den Wert qualifizierten Dolmetschens erklären","Annehmen und dann nur halb so viel vorbereiten"],"a":1,"w":"Preisdumping schadet Ihnen und dem Berufsstand. Sie können flexibel sein, aber kennen Sie Ihren Wert und erklären Sie ihn ruhig."}];
+const DOMS={"UN system":"UN-System","Law":"Recht","Climate":"Klima","Development":"Entwicklung","Africa":"Afrika","Europe":"Europa","Security":"Sicherheit","Economy":"Wirtschaft","Civil society":"Zivilgesellschaft","Human rights":"Menschenrechte","Languages":"Sprachen","Profession":"Beruf"};
+const T={"native":"Deutsch","stand":"Wofür steht die Abkürzung?","which":"Wie lautet die Abkürzung?"};
+const PAIR=["DE"];
+const $=s=>document.querySelector(s);
+const el=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(k==="html")e.innerHTML=v;else e.setAttribute(k,v)}for(const c of kids.flat()){if(c==null)continue;e.append(c.nodeType?c:document.createTextNode(c))}return e};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const dayKey=d=>{d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+
+const LEVELS=[[0,"Praktikant"],[150,"Kabinen-Neuling"],[400,"Relais-Profi"],[800,"Junior-Dolmetscher"],[1400,"Akkreditierter Dolmetscher"],[2200,"Senior-Dolmetscher"],[3200,"Teamleitung"],[4500,"Chefdolmetscher"],[6000,"Leitung Sprachendienst"]];
+const GOAL=3;
+const KEY="boothgym."+PAIR.join("")+".v1";
+let S={xp:0,streak:0,lastDay:null,today:{date:null,rounds:0},best:{},missed:[],eth:{seen:0,right:0},speeches:0};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s)S=Object.assign(S,s)}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+
+function levelOf(xp){let i=0;while(i+1<LEVELS.length&&xp>=LEVELS[i+1][0])i++;return i}
+function renderMeters(){
+  const i=levelOf(S.xp),cur=LEVELS[i][0],nxt=LEVELS[i+1]?LEVELS[i+1][0]:null;
+  $("#lvNum").textContent=i+1;$("#lvName").textContent=LEVELS[i][1];
+  $("#xpBar").style.width=nxt?((S.xp-cur)/(nxt-cur)*100)+"%":"100%";
+  $("#xpText").textContent=nxt?`${S.xp} XP · ${nxt-S.xp} bis ${LEVELS[i+1][1]}`:`${S.xp} XP · höchste Stufe`;
+  const today=dayKey(),yest=dayKey(new Date(Date.now()-864e5));
+  const alive=S.lastDay===today||S.lastDay===yest;
+  $("#streak").textContent=(alive?S.streak:0)+(S.streak===1&&alive?" Tag":" Tage");
+  $("#streakNote").textContent=S.lastDay===today?"Heute gesichert":alive?"Heute spielen, um sie zu halten":"Eine Runde spielen, um zu starten";
+  const r=S.today.date===today?S.today.rounds:0;
+  $("#goalText").textContent=`${Math.min(r,GOAL)} von ${GOAL} Runden`;
+  [...$("#ticks").children].forEach((t,k)=>t.classList.toggle("on",k<r));
+}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("show"),2600)}
+function finishRound(game,score,xp){
+  const today=dayKey(),yest=dayKey(new Date(Date.now()-864e5));
+  if(S.lastDay!==today){S.streak=S.lastDay===yest?S.streak+1:1;S.lastDay=today}
+  if(S.today.date!==today)S.today={date:today,rounds:0};
+  S.today.rounds++;
+  const before=levelOf(S.xp);S.xp+=xp;
+  let rec=false;if(score>(S.best[game]||0)){S.best[game]=score;rec=true}
+  save();renderMeters();
+  const after=levelOf(S.xp);
+  if(after>before)toast(`Befördert: ${LEVELS[after][1]}`);
+  else if(S.today.rounds===GOAL)toast("Tagesschicht erledigt. Serie gesichert.");
+  return rec;
+}
+function lamp(on){$("#lamp").classList.toggle("on",on)}
+let cleanup=null;
+function show(node,inGame){if(cleanup){cleanup();cleanup=null}const v=$("#view");v.replaceChildren(node);$("#homeBtn").hidden=!inGame;lamp(false);window.scrollTo({top:0})}
+$("#homeBtn").onclick=()=>home();
+
+/* ---------- HOME ---------- */
+const GAMES=[
+ {id:"acro",ch:"01",name:"Akronym-Blitz",desc:"Zehn Akronyme, je zehn Sekunden: UN, AU, EU, Wirtschaft. Verpasste kommen wieder, bis Sie sie können.",start:()=>acro()},
+ {id:"floor",ch:"02",name:"Redezeit",desc:"Ziehen Sie ein Thema und eine Vorgabe. Sprechen Sie ohne Pause und bewerten Sie sich dann ehrlich.",start:()=>floor()},
+ {id:"eth",ch:"03",name:"Kabinen-Dilemmas",desc:"Echte Situationen aus dem Dolmetschalltag. Wählen Sie, was ein erfahrener Profi tun würde.",start:()=>ethics()},
+ {id:"reg",ch:"04",name:"Registerleiter",desc:"Ordnen Sie drei Wörter von umgangssprachlich bis gehoben.",start:()=>ladder()},
+];
+function dailyTopic(){const d=dayKey();let h=0;for(const c of d)h=(h*31+c.charCodeAt(0))>>>0;return [TOPICS[h%TOPICS.length],TWISTS[(h>>>8)%TWISTS.length]]}
+function home(){
+  const [tp,tw]=dailyTopic();
+  const node=el("div",{style:"display:flex;flex-direction:column;gap:16px"},
+    el("div",{class:"today"},el("div",{style:"min-width:0;flex:1 1 280px"},el("div",{class:"label"},"Thema des Tages"),el("div",{class:"q"},tp),el("div",{class:"muted"},tw)),
+      el("button",{class:"btn",onclick:()=>floor({topic:tp,twist:tw})},"Das Wort ergreifen")),
+    el("div",{class:"channels"},GAMES.map(g=>el("button",{class:"ch",onclick:g.start},
+      el("span",{class:"knob"},"CH"+g.ch),el("h3",{},g.name),el("p",{},g.desc),
+      el("span",{class:"best"},bestText(g.id)))))
+  );
+  show(node,false);
+}
+function bestText(id){
+  if(id==="floor")return S.speeches?`${S.speeches} ${S.speeches===1?"Rede":"Reden"} · Bestwert ${S.best.floor||0}/6`:"Noch keine Reden";
+  if(id==="eth")return S.eth.seen?`Urteilsvermögen: ${Math.round(S.eth.right/S.eth.seen*100)} % bei ${S.eth.seen} Fällen`:"Noch keine Fälle";
+  return S.best[id]?`Beste Runde: ${S.best[id]} Pkt.`:"Noch nicht gespielt";
+}
+
+/* ---------- ACRONYM BLITZ ---------- */
+const QTIME=10;
+const LI={EN:1,FR:3,DE:5},LN={EN:"English",FR:"French",DE:"German"};
+function acroQuestion(item){
+  if(PAIR.length===1){const L=PAIR[0],a=item[LI[L]],f=item[LI[L]+1];const types=[];
+    if(a!=="—"){types.push({q:a,sub:T.stand,ans:f,pool:x=>x[LI[L]+1],filter:x=>x[LI[L]]!=="—"});types.push({q:f,sub:T.which,ans:a,pool:x=>x[LI[L]],filter:x=>x[LI[L]]!=="—",small:true});}
+    else types.push({q:f,sub:T.which,ans:a,pool:x=>x[LI[L]+1],small:true});
+    const t=pick(types);const wrong=shuffle(ACRONYMS.filter(x=>x[0]!==item[0]&&(!t.filter||t.filter(x)))).map(t.pool).filter((v,i,arr)=>v!==t.ans&&arr.indexOf(v)===i).slice(0,3);
+    return {...t,item,opts:shuffle([t.ans,...wrong]),dom:item[7]};}
+  const k=item[0],dom=item[7];const [A,B]=shuffle(PAIR);
+  const acr=L=>item[LI[L]],full=L=>item[LI[L]+1];
+  const types=[];
+  for(const L of [A,B]){if(acr(L)!=="—")types.push({q:acr(L),sub:`${LN[L]}. What does it stand for?`,ans:full(L),pool:x=>x[LI[L]+1],filter:x=>x[LI[L]]!=="—"});}
+  types.push({q:full(A),sub:`What is it called in ${LN[B]}?`,ans:full(B),pool:x=>x[LI[B]+1],small:true});
+  if(acr(A)!=="—"&&acr(B)!=="—"&&acr(A)!==acr(B))types.push({q:acr(A),sub:`What is the ${LN[B]} acronym?`,ans:acr(B),pool:x=>x[LI[B]],filter:x=>x[LI[B]]!=="—"&&x[LI[B]]!==x[LI[A]]});
+  const t=pick(types);
+  const wrong=shuffle(ACRONYMS.filter(x=>x[0]!==k&&(!t.filter||t.filter(x)))).map(t.pool).filter((v,i,a)=>v!==t.ans&&a.indexOf(v)===i).slice(0,3);
+  return {...t,item,opts:shuffle([t.ans,...wrong]),dom};
+}
+function acro(){
+  const ACRO=ACRONYMS.filter(a=>PAIR.length>1||a[LI[PAIR[0]]]!=="—");const missed=ACRO.filter(a=>S.missed.includes(a[0]));
+  const deck=[];const fresh=shuffle(ACRO);
+  while(deck.length<10){const src=(missed.length&&Math.random()<.4)?pick(missed):fresh.pop();if(src&&!deck.includes(src))deck.push(src)}
+  let i=0,score=0,combo=0,right=0,timer=null,wrongs=[];
+  const stage=el("div",{class:"stage"});show(stage,true);lamp(true);
+  cleanup=()=>clearInterval(timer);
+  function q(){
+    if(i>=deck.length)return end();
+    const Q=acroQuestion(deck[i]);let left=QTIME*10,done=false;
+    const bar=el("i");
+    const opts=Q.opts.map(o=>el("button",{class:"opt",onclick:()=>answer(o)},o));
+    const fb=el("div");
+    stage.replaceChildren(
+      el("div",{class:"stagehead"},el("div",{class:"label"},`CH01 · Akronym-Blitz · ${DOMS[Q.dom]||Q.dom}`),el("div",{class:"hud"},el("span",{},`Q ${i+1}/10`),el("span",{},"Punkte ",el("b",{},score)),combo>=3?el("span",{class:"combo"},`×${mult()} combo`):null)),
+      el("div",{class:"timer"},bar),
+      el("div",{class:Q.small?"prompt sub":"prompt",style:Q.small?"font-size:clamp(20px,4.4vw,28px)":""},Q.q),
+      el("div",{class:"muted"},Q.sub),
+      el("div",{class:"opts"},opts),fb);
+    clearInterval(timer);
+    timer=setInterval(()=>{left--;bar.style.width=(left/(QTIME*10)*100)+"%";if(left<=0)answer(null)},100);
+    function answer(o){
+      if(done)return;done=true;clearInterval(timer);
+      const ok=o===Q.ans;
+      opts.forEach(b=>{b.disabled=true;if(b.textContent===Q.ans)b.classList.add("right");else if(b.textContent===o)b.classList.add("wrong")});
+      const k=Q.item[0];
+      if(ok){combo++;right++;const pts=Math.round((10+Math.ceil(left/10))*mult());score+=pts;S.missed=S.missed.filter(x=>x!==k)}
+      else{combo=0;if(!S.missed.includes(k))S.missed.push(k);wrongs.push(Q.item)}
+      save();
+      fb.replaceChildren(el("div",{class:"trio"},trio(Q.item)),el("div",{class:"row",style:"margin-top:12px"},el("button",{class:"btn",onclick:()=>{i++;q()}},i<9?"Weiter":"Ergebnisse"),el("span",{class:"muted"},ok?"Richtig.":o===null?"Zeit abgelaufen.":"Nicht ganz.")));
+      fb.querySelector(".btn").focus();
+    }
+  }
+  function mult(){return combo>=6?3:combo>=3?2:1}
+  function end(){
+    lamp(false);
+    const xp=score;const rec=finishRound("acro",score,xp);
+    stage.replaceChildren(el("div",{class:"result"},el("div",{class:"label"},"Runde beendet"),el("div",{class:"big"},score),el("div",{},`${right}/10 richtig · +${xp} XP${rec?" · neuer Rekord":""}`)),
+      wrongs.length?el("div",{class:"review"},el("h3",{},"Wiederholen Sie diese. Sie kommen wieder."),wrongs.map(w=>el("div",{},PAIR.length>1?el("div",{style:"font-weight:600;margin-bottom:4px"},w[2]):null,el("div",{class:"trio"},trio(w))))):el("p",{class:"note"},"Fehlerfrei. Alles richtig."),
+      el("div",{class:"row"},el("button",{class:"btn",onclick:acro},"Nochmal spielen"),el("button",{class:"btn ghost",onclick:home},"Zurück zur Konsole")));
+  }
+  q();
+}
+function trio(a){return PAIR.map(L=>el("div",{},el("b",{},L+" · "+a[LI[L]]),a[LI[L]+1]))}
+
+/* ---------- FLOOR TIME ---------- */
+const LANGS=[T.native,"Gebärdensprache"];
+const CHECKS=["Keine Füllwörter (äh, ähm, also)","Keine Wiederholung von Wörtern oder Gedanken","Beim Thema und bei der Vorgabe geblieben","Klarer Einstieg, Hauptteil und Schluss","Starker Schlusssatz","Ruhige Stimme, Haltung und Blickkontakt (oder klarer Gebärdenraum)"];
+function floor(preset){
+  let dur=60,lang="Random",draw=null,timer=null;
+  const stage=el("div",{class:"stage"});show(stage,true);
+  cleanup=()=>clearInterval(timer);
+  function newDraw(){draw={topic:preset?.topic||pick(TOPICS),twist:preset?.twist||pick(TWISTS),lang:lang==="Random"?pick(LANGS):lang};preset=null;setup()}
+  function setup(){
+    const durSel=el("select",{id:"dur"},[30,60,90,120].map(s=>{const o=el("option",{value:s},s+" Sekunden");if(s===dur)o.selected=true;return o}));
+    durSel.onchange=()=>dur=+durSel.value;
+    const langSel=el("select",{id:"lang"},["Random",...LANGS].map(s=>{const o=el("option",{value:s},s==="Random"?"Zufällig":s);if(s===lang)o.selected=true;return o}));
+    langSel.onchange=()=>{lang=langSel.value;draw.lang=lang==="Random"?pick(LANGS):lang;setup()};
+    stage.replaceChildren(
+      el("div",{class:"stagehead"},el("div",{class:"label"},"CH02 · Redezeit"),el("div",{class:"row"},durSel,langSel)),
+      el("div",{class:"prompt",style:"font-size:clamp(24px,5vw,36px)"},draw.topic),
+      el("div",{class:"row"},el("span",{class:"chip"},draw.twist),el("span",{class:"chip"},"Sprache: "+draw.lang)),
+      el("p",{class:"muted",style:"margin:0"},"Sie haben 10 Sekunden, um Ihre Gedanken zu sammeln, dann läuft die Uhr. Wenn Sie stocken, zögern oder abschweifen, machen Sie trotzdem weiter. Genau das wird trainiert."),
+      el("div",{class:"row"},el("button",{class:"btn",onclick:prep},"10 Sekunden Vorbereitung starten"),el("button",{class:"btn ghost",onclick:newDraw},"Neu ziehen")));
+  }
+  function ring(total){
+    const r=90,c=2*Math.PI*r;
+    const fg=el("circle",{cx:100,cy:100,r,fill:"none",stroke:"var(--signal)","stroke-width":8,"stroke-dasharray":c,"stroke-dashoffset":0,"stroke-linecap":"round"});
+    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 200 200");
+    const bg=document.createElementNS(svg.namespaceURI,"circle");[["cx",100],["cy",100],["r",r],["fill","none"],["stroke","var(--line)"],["stroke-width",8]].forEach(([k,v])=>bg.setAttribute(k,v));
+    const f=document.createElementNS(svg.namespaceURI,"circle");[["cx",100],["cy",100],["r",r],["fill","none"],["stroke","var(--signal)"],["stroke-width",8],["stroke-dasharray",c],["stroke-linecap","round"]].forEach(([k,v])=>f.setAttribute(k,v));
+    svg.append(bg,f);const t=el("span",{class:"t"},total);
+    return {node:el("div",{class:"dial"},svg,t),set:(left)=>{t.textContent=left;f.setAttribute("stroke-dashoffset",c*(1-left/total))}};
+  }
+  function countdown(total,label,next,color){
+    const R=ring(total);let left=total;
+    const stop=el("button",{class:"btn ghost",onclick:()=>{clearInterval(timer);next()}},label==="Vorbereitung"?"Vorbereitung überspringen":"Fertig");
+    stage.replaceChildren(el("div",{class:"stagehead"},el("div",{class:"label"},`CH02 · ${label}`),el("span",{class:"chip"},"Sprache: "+draw.lang)),
+      el("h3",{style:"text-align:center"},draw.topic),el("div",{class:"muted",style:"text-align:center"},draw.twist),R.node,el("div",{class:"row",style:"justify-content:center"},stop));
+    clearInterval(timer);timer=setInterval(()=>{left--;R.set(left);if(left<=0){clearInterval(timer);next()}},1000);
+  }
+  function prep(){countdown(10,"Vorbereitung",speak)}
+  function speak(){lamp(true);countdown(dur,"Sie haben das Wort",score)}
+  function score(){
+    lamp(false);
+    const boxes=CHECKS.map((c,k)=>{const i=el("input",{type:"checkbox",id:"ck"+k});return{i,node:el("label",{for:"ck"+k},i,c)}});
+    stage.replaceChildren(el("div",{class:"label"},"CH02 · Selbstbewertung"),el("h2",{},"Seien Sie ehrlich. Haken Sie nur ab, was Sie wirklich geschafft haben."),
+      el("div",{class:"checks"},boxes.map(b=>b.node)),
+      el("button",{class:"btn",onclick:()=>{
+        const n=boxes.filter(b=>b.i.checked).length;S.speeches++;
+        const xp=20+n*10+Math.round(dur/30)*5;const rec=finishRound("floor",n,xp);
+        stage.replaceChildren(el("div",{class:"result"},el("div",{class:"label"},"Rede gespeichert"),el("div",{class:"big"},n+"/6"),el("div",{},`+${xp} XP${rec?" · neuer Rekord":""}`),
+          el("p",{class:"note",style:"text-align:left;max-width:52ch"},n<=2?"Wählen Sie beim nächsten Mal einen Punkt der Liste und konzentrieren Sie sich nur darauf.":n<=4?"Solide. Versuchen Sie dasselbe Thema mit einer anderen Vorgabe.":"Ausgezeichnet. Legen Sie nach: 90 Sekunden oder eine schwierigere Vorgabe."),
+          el("div",{class:"row"},el("button",{class:"btn",onclick:()=>floor()},"Neues Thema"),el("button",{class:"btn ghost",onclick:()=>{dur=dur;setup()}},"Gleiches Thema"),el("button",{class:"btn ghost",onclick:home},"Zurück zur Konsole"))));
+      }},"Rede speichern"));
+  }
+  newDraw();
+}
+
+/* ---------- BOOTH DILEMMAS ---------- */
+function ethics(){
+  const deck=shuffle(DILEMMAS).slice(0,5);let i=0,right=0;
+  const stage=el("div",{class:"stage"});show(stage,true);lamp(true);
+  function q(){
+    if(i>=deck.length)return end();
+    const D=deck[i];const fb=el("div");
+    const order=shuffle(D.o.map((t,k)=>({t,k})));
+    const opts=order.map(o=>el("button",{class:"opt",onclick:()=>answer(o.k)},o.t));
+    stage.replaceChildren(el("div",{class:"stagehead"},el("div",{class:"label"},`CH03 · Kabinen-Dilemmas · ${D.cat}`),el("div",{class:"hud"},el("span",{},`Fall ${i+1}/5`),el("span",{},"Richtig ",el("b",{},right)))),
+      el("p",{style:"font-size:19px;margin:0;font-weight:500"},D.s),el("div",{class:"opts"},opts),fb);
+    function answer(k){
+      const ok=k===D.a;if(ok)right++;S.eth.seen++;if(ok)S.eth.right++;save();
+      opts.forEach((b,n)=>{b.disabled=true;if(order[n].k===D.a)b.classList.add("right");else if(order[n].k===k)b.classList.add("wrong")});
+      fb.replaceChildren(el("p",{class:"note"},D.w),el("button",{class:"btn",onclick:()=>{i++;q()}},i<4?"Nächster Fall":"Ergebnisse"));
+      fb.querySelector(".btn").focus();
+    }
+  }
+  function end(){
+    lamp(false);const xp=right*20;const rec=finishRound("eth",right,xp);
+    stage.replaceChildren(el("div",{class:"result"},el("div",{class:"label"},"Sitzung beendet"),el("div",{class:"big"},right+"/5"),el("div",{},`+${xp} XP · Urteilsvermögen gesamt ${Math.round(S.eth.right/S.eth.seen*100)}%`),
+      el("p",{class:"note",style:"text-align:left;max-width:52ch"},"Gruppenversion: Lesen Sie einen Fall vor, alle stimmen mit den Fingern ab (1, 2, 3), dann hat die Person mit der abweichendsten Meinung 30 Sekunden, um ihre Wahl zu verteidigen."),
+      el("div",{class:"row"},el("button",{class:"btn",onclick:ethics},"Fünf weitere Fälle"),el("button",{class:"btn ghost",onclick:home},"Zurück zur Konsole"))));
+  }
+  q();
+}
+
+/* ---------- REGISTER LADDER ---------- */
+function ladder(langPref){
+  let lf=langPref||"All";
+  const pool=LADDERS.filter(l=>PAIR.includes(l[0])&&(lf==="All"||l[0]===lf));
+  const deck=shuffle(pool).slice(0,8);let i=0,score=0,perfect=0;
+  const stage=el("div",{class:"stage"});show(stage,true);lamp(true);
+  function q(){
+    if(i>=deck.length)return end();
+    const [lg,meaning,words]=deck[i];const t0=Date.now();let picked=[];
+    const tiles=shuffle(words).map(w=>{const b=el("button",{class:"tile",onclick:()=>tap(w,b)},el("span",{},w),el("span",{class:"n"},""));return b});
+    const fb=el("div");
+    const sel=el("select",{id:"ladLang"},["All",...PAIR].map(s=>{const o=el("option",{value:s},s==="All"?"Both languages":s);if(s===lf)o.selected=true;return o}));
+    sel.onchange=()=>ladder(sel.value);
+    stage.replaceChildren(el("div",{class:"stagehead"},el("div",{class:"label"},`CH04 · Registerleiter · ${lg}`),el("div",{class:"row"},el("div",{class:"hud"},el("span",{},`${i+1}/8`),el("span",{},"Punkte ",el("b",{},score))),PAIR.length>1?sel:null)),
+      el("div",{class:"prompt",style:"font-size:clamp(24px,5vw,34px)"},`“${meaning}”`),
+      el("div",{class:"muted"},"Tippen Sie vom umgangssprachlichsten (Straße) bis zum gehobensten Wort (Gipfel)."),
+      el("div",{class:"scale"},el("span",{},"Straße"),el("span",{},"Gipfel")),
+      el("div",{class:"tiles"},tiles),fb);
+    function tap(w,b){
+      if(picked.includes(w)||picked.length===3)return;
+      picked.push(w);b.classList.add("picked");b.querySelector(".n").textContent=picked.length;
+      if(picked.length===3){
+        const ok=picked.every((x,k)=>x===words[k]);const secs=(Date.now()-t0)/1000;
+        const pts=ok?10+Math.max(0,Math.round(15-secs)):0;score+=pts;if(ok)perfect++;
+        tiles.forEach(t=>{t.disabled=true;const w2=t.firstChild.textContent;t.classList.add(picked.indexOf(w2)===words.indexOf(w2)?"right":"wrong");t.classList.add("opt")});
+        fb.replaceChildren(el("p",{class:"note"},ok?`Richtig, +${pts}.`:"Richtige Reihenfolge: "+words.join("  →  ")),
+          el("p",{class:"muted",style:"margin:0 0 10px;font-size:14px"},"In der Kabine gilt: das Register des Redners treffen. Einen Minister in Straßensprache zu übertragen oder eine lockere Bemerkung aufzublähen, verfälscht die Botschaft."),
+          el("button",{class:"btn",onclick:()=>{i++;q()}},i<7?"Weiter":"Ergebnisse"));
+        fb.querySelector(".btn").focus();
+      }
+    }
+  }
+  function end(){
+    lamp(false);const rec=finishRound("reg",score,score);
+    stage.replaceChildren(el("div",{class:"result"},el("div",{class:"label"},"Leiter geschafft"),el("div",{class:"big"},score),el("div",{},`${perfect}/8 perfekt · +${score} XP${rec?" · neuer Rekord":""}`),
+      el("p",{class:"note",style:"text-align:left;max-width:52ch"},"Extra: Sagen Sie mit jedem Wort einen ganzen Satz und formulieren Sie das gehobene Wort dann einfach um."),
+      el("div",{class:"row"},el("button",{class:"btn",onclick:()=>ladder(lf)},"Nochmal spielen"),el("button",{class:"btn ghost",onclick:home},"Zurück zur Konsole"))));
+  }
+  q();
+}
+
+renderMeters();home();
+</script>
+
+</body></html>

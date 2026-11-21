@@ -1,0 +1,1427 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><a href="../" id="hub-back" style="position:fixed;z-index:9999;left:max(10px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));background:#16202c;color:#fff;font:600 14px/1 -apple-system,Segoe UI,Arial,sans-serif;padding:10px 14px;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">&larr; All games</a>
+<title>Capital Relay Solo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one centred column, like a booth console: status strip on top, one card in focus, controls underneath */
+:root {
+  --bg: #EDF0EA; --surface: #FFFFFF; --sunk: #E3E8E1; --ink: #1D2B33; --muted: #5C6862; --line: #D3D9D0;
+  --accent: #1F5C70; --accent-ink: #FFFFFF; --live: #E0A53A; --good: #2F7D4F; --bad: #B7443B;
+  --AF: #B86A1E; --EU: #335F8C; --AS: #A63A33; --NA: #357A4E; --SA: #6D4590; --OC: #1F7A7D; --CM: #1C6B45;
+  --display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11181C; --surface: #19232A; --sunk: #0D1316; --ink: #E4EBE7; --muted: #94A39C; --line: #2B3840;
+  --accent: #6BB8CC; --accent-ink: #0D1A20; --live: #F0B850; --good: #6CC08E; --bad: #E77A70;
+  --AF: #E0954A; --EU: #78A4D4; --AS: #E07A70; --NA: #6DBB8A; --SA: #B18AD6; --OC: #5FC0C2; --CM: #5DBB88; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11181C; --surface: #19232A; --sunk: #0D1316; --ink: #E4EBE7; --muted: #94A39C; --line: #2B3840;
+  --accent: #6BB8CC; --accent-ink: #0D1A20; --live: #F0B850; --good: #6CC08E; --bad: #E77A70;
+  --AF: #E0954A; --EU: #78A4D4; --AS: #E07A70; --NA: #6DBB8A; --SA: #B18AD6; --OC: #5FC0C2; --CM: #5DBB88; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px }
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px }
+button { font: inherit; color: inherit; cursor: pointer }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--live); outline-offset: 2px }
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; letter-spacing: -0.01em }
+.muted { color: var(--muted) }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums }
+
+/* header */
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; justify-content: space-between }
+.brand { display: flex; align-items: center; gap: 10px }
+.lamp { width: 12px; height: 12px; border-radius: 50%; background: var(--live); box-shadow: 0 0 0 4px color-mix(in srgb, var(--live) 25%, transparent) }
+.brand h1 { font-size: 24px; font-weight: 800 }
+.brand small { display: block; font-size: 12px; color: var(--muted); font-family: var(--body); letter-spacing: 0 }
+.langs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--muted) }
+.seg { display: inline-flex; background: var(--sunk); border-radius: 8px; padding: 3px; gap: 2px }
+.seg button { border: 0; background: transparent; padding: 5px 10px; border-radius: 6px; font-weight: 600; font-size: 13px; color: var(--muted) }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / .12) }
+
+nav.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line) }
+nav.tabs button { border: 0; background: none; padding: 10px 14px; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-color: var(--accent) }
+
+/* stat strip */
+.strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden }
+.strip div { background: var(--surface); padding: 10px 12px }
+.strip b { display: block; font-family: var(--mono); font-size: 20px; font-variant-numeric: tabular-nums }
+.strip span { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em }
+
+/* plan */
+.days { display: grid; gap: 8px }
+.day { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px }
+.day.today { border-color: var(--live); box-shadow: inset 4px 0 0 var(--live) }
+.day .dn { font-family: var(--display); font-weight: 800; font-size: 22px; line-height: 1; text-align: center }
+.day .dn small { display: block; font: 500 10.5px var(--mono); color: var(--muted); margin-top: 3px }
+.day h3 { font-size: 15.5px }
+.day p { margin: 2px 0 6px; font-size: 13px; color: var(--muted) }
+.bar { height: 6px; background: var(--sunk); border-radius: 3px; overflow: hidden; display: flex }
+.bar i { display: block; height: 100% }
+.pill { font: 600 11px var(--mono); padding: 2px 7px; border-radius: 99px; background: var(--sunk); color: var(--muted); white-space: nowrap }
+.pill.live { background: var(--live); color: #1D2B33 }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 14px; font-weight: 600; font-size: 14px }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.btn:disabled { opacity: .45; cursor: default }
+
+/* practice setup */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px }
+.label { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600 }
+.chips { display: flex; flex-wrap: wrap; gap: 6px }
+.chip { border: 1px solid var(--line); background: var(--bg); border-radius: 99px; padding: 6px 12px; font-size: 13.5px; font-weight: 500; display: inline-flex; gap: 6px; align-items: center }
+.chip .dot { width: 8px; height: 8px; border-radius: 50% }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink) }
+.chip .n { font: 500 11px var(--mono); opacity: .7 }
+.row { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center }
+
+/* session */
+.stage { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden }
+.stage-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: 13px }
+.progress { height: 4px; background: var(--sunk) } .progress i { display: block; height: 100%; background: var(--accent); transition: width .25s }
+.q { padding: 26px 20px 22px; display: flex; flex-direction: column; gap: 14px; min-height: 280px }
+.eyebrow { display: flex; gap: 8px; align-items: center; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600 }
+.tag { font: 600 10.5px var(--mono); padding: 2px 6px; border-radius: 4px; background: var(--sunk); color: var(--ink); letter-spacing: 0 }
+.prompt { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 7vw, 46px); line-height: 1.05; overflow-wrap: anywhere }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px }
+.opt { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 12px 14px; font-size: 16px; font-weight: 600; display: flex; gap: 10px; align-items: baseline }
+.opt kbd { font: 500 11px var(--mono); color: var(--muted) }
+.opt:hover:not(:disabled) { border-color: var(--accent) }
+.opt.right { background: color-mix(in srgb, var(--good) 16%, var(--surface)); border-color: var(--good) }
+.opt.wrong { background: color-mix(in srgb, var(--bad) 14%, var(--surface)); border-color: var(--bad) }
+.type { display: flex; gap: 8px } .type input { flex: 1; min-width: 0; font: 600 18px var(--body); padding: 11px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink) }
+.answer { border-top: 1px dashed var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 8px }
+.verdict { font-weight: 700; font-size: 15px } .verdict.ok { color: var(--good) } .verdict.no { color: var(--bad) } .verdict.close { color: var(--live) }
+.tri { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 8px }
+.tri div { background: var(--bg); border-radius: 8px; padding: 8px 10px; min-width: 0 }
+.tri b { display: block; font-family: var(--display); font-size: 17px; overflow-wrap: anywhere }
+.tri button { border: 0; background: none; padding: 0; color: var(--accent); font-size: 12px; font-weight: 600 }
+.note { font-size: 13px; color: var(--muted) }
+.prow { display: flex; align-items: center; gap: 14px; min-width: 0 }
+.flagimg { width: 64px; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 5px; border: 1px solid var(--line); flex: none; max-width: 100% }
+.langq { display: grid; gap: 10px; padding: 14px 16px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line) } .langq div { display: flex; flex-direction: column; gap: 2px } .langq span { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600 } .langq b { font-family: var(--display); font-weight: 700; font-size: clamp(20px, 4.4vw, 28px); line-height: 1.15 }
+.flagbig { width: min(260px, 100%); aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); box-shadow: 0 2px 10px rgb(0 0 0 / .12) }
+.cult { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; background: var(--bg); border-radius: 8px; padding: 10px 12px }
+.cult div { display: flex; flex-direction: column; min-width: 0 } .cult span { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600 } .cult b { font-weight: 500; font-size: 14px; overflow-wrap: anywhere }
+.grades { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px }
+.grades .btn { padding: 10px 6px } .grades small { display: block; font: 500 10.5px var(--mono); color: var(--muted) }
+.actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap }
+.done { padding: 28px 20px; display: flex; flex-direction: column; gap: 12px }
+.done h2 { font-size: 30px }
+
+/* progress */
+.cont { display: grid; grid-template-columns: 150px minmax(0, 1fr) 76px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px }
+.cont:last-child { border-bottom: 0 }
+.cont .bar { height: 10px; border-radius: 5px }
+.legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); flex-wrap: wrap } .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px }
+.weak { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px; font-size: 14px }
+.weak div { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--line); padding: 4px 0; min-width: 0 }
+.foot { font-size: 12.5px; color: var(--muted) }
+.saved { font: 500 11.5px var(--mono); color: var(--muted) }
+@media (max-width: 560px) {
+  .strip { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .opts, .weak { grid-template-columns: 1fr }
+  .tri, .cult { grid-template-columns: 1fr }
+  .grades { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .cont { grid-template-columns: 96px minmax(0, 1fr) 60px; font-size: 13px }
+  .day { grid-template-columns: 40px minmax(0, 1fr) }
+  .day .btn { grid-column: 1 / -1 }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand"><span class="lamp" aria-hidden="true"></span><div><h1>Capital Relay Solo</h1><small id="edLabel">195 countries · Cameroon · EN / FR / DE</small></div></div>
+    <div class="langs">
+      <span>Edition</span><span class="seg" id="edSeg"></span>
+      <span>Prompt</span><span class="seg" id="srcSeg"></span>
+      <span>Answer</span><span class="seg" id="tgtSeg"></span>
+    </div>
+  </header>
+
+  <div class="strip" id="strip"></div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-plan" aria-selected="true" data-tab="plan">14-day plan</button>
+    <button role="tab" id="tab-practice" aria-selected="false" data-tab="practice">Practise</button>
+    <button role="tab" id="tab-progress" aria-selected="false" data-tab="progress">Progress</button>
+  </nav>
+
+  <section id="view-plan"></section>
+  <section id="view-practice" hidden></section>
+  <section id="view-progress" hidden></section>
+
+  <p class="foot">Capitals checked November 2026, including Equatorial Guinea's move to Ciudad de la Paz. Culture notes, languages and capital notes follow your answer language. Languages list official ones first, then other widely spoken ones (a selection). Flags from the open-source flag-icons set. Progress is saved to your account when you're signed in, and in this browser as a backup. <span class="saved" id="saved"></span></p>
+</div>
+
+<script>
+// World capitals data. Checked November 2026.
+// Row: code | region | EN country | FR country | DE country | capital EN | capital FR (blank = same) | capital DE (blank = same) | note
+var CONTINENTS = {
+  AF: { en: "Africa", fr: "Afrique", de: "Afrika" },
+  EU: { en: "Europe", fr: "Europe", de: "Europa" },
+  AS: { en: "Asia", fr: "Asie", de: "Asien" },
+  NA: { en: "North America", fr: "Amérique du Nord", de: "Nordamerika" },
+  SA: { en: "South America", fr: "Amérique du Sud", de: "Südamerika" },
+  OC: { en: "Oceania", fr: "Océanie", de: "Ozeanien" }
+};
+var REGIONS = {
+  "AF-N": { c: "AF", en: "North Africa", fr: "Afrique du Nord", de: "Nordafrika" },
+  "AF-W": { c: "AF", en: "West Africa", fr: "Afrique de l'Ouest", de: "Westafrika" },
+  "AF-C": { c: "AF", en: "Central Africa", fr: "Afrique centrale", de: "Zentralafrika" },
+  "AF-E": { c: "AF", en: "East Africa", fr: "Afrique de l'Est", de: "Ostafrika" },
+  "AF-S": { c: "AF", en: "Southern Africa", fr: "Afrique australe", de: "Südliches Afrika" },
+  "EU-N": { c: "EU", en: "Northern Europe", fr: "Europe du Nord", de: "Nordeuropa" },
+  "EU-W": { c: "EU", en: "Western Europe", fr: "Europe de l'Ouest", de: "Westeuropa" },
+  "EU-S": { c: "EU", en: "Southern Europe", fr: "Europe du Sud", de: "Südeuropa" },
+  "EU-E": { c: "EU", en: "Eastern Europe", fr: "Europe de l'Est", de: "Osteuropa" },
+  "AS-W": { c: "AS", en: "Western Asia", fr: "Asie de l'Ouest", de: "Westasien" },
+  "AS-C": { c: "AS", en: "Central Asia", fr: "Asie centrale", de: "Zentralasien" },
+  "AS-S": { c: "AS", en: "South Asia", fr: "Asie du Sud", de: "Südasien" },
+  "AS-E": { c: "AS", en: "East Asia", fr: "Asie de l'Est", de: "Ostasien" },
+  "AS-SE": { c: "AS", en: "Southeast Asia", fr: "Asie du Sud-Est", de: "Südostasien" },
+  "NA-N": { c: "NA", en: "Northern America", fr: "Amérique septentrionale", de: "Nördliches Amerika" },
+  "NA-C": { c: "NA", en: "Central America", fr: "Amérique centrale", de: "Mittelamerika" },
+  "NA-K": { c: "NA", en: "Caribbean", fr: "Caraïbes", de: "Karibik" },
+  "SA": { c: "SA", en: "South America", fr: "Amérique du Sud", de: "Südamerika" },
+  "OC-A": { c: "OC", en: "Australia & New Zealand", fr: "Australie et Nouvelle-Zélande", de: "Australien und Neuseeland" },
+  "OC-M": { c: "OC", en: "Melanesia", fr: "Mélanésie", de: "Melanesien" },
+  "OC-I": { c: "OC", en: "Micronesia", fr: "Micronésie", de: "Mikronesien" },
+  "OC-P": { c: "OC", en: "Polynesia", fr: "Polynésie", de: "Polynesien" }
+};
+var RAW = `
+DZ|AF-N|Algeria|Algérie|Algerien|Algiers|Alger|Algier|
+EG|AF-N|Egypt|Égypte|Ägypten|Cairo|Le Caire|Kairo|
+LY|AF-N|Libya|Libye|Libyen|Tripoli||Tripolis|
+MA|AF-N|Morocco|Maroc|Marokko|Rabat|||Casablanca is the largest city.
+SD|AF-N|Sudan|Soudan|Sudan|Khartoum||Khartum|Port Sudan served as a temporary seat of government during the war.
+TN|AF-N|Tunisia|Tunisie|Tunesien|Tunis|||
+BJ|AF-W|Benin|Bénin|Benin|Porto-Novo|||Official capital. Cotonou is the seat of government.
+BF|AF-W|Burkina Faso|Burkina Faso|Burkina Faso|Ouagadougou|||
+CV|AF-W|Cabo Verde|Cap-Vert|Kap Verde|Praia|||
+CI|AF-W|Côte d'Ivoire|Côte d'Ivoire|Elfenbeinküste|Yamoussoukro|||Official capital. Abidjan is the economic capital.
+GM|AF-W|Gambia|Gambie|Gambia|Banjul|||
+GH|AF-W|Ghana|Ghana|Ghana|Accra|||
+GN|AF-W|Guinea|Guinée|Guinea|Conakry|||
+GW|AF-W|Guinea-Bissau|Guinée-Bissau|Guinea-Bissau|Bissau|||
+LR|AF-W|Liberia|Liberia|Liberia|Monrovia|||
+ML|AF-W|Mali|Mali|Mali|Bamako|||
+MR|AF-W|Mauritania|Mauritanie|Mauretanien|Nouakchott|||
+NE|AF-W|Niger|Niger|Niger|Niamey|||
+NG|AF-W|Nigeria|Nigeria|Nigeria|Abuja|||Lagos is the largest city and former capital.
+SN|AF-W|Senegal|Sénégal|Senegal|Dakar|||
+SL|AF-W|Sierra Leone|Sierra Leone|Sierra Leone|Freetown|||
+TG|AF-W|Togo|Togo|Togo|Lomé|||
+AO|AF-C|Angola|Angola|Angola|Luanda|||
+CM|AF-C|Cameroon|Cameroun|Kamerun|Yaoundé|||Douala is the largest city and economic capital.
+CF|AF-C|Central African Republic|République centrafricaine|Zentralafrikanische Republik|Bangui|||
+TD|AF-C|Chad|Tchad|Tschad|N'Djamena|N'Djaména||
+CG|AF-C|Republic of the Congo|République du Congo|Republik Kongo|Brazzaville|||
+CD|AF-C|DR Congo|République démocratique du Congo|Demokratische Republik Kongo|Kinshasa|||
+GQ|AF-C|Equatorial Guinea|Guinée équatoriale|Äquatorialguinea|Ciudad de la Paz|||Capital moved from Malabo to Ciudad de la Paz by decree in January 2026.
+GA|AF-C|Gabon|Gabon|Gabun|Libreville|||
+ST|AF-C|São Tomé and Príncipe|Sao Tomé-et-Principe|São Tomé und Príncipe|São Tomé|Sao Tomé||
+BI|AF-E|Burundi|Burundi|Burundi|Gitega|||Political capital since 2019. Bujumbura is the economic capital.
+KM|AF-E|Comoros|Comores|Komoren|Moroni|||
+DJ|AF-E|Djibouti|Djibouti|Dschibuti|Djibouti||Dschibuti|
+ER|AF-E|Eritrea|Érythrée|Eritrea|Asmara|||
+ET|AF-E|Ethiopia|Éthiopie|Äthiopien|Addis Ababa|Addis-Abeba|Addis Abeba|
+KE|AF-E|Kenya|Kenya|Kenia|Nairobi|||
+MG|AF-E|Madagascar|Madagascar|Madagaskar|Antananarivo|||
+MW|AF-E|Malawi|Malawi|Malawi|Lilongwe|||
+MU|AF-E|Mauritius|Maurice|Mauritius|Port Louis|Port-Louis||
+MZ|AF-E|Mozambique|Mozambique|Mosambik|Maputo|||
+RW|AF-E|Rwanda|Rwanda|Ruanda|Kigali|||
+SC|AF-E|Seychelles|Seychelles|Seychellen|Victoria|||
+SO|AF-E|Somalia|Somalie|Somalia|Mogadishu|Mogadiscio|Mogadischu|
+SS|AF-E|South Sudan|Soudan du Sud|Südsudan|Juba|||
+TZ|AF-E|Tanzania|Tanzanie|Tansania|Dodoma|||Dar es Salaam is the largest city.
+UG|AF-E|Uganda|Ouganda|Uganda|Kampala|||
+ZM|AF-E|Zambia|Zambie|Sambia|Lusaka|||
+ZW|AF-E|Zimbabwe|Zimbabwe|Simbabwe|Harare|||
+BW|AF-S|Botswana|Botswana|Botsuana|Gaborone|||
+SZ|AF-S|Eswatini|Eswatini|Eswatini|Mbabane|||Administrative capital. Lobamba is the royal and legislative capital.
+LS|AF-S|Lesotho|Lesotho|Lesotho|Maseru|||
+NA|AF-S|Namibia|Namibie|Namibia|Windhoek|||
+ZA|AF-S|South Africa|Afrique du Sud|Südafrika|Pretoria|||Executive capital. Cape Town (Le Cap, Kapstadt) is legislative, Bloemfontein judicial.
+DK|EU-N|Denmark|Danemark|Dänemark|Copenhagen|Copenhague|Kopenhagen|
+EE|EU-N|Estonia|Estonie|Estland|Tallinn|||
+FI|EU-N|Finland|Finlande|Finnland|Helsinki|||
+IS|EU-N|Iceland|Islande|Island|Reykjavík|Reykjavik||
+IE|EU-N|Ireland|Irlande|Irland|Dublin|||
+LV|EU-N|Latvia|Lettonie|Lettland|Riga|||
+LT|EU-N|Lithuania|Lituanie|Litauen|Vilnius|||
+NO|EU-N|Norway|Norvège|Norwegen|Oslo|||
+SE|EU-N|Sweden|Suède|Schweden|Stockholm|||
+GB|EU-N|United Kingdom|Royaume-Uni|Vereinigtes Königreich|London|Londres||
+AT|EU-W|Austria|Autriche|Österreich|Vienna|Vienne|Wien|
+BE|EU-W|Belgium|Belgique|Belgien|Brussels|Bruxelles|Brüssel|
+FR|EU-W|France|France|Frankreich|Paris|||
+DE|EU-W|Germany|Allemagne|Deutschland|Berlin|||
+LI|EU-W|Liechtenstein|Liechtenstein|Liechtenstein|Vaduz|||
+LU|EU-W|Luxembourg|Luxembourg|Luxemburg|Luxembourg||Luxemburg|
+MC|EU-W|Monaco|Monaco|Monaco|Monaco|||
+NL|EU-W|Netherlands|Pays-Bas|Niederlande|Amsterdam|||Constitutional capital. The Hague (La Haye, Den Haag) is the seat of government.
+CH|EU-W|Switzerland|Suisse|Schweiz|Bern|Berne||Officially the "federal city".
+AL|EU-S|Albania|Albanie|Albanien|Tirana|||
+AD|EU-S|Andorra|Andorre|Andorra|Andorra la Vella|Andorre-la-Vieille||
+BA|EU-S|Bosnia and Herzegovina|Bosnie-Herzégovine|Bosnien und Herzegowina|Sarajevo|||
+HR|EU-S|Croatia|Croatie|Kroatien|Zagreb|||
+GR|EU-S|Greece|Grèce|Griechenland|Athens|Athènes|Athen|
+IT|EU-S|Italy|Italie|Italien|Rome||Rom|
+MT|EU-S|Malta|Malte|Malta|Valletta|La Valette||
+ME|EU-S|Montenegro|Monténégro|Montenegro|Podgorica|||
+MK|EU-S|North Macedonia|Macédoine du Nord|Nordmazedonien|Skopje|||
+PT|EU-S|Portugal|Portugal|Portugal|Lisbon|Lisbonne|Lissabon|
+SM|EU-S|San Marino|Saint-Marin|San Marino|San Marino|Saint-Marin||
+RS|EU-S|Serbia|Serbie|Serbien|Belgrade||Belgrad|
+SI|EU-S|Slovenia|Slovénie|Slowenien|Ljubljana|||
+ES|EU-S|Spain|Espagne|Spanien|Madrid|||
+VA|EU-S|Vatican City|Vatican|Vatikanstadt|Vatican City|Cité du Vatican|Vatikanstadt|A city-state: the country is its own capital.
+BY|EU-E|Belarus|Biélorussie|Belarus|Minsk|||
+BG|EU-E|Bulgaria|Bulgarie|Bulgarien|Sofia|||
+CZ|EU-E|Czechia|Tchéquie|Tschechien|Prague||Prag|
+HU|EU-E|Hungary|Hongrie|Ungarn|Budapest|||
+MD|EU-E|Moldova|Moldavie|Moldau|Chișinău|Chisinau|Chișinău|
+PL|EU-E|Poland|Pologne|Polen|Warsaw|Varsovie|Warschau|
+RO|EU-E|Romania|Roumanie|Rumänien|Bucharest|Bucarest|Bukarest|
+RU|EU-E|Russia|Russie|Russland|Moscow|Moscou|Moskau|
+SK|EU-E|Slovakia|Slovaquie|Slowakei|Bratislava|||
+UA|EU-E|Ukraine|Ukraine|Ukraine|Kyiv|Kiev|Kyjiw|German also uses the older form Kiew.
+AM|AS-W|Armenia|Arménie|Armenien|Yerevan|Erevan|Jerewan|
+AZ|AS-W|Azerbaijan|Azerbaïdjan|Aserbaidschan|Baku|Bakou||
+BH|AS-W|Bahrain|Bahreïn|Bahrain|Manama|||
+CY|AS-W|Cyprus|Chypre|Zypern|Nicosia|Nicosie|Nikosia|
+GE|AS-W|Georgia|Géorgie|Georgien|Tbilisi|Tbilissi|Tiflis|
+IR|AS-W|Iran|Iran|Iran|Tehran|Téhéran|Teheran|
+IQ|AS-W|Iraq|Irak|Irak|Baghdad|Bagdad|Bagdad|
+IL|AS-W|Israel|Israël|Israel|Jerusalem|Jérusalem||Status disputed internationally. Most embassies are in Tel Aviv.
+JO|AS-W|Jordan|Jordanie|Jordanien|Amman|||
+KW|AS-W|Kuwait|Koweït|Kuwait|Kuwait City|Koweït|Kuwait-Stadt|
+LB|AS-W|Lebanon|Liban|Libanon|Beirut|Beyrouth||
+OM|AS-W|Oman|Oman|Oman|Muscat|Mascate|Maskat|
+PS|AS-W|Palestine|Palestine|Palästina|Ramallah|||UN observer state. Ramallah is the administrative seat. East Jerusalem is the proclaimed capital.
+QA|AS-W|Qatar|Qatar|Katar|Doha|||
+SA|AS-W|Saudi Arabia|Arabie saoudite|Saudi-Arabien|Riyadh|Riyad|Riad|
+SY|AS-W|Syria|Syrie|Syrien|Damascus|Damas|Damaskus|
+TR|AS-W|Türkiye|Turquie|Türkei|Ankara|||Istanbul is the largest city.
+AE|AS-W|United Arab Emirates|Émirats arabes unis|Vereinigte Arabische Emirate|Abu Dhabi|Abou Dabi||
+YE|AS-W|Yemen|Yémen|Jemen|Sana'a|Sanaa|Sanaa|The internationally recognised government sits in Aden during the conflict.
+KZ|AS-C|Kazakhstan|Kazakhstan|Kasachstan|Astana|||
+KG|AS-C|Kyrgyzstan|Kirghizistan|Kirgisistan|Bishkek|Bichkek|Bischkek|
+TJ|AS-C|Tajikistan|Tadjikistan|Tadschikistan|Dushanbe|Douchanbé|Duschanbe|
+TM|AS-C|Turkmenistan|Turkménistan|Turkmenistan|Ashgabat|Achgabat|Aşgabat|
+UZ|AS-C|Uzbekistan|Ouzbékistan|Usbekistan|Tashkent|Tachkent|Taschkent|
+AF|AS-S|Afghanistan|Afghanistan|Afghanistan|Kabul|Kaboul||
+BD|AS-S|Bangladesh|Bangladesh|Bangladesch|Dhaka|Dacca||
+BT|AS-S|Bhutan|Bhoutan|Bhutan|Thimphu|Thimphou||
+IN|AS-S|India|Inde|Indien|New Delhi||Neu-Delhi|
+MV|AS-S|Maldives|Maldives|Malediven|Malé|||
+NP|AS-S|Nepal|Népal|Nepal|Kathmandu|Katmandou||
+PK|AS-S|Pakistan|Pakistan|Pakistan|Islamabad|||
+LK|AS-S|Sri Lanka|Sri Lanka|Sri Lanka|Sri Jayawardenepura Kotte|||Official capital. Colombo is the commercial capital.
+CN|AS-E|China|Chine|China|Beijing|Pékin|Peking|
+JP|AS-E|Japan|Japon|Japan|Tokyo||Tokio|
+MN|AS-E|Mongolia|Mongolie|Mongolei|Ulaanbaatar|Oulan-Bator||
+KP|AS-E|North Korea|Corée du Nord|Nordkorea|Pyongyang||Pjöngjang|
+KR|AS-E|South Korea|Corée du Sud|Südkorea|Seoul|Séoul||
+BN|AS-SE|Brunei|Brunei|Brunei|Bandar Seri Begawan|||
+KH|AS-SE|Cambodia|Cambodge|Kambodscha|Phnom Penh|||
+ID|AS-SE|Indonesia|Indonésie|Indonesien|Jakarta|||Move to Nusantara awaits a presidential decree (Constitutional Court ruling, May 2026).
+LA|AS-SE|Laos|Laos|Laos|Vientiane|||
+MY|AS-SE|Malaysia|Malaisie|Malaysia|Kuala Lumpur|||Putrajaya is the administrative centre.
+MM|AS-SE|Myanmar|Birmanie|Myanmar|Naypyidaw|||Yangon is the largest city and former capital.
+PH|AS-SE|Philippines|Philippines|Philippinen|Manila|Manille||
+SG|AS-SE|Singapore|Singapour|Singapur|Singapore|Singapour|Singapur|A city-state: the country is its own capital.
+TH|AS-SE|Thailand|Thaïlande|Thailand|Bangkok|||
+TL|AS-SE|Timor-Leste|Timor oriental|Osttimor|Dili|||
+VN|AS-SE|Vietnam|Viêt Nam|Vietnam|Hanoi|Hanoï||
+CA|NA-N|Canada|Canada|Kanada|Ottawa|||
+MX|NA-N|Mexico|Mexique|Mexiko|Mexico City|Mexico|Mexiko-Stadt|
+US|NA-N|United States|États-Unis|Vereinigte Staaten|Washington, D.C.|||
+BZ|NA-C|Belize|Belize|Belize|Belmopan|||
+CR|NA-C|Costa Rica|Costa Rica|Costa Rica|San José|||
+SV|NA-C|El Salvador|Salvador|El Salvador|San Salvador|||
+GT|NA-C|Guatemala|Guatemala|Guatemala|Guatemala City|Guatemala|Guatemala-Stadt|
+HN|NA-C|Honduras|Honduras|Honduras|Tegucigalpa|||
+NI|NA-C|Nicaragua|Nicaragua|Nicaragua|Managua|||
+PA|NA-C|Panama|Panama|Panama|Panama City|Panama|Panama-Stadt|
+AG|NA-K|Antigua and Barbuda|Antigua-et-Barbuda|Antigua und Barbuda|St. John's|Saint John's||
+BS|NA-K|Bahamas|Bahamas|Bahamas|Nassau|||
+BB|NA-K|Barbados|Barbade|Barbados|Bridgetown|||
+CU|NA-K|Cuba|Cuba|Kuba|Havana|La Havane|Havanna|
+DM|NA-K|Dominica|Dominique|Dominica|Roseau|||
+DO|NA-K|Dominican Republic|République dominicaine|Dominikanische Republik|Santo Domingo|Saint-Domingue||
+GD|NA-K|Grenada|Grenade|Grenada|St. George's|Saint-Georges||
+HT|NA-K|Haiti|Haïti|Haiti|Port-au-Prince|||
+JM|NA-K|Jamaica|Jamaïque|Jamaika|Kingston|||
+KN|NA-K|Saint Kitts and Nevis|Saint-Christophe-et-Niévès|St. Kitts und Nevis|Basseterre|||
+LC|NA-K|Saint Lucia|Sainte-Lucie|St. Lucia|Castries|||
+VC|NA-K|Saint Vincent and the Grenadines|Saint-Vincent-et-les-Grenadines|St. Vincent und die Grenadinen|Kingstown|||
+TT|NA-K|Trinidad and Tobago|Trinité-et-Tobago|Trinidad und Tobago|Port of Spain|Port-d'Espagne||
+AR|SA|Argentina|Argentine|Argentinien|Buenos Aires|||
+BO|SA|Bolivia|Bolivie|Bolivien|Sucre|||Constitutional capital. La Paz is the seat of government.
+BR|SA|Brazil|Brésil|Brasilien|Brasília|Brasilia||
+CL|SA|Chile|Chili|Chile|Santiago|||
+CO|SA|Colombia|Colombie|Kolumbien|Bogotá|||
+EC|SA|Ecuador|Équateur|Ecuador|Quito|||
+GY|SA|Guyana|Guyana|Guyana|Georgetown|||
+PY|SA|Paraguay|Paraguay|Paraguay|Asunción|||
+PE|SA|Peru|Pérou|Peru|Lima|||
+SR|SA|Suriname|Suriname|Suriname|Paramaribo|||
+UY|SA|Uruguay|Uruguay|Uruguay|Montevideo|||
+VE|SA|Venezuela|Venezuela|Venezuela|Caracas|||
+AU|OC-A|Australia|Australie|Australien|Canberra|||
+NZ|OC-A|New Zealand|Nouvelle-Zélande|Neuseeland|Wellington|||
+FJ|OC-M|Fiji|Fidji|Fidschi|Suva|||
+PG|OC-M|Papua New Guinea|Papouasie-Nouvelle-Guinée|Papua-Neuguinea|Port Moresby|||
+SB|OC-M|Solomon Islands|Îles Salomon|Salomonen|Honiara|||
+VU|OC-M|Vanuatu|Vanuatu|Vanuatu|Port Vila|Port-Vila||
+KI|OC-I|Kiribati|Kiribati|Kiribati|South Tarawa|Tarawa-Sud||
+MH|OC-I|Marshall Islands|Îles Marshall|Marshallinseln|Majuro|||
+FM|OC-I|Micronesia|Micronésie|Mikronesien|Palikir|||
+NR|OC-I|Nauru|Nauru|Nauru|Yaren|||No official capital. Government offices are in Yaren District.
+PW|OC-I|Palau|Palaos|Palau|Ngerulmud|||
+WS|OC-P|Samoa|Samoa|Samoa|Apia|||
+TO|OC-P|Tonga|Tonga|Tonga|Nuku'alofa|||
+TV|OC-P|Tuvalu|Tuvalu|Tuvalu|Funafuti|||
+`;
+var COUNTRIES = RAW.trim().split("\n").map(function (line) {
+  var p = line.split("|");
+  return {
+    id: p[0], region: p[1], continent: p[1].split("-")[0],
+    en: p[2], fr: p[3], de: p[4],
+    cap: { en: p[5], fr: p[6] || p[5], de: p[7] || p[5] },
+    note: p[8] || ""
+  };
+});
+
+// Cameroon: 10 regions and their capitals (chefs-lieux)
+var CM_REGIONS = [
+  { id: "CM-AD", en: "Adamawa", fr: "Adamaoua", de: "Adamaoua", cap: "Ngaoundéré", note: "Plateau region, crossroads between north and south. End of the Transcam railway." },
+  { id: "CM-CE", en: "Centre", fr: "Centre", de: "Zentrum", cap: "Yaoundé", note: "Region of the national capital." },
+  { id: "CM-ES", en: "East", fr: "Est", de: "Ost", cap: "Bertoua", note: "Largest region by area, forests bordering CAR and Congo." },
+  { id: "CM-EN", en: "Far North", fr: "Extrême-Nord", de: "Hoher Norden", cap: "Maroua", note: "Borders Nigeria and Chad, near Lake Chad." },
+  { id: "CM-LT", en: "Littoral", fr: "Littoral", de: "Küstenregion (Littoral)", cap: "Douala", note: "Smallest region by area, but home to the largest city and main port." },
+  { id: "CM-NO", en: "North", fr: "Nord", de: "Nord", cap: "Garoua", note: "On the Benue River, which flows on into Nigeria." },
+  { id: "CM-NW", en: "North-West", fr: "Nord-Ouest", de: "Nordwest", cap: "Bamenda", note: "One of the two English-speaking regions." },
+  { id: "CM-OU", en: "West", fr: "Ouest", de: "West", cap: "Bafoussam", note: "Grassfields highlands, many traditional chiefdoms." },
+  { id: "CM-SU", en: "South", fr: "Sud", de: "Süd", cap: "Ebolowa", note: "Borders Equatorial Guinea and Gabon; Kribi deep-sea port is here." },
+  { id: "CM-SW", en: "South-West", fr: "Sud-Ouest", de: "Südwest", cap: "Buea", note: "English-speaking region at the foot of Mount Cameroon." }
+];
+var CM_CITIES = [
+  { name: "Douala", region: "CM-LT", note: "Largest city and economic capital; main seaport on the Wouri estuary." },
+  { name: "Yaoundé", region: "CM-CE", note: "Political capital; the 'city of seven hills'." },
+  { name: "Garoua", region: "CM-NO", note: "River port on the Benue." },
+  { name: "Bamenda", region: "CM-NW", note: "Main city of the English-speaking North-West." },
+  { name: "Maroua", region: "CM-EN", note: "Largest city of the Far North." },
+  { name: "Bafoussam", region: "CM-OU", note: "Commercial hub of the West highlands." },
+  { name: "Ngaoundéré", region: "CM-AD", note: "Northern terminus of the Transcam railway." },
+  { name: "Bertoua", region: "CM-ES", note: "Gateway to the eastern forests." },
+  { name: "Ebolowa", region: "CM-SU", note: "Cocoa-growing centre of the South." },
+  { name: "Buea", region: "CM-SW", note: "Former capital of German Kamerun, below Mount Cameroon (4,040 m)." },
+  { name: "Limbe", region: "CM-SW", note: "Seaside city with a botanical garden and oil refinery." },
+  { name: "Kumba", region: "CM-SW", note: "Largest city of the South-West, near Lake Barombi Mbo." },
+  { name: "Kribi", region: "CM-SU", note: "Beach town and deep-sea port; Lobé waterfalls fall into the sea." },
+  { name: "Edéa", region: "CM-LT", note: "Hydroelectric dam on the Sanaga River." },
+  { name: "Nkongsamba", region: "CM-LT", note: "Coffee-growing city of the Mungo area." },
+  { name: "Dschang", region: "CM-OU", note: "University city in the West highlands." },
+  { name: "Foumban", region: "CM-OU", note: "Seat of the Bamoun Sultanate and its royal palace." },
+  { name: "Kousséri", region: "CM-EN", note: "Border city across the river from N'Djamena (Chad)." },
+  { name: "Mbalmayo", region: "CM-CE", note: "Town on the Nyong River south of Yaoundé." },
+  { name: "Batouri", region: "CM-ES", note: "Gold-mining town in the East." }
+];
+var CM_FACTS = [
+  "Cameroon has two official languages, French and English: a bilingual country, like your booth.",
+  "Cameroon is divided into 10 regions, 58 departments (divisions) and 360 councils.",
+  "The North-West and South-West regions are English-speaking; the other eight are mainly French-speaking.",
+  "Mount Cameroon (4,040 m), near Buea, is the highest peak in West and Central Africa.",
+  "Cameroon is often called 'Africa in miniature' for its range of climates and cultures."
+];
+if (typeof module !== "undefined") module.exports = { CONTINENTS: CONTINENTS, REGIONS: REGIONS, COUNTRIES: COUNTRIES, CM_REGIONS: CM_REGIONS, CM_CITIES: CM_CITIES, CM_FACTS: CM_FACTS };
+
+// 14-day plan, starting Thursday 19 November 2026
+var PLAN = [
+  { day: 1, date: "Thu 19 Nov", title: "North & Southern Africa", regions: ["AF-N", "AF-S"], tip: "11 countries. Say each capital aloud in EN, FR and DE." },
+  { day: 2, date: "Fri 20 Nov", title: "West Africa", regions: ["AF-W"], tip: "16 countries, your home region. Watch Côte d'Ivoire (Yamoussoukro) and Benin (Porto-Novo)." },
+  { day: 3, date: "Sat 21 Nov", title: "Central Africa + Cameroon regions", regions: ["AF-C", "CM-R"], tip: "9 countries plus Cameroon's 10 regions and their capitals. New: Equatorial Guinea → Ciudad de la Paz." },
+  { day: 4, date: "Sun 22 Nov", title: "East Africa", regions: ["AF-E"], tip: "18 countries, the biggest block. Split into two sittings." },
+  { day: 5, date: "Mon 23 Nov", title: "All of Africa + Cameroon cities", regions: ["AF", "CM-C"], tip: "Review all 54, add 20 Cameroonian cities. Game night 1: Capital Relay with the Africa deck." },
+  { day: 6, date: "Tue 24 Nov", title: "Northern & Western Europe", regions: ["EU-N", "EU-W"], tip: "19 countries. Most German exonyms live here (Wien, Brüssel)." },
+  { day: 7, date: "Wed 25 Nov", title: "Southern & Eastern Europe", regions: ["EU-S", "EU-E"], tip: "25 countries. Three microstates are their own capitals." },
+  { day: 8, date: "Thu 26 Nov", title: "Western & Central Asia", regions: ["AS-W", "AS-C"], tip: "24 countries: the Middle East, Caucasus and the five '-stans'." },
+  { day: 9, date: "Fri 27 Nov", title: "South, East & Southeast Asia", regions: ["AS-S", "AS-E", "AS-SE"], tip: "24 countries. Sri Lanka and Myanmar are classic traps." },
+  { day: 10, date: "Sat 28 Nov", title: "North & Central America, Caribbean", regions: ["NA"], tip: "23 countries. The Caribbean islands are the hard part." },
+  { day: 11, date: "Sun 29 Nov", title: "South America & Oceania", regions: ["SA", "OC"], tip: "26 countries. Pacific capitals are short and unfamiliar: drill them twice." },
+  { day: 12, date: "Mon 30 Nov", title: "Weak spots + Cameroon deep dive", regions: ["WEAK", "CM"], tip: "Only cards you have missed, then all Cameroon cards." },
+  { day: 13, date: "Tue 1 Dec", title: "Full world, timed", regions: ["ALL"], tip: "All 195 against the clock. Game night 2: full deck." },
+  { day: 14, date: "Wed 2 Dec", title: "Final exam", regions: ["ALL", "CM"], tip: "195 capitals + Cameroon, answering in a language you did not use yesterday." }
+];
+if (typeof module !== "undefined") module.exports = { PLAN: PLAN };
+
+// Culture notes. id | language codes (official / main) | greeting | dish | tradition (in French, shared by both editions)
+var LANGNAMES = {
+  ar: ["Arabic", "arabe", "Arabisch"], ber: ["Tamazight", "tamazight", "Tamazight"], en: ["English", "anglais", "Englisch"], fr: ["French", "français", "Französisch"],
+  pt: ["Portuguese", "portugais", "Portugiesisch"], es: ["Spanish", "espagnol", "Spanisch"], de: ["German", "allemand", "Deutsch"], it: ["Italian", "italien", "Italienisch"],
+  nl: ["Dutch", "néerlandais", "Niederländisch"], ru: ["Russian", "russe", "Russisch"], zh: ["Mandarin", "mandarin", "Mandarin"], ja: ["Japanese", "japonais", "Japanisch"],
+  ko: ["Korean", "coréen", "Koreanisch"], hi: ["Hindi", "hindi", "Hindi"], sw: ["Swahili", "swahili", "Swahili"], am: ["Amharic", "amharique", "Amharisch"],
+  so: ["Somali", "somali", "Somali"], ti: ["Tigrinya", "tigrigna", "Tigrinya"], rw: ["Kinyarwanda", "kinyarwanda", "Kinyarwanda"], rn: ["Kirundi", "kirundi", "Kirundi"],
+  mg: ["Malagasy", "malgache", "Malagasy"], ny: ["Chichewa", "chichewa", "Chichewa"], st: ["Sesotho", "sesotho", "Sesotho"], tn: ["Setswana", "setswana", "Setswana"],
+  ss: ["Swati", "swati", "Swati"], sg: ["Sango", "sango", "Sango"], crs: ["Seychellois Creole", "créole seychellois", "Seychellenkreol"], zdj: ["Comorian", "comorien", "Komorisch"],
+  sn: ["Shona", "shona", "Shona"], nd: ["Ndebele", "ndébélé", "Ndebele"], zu: ["Zulu", "zoulou", "Zulu"], xh: ["Xhosa", "xhosa", "Xhosa"], af: ["Afrikaans", "afrikaans", "Afrikaans"],
+  ha: ["Hausa", "haoussa", "Hausa"], yo: ["Yoruba", "yoruba", "Yoruba"], ig: ["Igbo", "igbo", "Igbo"], wo: ["Wolof", "wolof", "Wolof"], ln: ["Lingala", "lingala", "Lingala"],
+  bm: ["Bambara", "bambara", "Bambara"], mos: ["Mooré", "mooré", "Mooré"], fon: ["Fon", "fon", "Fon"], ee: ["Ewe", "éwé", "Ewe"], kri: ["Krio", "krio", "Krio"],
+  ff: ["Fula", "peul", "Fulfulde"], kea: ["Cape Verdean Creole", "créole cap-verdien", "Kapverdisches Kreol"], mfe: ["Mauritian Creole", "créole mauricien", "Morisyen"], lua: ["Tshiluba", "tshiluba", "Tshiluba"], kg: ["Kikongo", "kikongo", "Kikongo"],
+  da: ["Danish", "danois", "Dänisch"], et: ["Estonian", "estonien", "Estnisch"], fi: ["Finnish", "finnois", "Finnisch"], sv: ["Swedish", "suédois", "Schwedisch"],
+  is: ["Icelandic", "islandais", "Isländisch"], ga: ["Irish", "irlandais", "Irisch"], lv: ["Latvian", "letton", "Lettisch"], lt: ["Lithuanian", "lituanien", "Litauisch"],
+  no: ["Norwegian", "norvégien", "Norwegisch"], lb: ["Luxembourgish", "luxembourgeois", "Luxemburgisch"], rm: ["Romansh", "romanche", "Rätoromanisch"], sq: ["Albanian", "albanais", "Albanisch"],
+  ca: ["Catalan", "catalan", "Katalanisch"], bs: ["Bosnian", "bosnien", "Bosnisch"], hr: ["Croatian", "croate", "Kroatisch"], sr: ["Serbian", "serbe", "Serbisch"],
+  el: ["Greek", "grec", "Griechisch"], mt: ["Maltese", "maltais", "Maltesisch"], cnr: ["Montenegrin", "monténégrin", "Montenegrinisch"], mk: ["Macedonian", "macédonien", "Mazedonisch"],
+  sl: ["Slovene", "slovène", "Slowenisch"], la: ["Latin", "latin", "Latein"], be: ["Belarusian", "biélorusse", "Belarussisch"], bg: ["Bulgarian", "bulgare", "Bulgarisch"],
+  cs: ["Czech", "tchèque", "Tschechisch"], hu: ["Hungarian", "hongrois", "Ungarisch"], ro: ["Romanian", "roumain", "Rumänisch"], pl: ["Polish", "polonais", "Polnisch"],
+  sk: ["Slovak", "slovaque", "Slowakisch"], uk: ["Ukrainian", "ukrainien", "Ukrainisch"], hy: ["Armenian", "arménien", "Armenisch"], az: ["Azerbaijani", "azéri", "Aserbaidschanisch"],
+  tr: ["Turkish", "turc", "Türkisch"], ka: ["Georgian", "géorgien", "Georgisch"], fa: ["Persian", "persan", "Persisch"], ku: ["Kurdish", "kurde", "Kurdisch"],
+  he: ["Hebrew", "hébreu", "Hebräisch"], kk: ["Kazakh", "kazakh", "Kasachisch"], ky: ["Kyrgyz", "kirghiz", "Kirgisisch"], tg: ["Tajik", "tadjik", "Tadschikisch"],
+  tk: ["Turkmen", "turkmène", "Turkmenisch"], uz: ["Uzbek", "ouzbek", "Usbekisch"], ps: ["Pashto", "pachto", "Paschtu"], prs: ["Dari", "dari", "Dari"], bn: ["Bengali", "bengali", "Bengalisch"],
+  dz: ["Dzongkha", "dzongkha", "Dzongkha"], dv: ["Dhivehi", "maldivien", "Dhivehi"], ne: ["Nepali", "népalais", "Nepali"], ur: ["Urdu", "ourdou", "Urdu"],
+  si: ["Sinhala", "cingalais", "Singhalesisch"], ta: ["Tamil", "tamoul", "Tamil"], ms: ["Malay", "malais", "Malaiisch"], km: ["Khmer", "khmer", "Khmer"],
+  id: ["Indonesian", "indonésien", "Indonesisch"], lo: ["Lao", "lao", "Laotisch"], my: ["Burmese", "birman", "Birmanisch"], fil: ["Filipino", "filipino", "Filipino"],
+  th: ["Thai", "thaï", "Thai"], tet: ["Tetum", "tétoum", "Tetum"], vi: ["Vietnamese", "vietnamien", "Vietnamesisch"], mn: ["Mongolian", "mongol", "Mongolisch"],
+  ht: ["Haitian Creole", "créole haïtien", "Haitianisch"], qu: ["Quechua", "quechua", "Quechua"], ay: ["Aymara", "aymara", "Aymara"], gn: ["Guaraní", "guarani", "Guaraní"],
+  mi: ["Māori", "maori", "Māori"], fj: ["Fijian", "fidjien", "Fidschianisch"], hif: ["Fiji Hindi", "hindi fidjien", "Fidschi-Hindi"], tpi: ["Tok Pisin", "tok pisin", "Tok Pisin"],
+  ho: ["Hiri Motu", "hiri motu", "Hiri Motu"], bi: ["Bislama", "bichelamar", "Bislama"], gil: ["Gilbertese", "gilbertin", "Kiribatisch"], mh: ["Marshallese", "marshallais", "Marshallesisch"],
+  na: ["Nauruan", "nauruan", "Nauruisch"], pau: ["Palauan", "paluan", "Palauisch"], sm: ["Samoan", "samoan", "Samoanisch"], to: ["Tongan", "tongien", "Tongaisch"], tvl: ["Tuvaluan", "tuvaluan", "Tuvaluisch"],
+  pis: ["Pijin", "pijin", "Pijin"], kl: ["Kirundi", "kirundi", "Kirundi"], srn: ["Sranan Tongo", "sranan tongo", "Sranan Tongo"], ga2: ["Irish", "irlandais", "Irisch"], sgn: ["Sign language", "langue des signes", "Gebärdensprache"]
+};
+var CULT_RAW = `
+DZ|ar,ber|Salam alaykoum · Azul|Couscous|Raï, la musique d'Oran
+EG|ar|Ahlan · Salam alaykoum|Koshari|Héritage pharaonique ; musique de Oum Kalthoum
+LY|ar,ber|Salam alaykoum|Bazeen|Malouf, musique arabo-andalouse
+MA|ar,ber|Salam · Azul|Tajine, couscous|Musique gnaoua ; thé à la menthe
+SD|ar,en|Salam alaykoum|Foul medames|Musique haqiba ; pyramides de Méroé
+TN|ar|Aslema|Couscous, brik|Malouf ; patrimoine de Carthage
+BJ|fr,fon|Bonjour|Amiwo (pâte rouge)|Fête du Vodoun (10 janvier)
+BF|fr,mos|Ne y windiga (mooré)|Tô|FESPACO, festival du cinéma africain
+CV|pt,kea|Olá · Oi|Cachupa|La morna (UNESCO), Cesária Évora
+CI|fr|Bonjour · On dit quoi ?|Attiéké, garba|Coupé-décalé ; le nouchi
+GM|en,wo|Salaam aleekum · Nanga def|Domoda|Musique de kora, griots
+GH|en|Akwaaba (twi : bienvenue)|Jollof, fufu|Highlife ; tissu kente
+GN|fr,ff|I ni sogoma (malinké)|Riz sauce arachide|Djembé, Ballets africains
+GW|pt|Bom dia|Caldo de mancarra|Gumbé ; carnaval de Bissau
+LR|en|How da body? (anglais libérien)|Palm butter, jollof|Claquement de doigts en se serrant la main
+ML|fr,bm|I ni ce (bambara)|Tiguadèguè (mafé)|Griots ; mosquée de Djenné
+MR|ar|Salam alaykoum|Méchoui|Cérémonie des trois verres de thé
+NE|fr,ha|Sannu (haoussa)|Tuwo|Cure salée, Gerewol des Wodaabe
+NG|en,ha,yo,ig|Sannu · Ẹ kú àárọ̀ · Ndewo|Jollof, egusi|Afrobeats ; Nollywood
+SN|fr,wo|Nanga def (wolof)|Thiéboudienne (UNESCO)|Teranga (hospitalité) ; mbalax
+SL|en,kri|Kushɛ (krio)|Cassava leaves|Bubu music ; lappa (pagne)
+TG|fr,ee|Woezɔ (éwé : bienvenue)|Fufu, ablo|Danse agbadja ; Evala (lutte kabyè)
+AO|pt|Olá|Muamba de galinha|Kizomba, semba
+CM|fr,en|On dit quoi ? · How na? (pidgin)|Ndolé|Makossa, bikutsi ; « l'Afrique en miniature »
+CF|fr,sg|Bara ala (sango)|Gozo (manioc)|Polyphonies des Pygmées Aka (UNESCO)
+TD|fr,ar|Salam alaykoum|Boule (mil)|Gerewol ; lac Tchad
+CG|fr,ln,kg|Mbote (lingala)|Saka-saka|Rumba congolaise (UNESCO) ; la Sape
+CD|fr,ln,sw,kg,lua|Mbote (lingala) · Jambo|Poulet moambe|Rumba congolaise (UNESCO) ; la Sape
+GQ|es,fr,pt|Hola|Pepesup (soupe pimentée)|Danse balélé
+GA|fr|Mbolo (fang)|Poulet nyembwe|Rites du Bwiti
+ST|pt|Bom dia|Calulu|Théâtre tchiloli
+BI|rn,fr,en|Amahoro (paix)|Haricots et bananes plantains|Tambourinaires royaux (UNESCO)
+KM|zdj,ar,fr|Salam alaykoum|Langouste à la vanille|Grand mariage (anda) ; musique twarab
+DJ|fr,ar|Salam · Iska warran (somali)|Skoudehkaris|Danse dhaanto ; lac Assal
+ER|ti,ar,en|Selam|Zigni et injera|Danse guayla ; cérémonie du café
+ET|am|Selam|Injera, doro wat|Cérémonie du café ; calendrier éthiopien (13 mois)
+KE|sw,en|Jambo · Habari|Ugali, nyama choma|Musique benga ; cultures maasaï
+MG|mg,fr|Manao ahoana|Romazava|Salegy ; hiragasy ; famadihana
+MW|en,ny|Moni (chichewa)|Nsima|Gule Wamkulu (UNESCO)
+MU|en,fr,mfe|Bonzour (kreol)|Dholl puri|Séga (UNESCO)
+MZ|pt|Olá|Matapa, crevettes piri-piri|Marrabenta ; timbila des Chopi (UNESCO)
+RW|rw,fr,en,sw|Muraho|Brochettes, isombe|Danse intore ; umuganda (travail collectif)
+SC|en,fr,crs|Bonzour (seselwa)|Cari d'ourite (poulpe)|Moutya (UNESCO)
+SO|so,ar|Iska warran · Nabad|Canjeero, bariis|« Nation de poètes » (gabay)
+SS|en|Salam (arabe de Juba)|Kisra|Chants du bétail des Dinka
+TZ|sw,en|Jambo · Shikamoo (aux aînés)|Ugali, pilau|Bongo flava ; taarab
+UG|en,sw|Oli otya (luganda)|Matoke, rolex|Kadongo kamu ; danse bakisimba
+ZM|en|Muli shani (bemba)|Nshima|Cérémonie Kuomboka ; chutes Victoria
+ZW|en,sn,nd|Mhoro (shona) · Salibonani (ndébélé)|Sadza|Musique mbira ; danse jerusarema (UNESCO)
+BW|en,tn|Dumela|Seswaa|Chœurs ; danse tsutsube
+SZ|en,ss|Sawubona|Sishwala|Danse des roseaux (Umhlanga)
+LS|en,st|Lumela|Papa (bouillie de maïs)|Couverture et chapeau basotho (mokorotlo)
+NA|en|Moro (otjiherero, oshiwambo)|Kapana (viande grillée)|Culture himba ; musique shambo
+ZA|en,zu,xh,af,st,tn,sgn|Sawubona · Molo · Howzit|Bobotie, braai|Amapiano ; ubuntu
+DK|da|Hej|Smørrebrød|Hygge
+EE|et|Tere|Pain de seigle (leib)|Fête de la chanson (laulupidu)
+FI|fi,sv|Moi · Hei|Karjalanpiirakka|Sauna (UNESCO)
+IS|is|Halló · Góðan dag|Skyr, plokkfiskur|Sagas islandaises
+IE|ga,en|Dia duit|Irish stew|Saint-Patrick ; céilí
+LV|lv|Labdien · Sveiki|Pois gris au lard|Fête des chants et des danses
+LT|lt|Labas|Cepelinai|Sutartinės, chants polyphoniques (UNESCO)
+NO|no|Hei|Fårikål|Fête nationale du 17 mai
+SE|sv|Hej|Köttbullar|Fika ; Midsommar
+GB|en|Hello|Fish and chips|Thé de l'après-midi ; humour pince-sans-rire
+AT|de|Grüß Gott · Servus|Wiener Schnitzel|Café viennois (UNESCO) ; musique classique
+BE|nl,fr,de|Bonjour · Goeiedag · Hallo|Moules-frites|Bande dessinée ; chocolat
+FR|fr|Bonjour|Baguette (UNESCO), bœuf bourguignon|La bise ; repas gastronomique (UNESCO)
+DE|de|Guten Tag · Hallo|Bratwurst, Brezel|Oktoberfest ; Karneval
+LI|de|Grüezi · Hoi|Käsknöpfle|Fête nationale du 15 août
+LU|lb,fr,de|Moien|Judd mat Gaardebounen|Schueberfouer (fête foraine)
+MC|fr|Bonjour|Barbagiuan|Grand Prix de Monaco
+NL|nl|Hoi · Goedendag|Stamppot, hareng|Fête du Roi (orange) ; le vélo
+CH|de,fr,it,rm|Grüezi · Bonjour · Buongiorno · Allegra|Fondue, rösti|Yodel ; quatre langues nationales
+AL|sq|Tungjatjeta · Përshëndetje|Tavë kosi|Iso-polyphonie (UNESCO) ; hocher la tête = non
+AD|ca|Bon dia · Hola|Escudella|Fêtes du feu du solstice (UNESCO)
+BA|bs,hr,sr|Zdravo|Ćevapi|Sevdalinka ; café bosniaque
+HR|hr|Bok · Dobar dan|Peka|Chant klapa (UNESCO)
+GR|el|Yia sou (Γειά σου)|Moussaka|Fêtes du prénom ; Pâques orthodoxes
+IT|it|Ciao · Buongiorno|Pizza napoletana (UNESCO), pâtes|Opéra ; aperitivo
+MT|mt,en|Bonġu|Pastizzi, lapin (fenkata)|Festa de village
+ME|cnr|Zdravo|Njeguški pršut|Épopées chantées à la gusle
+MK|mk|Zdravo|Tavče gravče|Danse teškoto
+PT|pt|Olá · Bom dia|Bacalhau|Fado (UNESCO)
+SM|it|Ciao|Torta Tre Monti|Arbalétriers (Balestrieri)
+RS|sr|Zdravo|Ćevapi, pljeskavica|Kolo (UNESCO) ; la Slava
+SI|sl|Živijo · Dober dan|Potica|Carnaval des Kurenti
+ES|es,ca|Hola|Paella, tapas|Flamenco (UNESCO)
+VA|it,la|Buongiorno · Salve (latin)|Cuisine italienne|Garde suisse pontificale
+BY|be,ru|Pryvitannie · Privet|Draniki|Kupalle (solstice d'été)
+BG|bg|Zdraveï (Здравей)|Banitsa, salade chopska|Martenitsa ; hocher la tête = non
+CZ|cs|Ahoj · Dobrý den|Svíčková|Bière ; marionnettes (UNESCO)
+HU|hu|Szia · Jó napot|Gulyás|Csárdás ; le nom de famille avant le prénom
+MD|ro|Bună ziua|Mămăligă|Mărțișor (1er mars)
+PL|pl|Cześć · Dzień dobry|Pierogi|Fêtes du prénom ; Chopin
+RO|ro|Bună ziua · Salut|Sarmale, mămăligă|Mărțișor ; doina (UNESCO)
+RU|ru|Zdravstvouïtie · Privet|Bortsch, pelmeni|Ballet ; banya
+SK|sk|Ahoj · Dobrý deň|Bryndzové halušky|Fujara (UNESCO)
+UA|uk|Pryvit · Dobryi den|Bortsch (UNESCO)|Vychyvanka ; pyssanky
+AM|hy|Barev|Khorovats, lavash (UNESCO)|Doudouk (UNESCO)
+AZ|az|Salam|Plov, dolma|Mugham (UNESCO) ; Novruz
+BH|ar|Marhaba|Machboos|Patrimoine de la pêche perlière (UNESCO)
+CY|el,tr|Yia sou · Merhaba|Halloumi, mezzé|Dentelle de Lefkara (UNESCO)
+GE|ka|Gamarjoba|Khatchapouri, khinkali|Supra et son tamada ; chant polyphonique
+IR|fa|Salam|Tchelow kabab, ghormeh sabzi|Norouz ; taarof (politesse)
+IQ|ar,ku|Marhaba · Silaw (kurde)|Masgouf|Maqam irakien (UNESCO)
+IL|he,ar|Shalom|Falafel, houmous|Chabbat
+JO|ar|Marhaba · Ahlan|Mansaf|Café bédouin et hospitalité ; Pétra
+KW|ar|Marhaba|Machboos|Diwaniya (salons de discussion)
+LB|ar,fr|Marhaba · « Hi, kifak, ça va ? »|Taboulé, kebbé|Dabké
+OM|ar|Salam alaykoum|Shuwa|Encens ; khanjar (poignard)
+PS|ar|Marhaba|Musakhan, maqlouba|Broderie tatreez (UNESCO) ; dabké
+QA|ar|Marhaba|Machboos|Fauconnerie (UNESCO)
+SA|ar|Salam alaykoum|Kabsa|Café arabe et dattes (UNESCO)
+SY|ar|Marhaba|Kebbé, fattouche|Hospitalité damascène ; théâtre d'ombres
+TR|tr|Merhaba|Kebab, baklava|Café turc (UNESCO) ; thé
+AE|ar|Marhaba|Machboos, luqaimat|Fauconnerie ; danse al-ayyala (UNESCO)
+YE|ar|Salam alaykoum|Saltah|Chant de Sanaa (UNESCO)
+KZ|kk,ru|Sälem (Сәлем)|Beshbarmak|Dombra ; yourte
+KG|ky,ru|Salam|Beshbarmak|Épopée de Manas (UNESCO)
+TJ|tg|Salom|Plov (oshi palav)|Shashmaqam (UNESCO)
+TM|tk|Salam|Plov|Chevaux akhal-teke ; tapis
+UZ|uz|Assalomu alaykum|Plov (UNESCO)|Shashmaqam ; Samarcande
+AF|ps,prs|Salam|Kabuli pulao|Danse attan ; Norouz
+BD|bn|Nomoshkar · Assalamu alaikum|Hilsa (poisson)|Pohela Boishakh (Nouvel An)
+BT|dz|Kuzuzangpo|Ema datshi|Bonheur national brut ; festivals tshechu
+IN|hi,en|Namaste|Biryani, dal|Diwali ; Bollywood ; 22 langues officielles
+MV|dv|Assalaamu alaikum|Garudhiya|Tambours bodu beru
+NP|ne|Namaste|Dal bhat, momo|Dashain, Tihar
+PK|ur,en|Assalam-o-alaikum|Biryani, nihari|Qawwali
+LK|si,ta|Ayubowan · Vanakkam|Riz et curry|Esala Perahera (Kandy)
+CN|zh|Nǐ hǎo (你好)|Raviolis jiaozi, canard laqué|Fête du Printemps ; la « face » (mianzi)
+JP|ja|Konnichiwa (こんにちは)|Washoku (UNESCO), sushi|Salut en s'inclinant ; hanami
+MN|mn|Sain baina uu|Buuz|Naadam ; chant diphonique khöömei
+KP|ko|Annyeong hasimnikka|Naengmyeon|Arirang (UNESCO)
+KR|ko|Annyeonghaseyo (안녕하세요)|Kimchi (kimjang, UNESCO), bibimbap|K-pop ; Chuseok
+BN|ms|Selamat pagi · Assalamualaikum|Ambuyat|Village sur l'eau Kampong Ayer
+KH|km|Chom reap suor|Amok de poisson|Danse apsara ; salut sampeah
+ID|id|Halo · Selamat pagi|Nasi goreng, rendang|Batik (UNESCO) ; gamelan
+LA|lo|Sabaidee|Larb, riz gluant|Cérémonie baci
+MY|ms|Selamat pagi · Apa khabar|Nasi lemak|« Open house » de Hari Raya
+MM|my|Mingalaba|Mohinga|Thanaka sur le visage ; Thingyan
+PH|fil,en|Kumusta · Mabuhay|Adobo|Karaoké ; fiestas de quartier
+SG|en,ms,zh,ta|Hello · Selamat pagi · Nǐ hǎo · Vanakkam|Riz au poulet hainanais|Culture des hawker centres (UNESCO)
+TH|th|Sawasdee (khrap / kha)|Pad thaï, tom yum|Salut wai ; Songkran
+TL|tet,pt|Bondia|Batar daan|Tissage tais (UNESCO)
+VN|vi|Xin chào|Phở|Tết ; áo dài
+CA|en,fr|Hello · Bonjour|Poutine|Hockey ; sirop d'érable
+MX|es|Hola|Tacos, mole|Jour des Morts (UNESCO) ; mariachi
+US|en|Hello|Hamburger, dinde de Thanksgiving|Jazz ; Thanksgiving
+BZ|en|Hello · Weh di go aan? (kriol)|Riz et haricots|Punta garifuna (UNESCO)
+CR|es|Hola · ¡Pura vida!|Gallo pinto|« Pura vida » ; pas d'armée depuis 1948
+SV|es|Hola|Pupusas|Fête nationale de la pupusa
+GT|es|Hola · Buenos días|Pepián|Textiles mayas ; tapis de la Semaine sainte
+HN|es|Hola · ¿Qué onda?|Baleadas|Punta garifuna (UNESCO)
+NI|es|Hola · ¡Va pues!|Gallo pinto, nacatamal|El Güegüense (UNESCO)
+PA|es|Hola|Sancocho|Molas des Guna ; carnaval
+AG|en|Wha' gwan?|Fungee et pepperpot|Carnaval ; cricket
+BS|en|Hello|Salade de lambi (conch)|Junkanoo
+BB|en|Hello|Cou-cou et poisson volant|Festival Crop Over
+CU|es|Hola · ¿Qué bolá?|Ropa vieja|Rumba (UNESCO) ; son
+DM|en|Bonjou (kwéyòl)|Callaloo|World Creole Music Festival
+DO|es|Hola · ¿Qué lo que?|La bandera (riz, haricots, viande)|Merengue, bachata (UNESCO)
+GD|en|Hello|Oil down|Spicemas ; « l'île aux épices » (muscade)
+HT|fr,ht|Bonjou · Sak pase?|Soup joumou (UNESCO), griot|Kompa ; rara
+JM|en|Wah gwaan?|Ackee and saltfish|Reggae (UNESCO)
+KN|en|Hello|Morue, dumplings, plantain|Carnaval Sugar Mas
+LC|en|Bonjou (kwéyòl)|Green fig and saltfish|Jounen Kwéyòl (journée créole)
+VC|en|Hello|Fruit à pain rôti et jackfish|Vincy Mas
+TT|en|Wha' happenin?|Doubles, callaloo|Steelpan ; carnaval ; calypso
+AR|es|Hola · ¿Todo bien, che?|Asado, empanadas|Tango (UNESCO) ; maté
+BO|es,qu,ay,gn|Hola · Kamisaraki (aymara)|Salteñas|Carnaval d'Oruro (UNESCO)
+BR|pt|Oi · Olá|Feijoada|Samba ; carnaval
+CL|es|Hola · ¿Cachai?|Empanadas de pino, pastel de choclo|Cueca
+CO|es|Hola · ¿Qué más?|Bandeja paisa, arepas|Cumbia ; vallenato (UNESCO)
+EC|es,qu|Hola · Alli puncha (kichwa)|Encebollado, locro|Inti Raymi ; chapeau de paille toquilla (UNESCO)
+GY|en|Wha' happenin?|Pepperpot|Mashramani
+PY|es,gn|Mba'éichapa (guarani)|Sopa paraguaya, chipa|Harpe paraguayenne ; tereré (UNESCO)
+PE|es,qu,ay|Hola · Allillanchu (quechua)|Ceviche|Inti Raymi ; marinera
+SR|nl,srn|Fa waka? (sranan)|Pom, roti|Keti Koti (1er juillet)
+UY|es|Hola · ¿Todo bien, bo?|Chivito, asado|Candombe (UNESCO) ; maté
+VE|es|Hola · ¿Qué más, chamo?|Arepas, pabellón criollo|Joropo
+AU|en|G'day|Meat pie, pavlova|Cultures aborigènes (plus de 60 000 ans) ; footy
+NZ|en,mi,sgn|Kia ora|Hāngī, pavlova|Haka
+FJ|en,fj,hif|Bula!|Kokoda|Cérémonie du kava (yaqona)
+PG|en,tpi,ho|Gude (tok pisin)|Mumu (four en terre)|Sing-sing ; plus de 800 langues
+SB|en,pis|Halo (pijin)|Poisson et taro|Flûtes de Pan
+VU|bi,en,fr|Halo (bichelamar)|Lap lap|Saut du gaul (Nagol)
+KI|en,gil|Mauri|Crabe de cocotier, fruit à pain|Danse de la frégate
+MH|mh,en|Iakwe|Fruit à pain, noix de coco|Cartes de navigation en bâtonnets
+FM|en|Kaselehlie (pohnpei)|Fruit à pain, taro|Monnaie de pierre de Yap
+NR|na,en|Ekamawir omo|Poisson à la noix de coco|Angam Day
+PW|pau,en|Alii|Taro, poisson|Maisons bai ; monnaie de pierre
+WS|sm,en|Talofa|Palusami|Fa'a Samoa ; tatau
+TO|to,en|Mālō e lelei|ʻOta ʻika|Kava ; repos du dimanche
+TV|tvl,en|Talofa|Pulaka (taro des marais)|Danse fatele
+`;
+var CULTURE = {};
+CULT_RAW.trim().split("\n").forEach(function (line) {
+  var p = line.split("|");
+  CULTURE[p[0]] = { langs: p[1].split(","), hello: p[2], dish: p[3], trad: p[4] };
+});
+var CM_CULTURE = {
+  "CM-AD": "Lamidat de Ngaoundéré ; on y parle le fulfulde",
+  "CM-CE": "Culture beti et musique bikutsi",
+  "CM-ES": "Peuples baka de la forêt ; réserve du Dja (UNESCO)",
+  "CM-EN": "Monts Mandara, Rhumsiki ; cases obus des Mousgoum",
+  "CM-LT": "Ngondo des peuples sawa ; le makossa est né à Douala",
+  "CM-NO": "Lamidat de Rey Bouba ; parc national de la Bénoué",
+  "CM-NW": "Palais du Fon de Bafut ; masques des Grassfields",
+  "CM-OU": "Chefferies bamiléké ; festival Nguon des Bamoun à Foumban",
+  "CM-SU": "Peuple boulou ; plages de Kribi et chutes de la Lobé",
+  "CM-SW": "Course de l'Espoir sur le mont Cameroun ; culture bakweri"
+};
+if (typeof module !== "undefined") module.exports = { LANGNAMES: LANGNAMES, CULTURE: CULTURE, CM_CULTURE: CM_CULTURE };
+// Widely spoken languages that are not in the official/national list above
+var LANG_EXTRA = {
+  kpe: ["Kpelle", "kpellé", "Kpelle"], bsq: ["Bassa", "bassa", "Bassa"],
+  dyu: ["Dioula", "dioula", "Dioula"], bci: ["Baoulé", "baoulé", "Baoulé"], mnk: ["Mandinka", "mandingue", "Mandinka"], man: ["Maninka", "malinké", "Malinke"],
+  sus: ["Susu", "soussou", "Susu"], pov: ["Guinea-Bissau Creole", "créole bissau-guinéen", "Guinea-Bissau-Kreol"], ses: ["Songhay", "songhaï", "Songhai"],
+  tmh: ["Tamasheq", "tamasheq", "Tamascheq"], snk: ["Soninke", "soninké", "Soninke"], dje: ["Zarma", "zarma", "Zarma"], pcm: ["Nigerian Pidgin", "pidgin nigérian", "Nigerianisches Pidgin"],
+  srr: ["Serer", "sérère", "Serer"], men: ["Mende", "mendé", "Mende"], tem: ["Temne", "temné", "Temne"], kbp: ["Kabiyè", "kabiyè", "Kabiyè"], umb: ["Umbundu", "umbundu", "Umbundu"],
+  kmb: ["Kimbundu", "kimbundu", "Kimbundu"], ewo: ["Ewondo", "éwondo", "Ewondo"], dua: ["Duala", "douala", "Duala"], wes: ["Cameroonian Pidgin", "pidgin camerounais", "Kamerunisches Pidgin"],
+  fan: ["Fang", "fang", "Fang"], aa: ["Afar", "afar", "Afar"], om: ["Oromo", "oromo", "Oromo"], vmw: ["Makhuwa", "makua", "Makua"], din: ["Dinka", "dinka", "Dinka"], nus: ["Nuer", "nuer", "Nuer"],
+  lg: ["Luganda", "luganda", "Luganda"], bem: ["Bemba", "bemba", "Bemba"], ng: ["Oshiwambo", "oshiwambo", "Oshiwambo"], ak: ["Akan (Twi)", "akan (twi)", "Akan (Twi)"],
+  gl: ["Galician", "galicien", "Galicisch"], eu: ["Basque", "basque", "Baskisch"], cy: ["Welsh", "gallois", "Walisisch"], gd: ["Scottish Gaelic", "gaélique écossais", "Schottisch-Gälisch"],
+  gag: ["Gagauz", "gagaouze", "Gagausisch"], fy: ["Frisian", "frison", "Friesisch"], se: ["Sámi", "same", "Samisch"], pa: ["Punjabi", "pendjabi", "Panjabi"], sd: ["Sindhi", "sindhi", "Sindhi"],
+  te: ["Telugu", "télougou", "Telugu"], mr: ["Marathi", "marathi", "Marathi"], mai: ["Maithili", "maïthili", "Maithili"], yue: ["Cantonese", "cantonais", "Kantonesisch"],
+  jv: ["Javanese", "javanais", "Javanisch"], ceb: ["Cebuano", "cebuano", "Cebuano"], nah: ["Nahuatl", "nahuatl", "Nahuatl"], myn: ["Mayan languages", "langues mayas", "Maya-Sprachen"],
+  bzj: ["Belizean Kriol", "kriol bélizien", "Belize-Kriol"], gyn: ["Guyanese Creole", "créole guyanien", "Guyanisches Kreol"], jam: ["Jamaican Patois", "patois jamaïcain", "Jamaikanisches Patois"],
+  acf: ["Kwéyòl", "créole (kwéyòl)", "Kwéyòl"], tig: ["Tigre", "tigré", "Tigre"], uz2: ["Uzbek", "ouzbek", "Usbekisch"]
+};
+for (var k in LANG_EXTRA) LANGNAMES[k] = LANG_EXTRA[k];
+var SPOKEN = {
+  LR: "kpe,bsq", LB: "en", AE: "en,ur,hi", QA: "en", BH: "en", KW: "en", JO: "en",
+  DZ: "fr", MA: "fr", TN: "fr", BJ: "yo", BF: "dyu,ff", CI: "dyu,bci", GM: "mnk,ff", GH: "ak,ee", GN: "man,sus", GW: "pov", ML: "ff,ses,tmh", MR: "ff,wo,snk",
+  NE: "dje,ff,tmh", NG: "pcm", SN: "ff,srr", SL: "men,tem", TG: "kbp", AO: "umb,kmb", CM: "wes,ff,ewo,dua", GQ: "fan", GA: "fan", DJ: "so,aa", ER: "tig",
+  ET: "om,so,ti", MZ: "vmw", SS: "din,nus,ar", UG: "lg", ZM: "bem,ny", NA: "ng,af,de", ES: "gl,eu", GB: "cy,gd", UA: "ru", LV: "ru", EE: "ru", MD: "ru,gag",
+  ME: "sr", NL: "fy", NO: "se", FI: "se", SE: "fi,se", IR: "az,ku", TR: "ku", PK: "pa,sd,ps", IN: "bn,te,mr,ta,ur", NP: "mai", CN: "yue", MY: "zh,ta,en",
+  ID: "jv", PH: "ceb", TJ: "ru,uz", UZ: "ru,tg", TM: "ru", IL: "ru", SY: "ku", US: "es", MX: "nah", GT: "myn", BZ: "es,bzj", SR: "jv,hi", GY: "gyn",
+  JM: "jam", DM: "acf", LC: "acf", KZ: "", KG: "uz", AF: "uz", AZ: "ru", BY: "", LB: "fr", HT: "", CA: "", BO: "", PE: "", MV: "en", BT: "ne,en", MM: "", LK: "en"
+};
+for (var id in SPOKEN) if (CULTURE[id]) CULTURE[id].spoken = SPOKEN[id] ? SPOKEN[id].split(",").filter(function (c) { return CULTURE[id].langs.indexOf(c) < 0; }) : [];
+for (var id2 in CULTURE) if (!CULTURE[id2].spoken) CULTURE[id2].spoken = [];
+if (typeof module !== "undefined") module.exports.SPOKEN = SPOKEN;
+
+// Translations for single-language editions. Culture base text is French (culture.js); card notes base text is English (data.js).
+var TRAD_I18N = {
+  // id: [English, German]
+  DZ: ["Raï, the music of Oran", "Raï, die Musik aus Oran"],
+  EG: ["Pharaonic heritage; the music of Umm Kulthum", "Pharaonisches Erbe; Musik von Umm Kulthum"],
+  LY: ["Malouf, Arab-Andalusian music", "Malouf, arabisch-andalusische Musik"],
+  MA: ["Gnawa music; mint tea", "Gnawa-Musik; Minztee"],
+  SD: ["Haqibah music; pyramids of Meroë", "Haqiba-Musik; Pyramiden von Meroe"],
+  TN: ["Malouf; the heritage of Carthage", "Malouf; das Erbe Karthagos"],
+  BJ: ["Vodun Day (10 January)", "Vodun-Fest (10. Januar)"],
+  BF: ["FESPACO, the African film festival", "FESPACO, das afrikanische Filmfestival"],
+  CV: ["Morna (UNESCO), Cesária Évora", "Morna (UNESCO), Cesária Évora"],
+  CI: ["Coupé-décalé; Nouchi slang", "Coupé-décalé; Nouchi-Slang"],
+  GM: ["Kora music, griots", "Kora-Musik, Griots"],
+  GH: ["Highlife; kente cloth", "Highlife; Kente-Stoff"],
+  GN: ["Djembe, Les Ballets Africains", "Djembe, Les Ballets Africains"],
+  GW: ["Gumbe; Bissau carnival", "Gumbe; Karneval von Bissau"],
+  LR: ["A finger snap at the end of a handshake", "Fingerschnippen am Ende des Händedrucks"],
+  ML: ["Griots; the Great Mosque of Djenné", "Griots; Große Moschee von Djenné"],
+  MR: ["The three-glasses-of-tea ceremony", "Die Teezeremonie der drei Gläser"],
+  NE: ["Cure Salée, the Wodaabe Gerewol", "Cure Salée, Gerewol der Wodaabe"],
+  NG: ["Afrobeats; Nollywood", "Afrobeats; Nollywood"],
+  SN: ["Teranga (hospitality); mbalax", "Teranga (Gastfreundschaft); Mbalax"],
+  SL: ["Bubu music; lappa (wrap cloth)", "Bubu-Musik; Lappa (Wickeltuch)"],
+  TG: ["Agbadja dance; Evala (Kabye wrestling)", "Agbadja-Tanz; Evala (Kabye-Ringkampf)"],
+  AO: ["Kizomba, semba", "Kizomba, Semba"],
+  CM: ["Makossa, bikutsi; 'Africa in miniature'", "Makossa, Bikutsi; „Afrika im Kleinen“"],
+  CF: ["Aka Pygmy polyphonic singing (UNESCO)", "Polyphone Gesänge der Aka-Pygmäen (UNESCO)"],
+  TD: ["Gerewol; Lake Chad", "Gerewol; Tschadsee"],
+  CG: ["Congolese rumba (UNESCO); la Sape", "Kongolesische Rumba (UNESCO); la Sape"],
+  CD: ["Congolese rumba (UNESCO); la Sape", "Kongolesische Rumba (UNESCO); la Sape"],
+  GQ: ["Balélé dance", "Balélé-Tanz"],
+  GA: ["Bwiti rites", "Bwiti-Riten"],
+  ST: ["Tchiloli theatre", "Tchiloli-Theater"],
+  BI: ["Royal drummers (UNESCO)", "Königliche Trommler (UNESCO)"],
+  KM: ["The grand marriage (anda); twarab music", "Die große Hochzeit (anda); Twarab-Musik"],
+  DJ: ["Dhaanto dance; Lake Assal", "Dhaanto-Tanz; Assalsee"],
+  ER: ["Guayla dance; coffee ceremony", "Guayla-Tanz; Kaffeezeremonie"],
+  ET: ["Coffee ceremony; Ethiopian calendar (13 months)", "Kaffeezeremonie; äthiopischer Kalender (13 Monate)"],
+  KE: ["Benga music; Maasai cultures", "Benga-Musik; Kulturen der Maasai"],
+  MG: ["Salegy; hiragasy; famadihana", "Salegy; Hiragasy; Famadihana"],
+  MW: ["Gule Wamkulu (UNESCO)", "Gule Wamkulu (UNESCO)"],
+  MU: ["Sega (UNESCO)", "Séga (UNESCO)"],
+  MZ: ["Marrabenta; Chopi timbila (UNESCO)", "Marrabenta; Timbila der Chopi (UNESCO)"],
+  RW: ["Intore dance; umuganda (community work day)", "Intore-Tanz; Umuganda (Gemeinschaftsarbeit)"],
+  SC: ["Moutya (UNESCO)", "Moutya (UNESCO)"],
+  SO: ["'A nation of poets' (gabay)", "„Nation der Dichter“ (Gabay)"],
+  SS: ["Dinka cattle songs", "Rinderlieder der Dinka"],
+  TZ: ["Bongo flava; taarab", "Bongo Flava; Taarab"],
+  UG: ["Kadongo kamu; bakisimba dance", "Kadongo Kamu; Bakisimba-Tanz"],
+  ZM: ["Kuomboka ceremony; Victoria Falls", "Kuomboka-Zeremonie; Victoriafälle"],
+  ZW: ["Mbira music; Jerusarema dance (UNESCO)", "Mbira-Musik; Jerusarema-Tanz (UNESCO)"],
+  BW: ["Choirs; tsutsube dance", "Chöre; Tsutsube-Tanz"],
+  SZ: ["Reed dance (Umhlanga)", "Schilftanz (Umhlanga)"],
+  LS: ["Basotho blanket and hat (mokorotlo)", "Basotho-Decke und -Hut (Mokorotlo)"],
+  NA: ["Himba culture; shambo music", "Kultur der Himba; Shambo-Musik"],
+  ZA: ["Amapiano; ubuntu", "Amapiano; Ubuntu"],
+  DK: ["Hygge", "Hygge"],
+  EE: ["Song Festival (laulupidu)", "Sängerfest (Laulupidu)"],
+  FI: ["Sauna (UNESCO)", "Sauna (UNESCO)"],
+  IS: ["Icelandic sagas", "Isländersagas"],
+  IE: ["St Patrick's Day; céilí", "St. Patrick's Day; Céilí"],
+  LV: ["Song and Dance Festival", "Lieder- und Tanzfest"],
+  LT: ["Sutartinės polyphonic songs (UNESCO)", "Sutartinės, polyphone Lieder (UNESCO)"],
+  NO: ["Constitution Day, 17 May", "Nationalfeiertag am 17. Mai"],
+  SE: ["Fika; Midsommar", "Fika; Mittsommer"],
+  GB: ["Afternoon tea; deadpan humour", "Afternoon Tea; trockener Humor"],
+  AT: ["Viennese coffee house (UNESCO); classical music", "Wiener Kaffeehaus (UNESCO); klassische Musik"],
+  BE: ["Comic strips; chocolate", "Comics; Schokolade"],
+  FR: ["La bise; the gastronomic meal (UNESCO)", "La bise (Wangenkuss); das gastronomische Mahl (UNESCO)"],
+  DE: ["Oktoberfest; Karneval", "Oktoberfest; Karneval"],
+  LI: ["National Day, 15 August", "Staatsfeiertag am 15. August"],
+  LU: ["Schueberfouer funfair", "Schueberfouer (Volksfest)"],
+  MC: ["Monaco Grand Prix", "Großer Preis von Monaco"],
+  NL: ["King's Day (orange); cycling", "Königstag (Orange); Radfahren"],
+  CH: ["Yodelling; four national languages", "Jodeln; vier Landessprachen"],
+  AL: ["Iso-polyphony (UNESCO); a nod means no", "Iso-Polyphonie (UNESCO); Nicken heißt Nein"],
+  AD: ["Summer solstice fire festivals (UNESCO)", "Feuerfeste zur Sommersonnenwende (UNESCO)"],
+  BA: ["Sevdalinka; Bosnian coffee", "Sevdalinka; bosnischer Kaffee"],
+  HR: ["Klapa singing (UNESCO)", "Klapa-Gesang (UNESCO)"],
+  GR: ["Name days; Orthodox Easter", "Namenstage; orthodoxes Ostern"],
+  IT: ["Opera; aperitivo", "Oper; Aperitivo"],
+  MT: ["Village festa", "Dorffesta"],
+  ME: ["Epic songs to the gusle", "Epische Gesänge zur Gusle"],
+  MK: ["Teškoto dance", "Teškoto-Tanz"],
+  PT: ["Fado (UNESCO)", "Fado (UNESCO)"],
+  SM: ["The crossbowmen (Balestrieri)", "Die Armbrustschützen (Balestrieri)"],
+  RS: ["Kolo (UNESCO); the Slava", "Kolo (UNESCO); die Slava"],
+  SI: ["Kurent carnival", "Kurentovanje-Karneval"],
+  ES: ["Flamenco (UNESCO)", "Flamenco (UNESCO)"],
+  VA: ["The Pontifical Swiss Guard", "Päpstliche Schweizergarde"],
+  BY: ["Kupalle (midsummer)", "Kupalle (Mittsommer)"],
+  BG: ["Martenitsa; a nod means no", "Martenitsa; Nicken heißt Nein"],
+  CZ: ["Beer; puppetry (UNESCO)", "Bier; Puppentheater (UNESCO)"],
+  HU: ["Csárdás; surname comes before first name", "Csárdás; Nachname vor dem Vornamen"],
+  MD: ["Mărțișor (1 March)", "Mărțișor (1. März)"],
+  PL: ["Name days; Chopin", "Namenstage; Chopin"],
+  RO: ["Mărțișor; doina (UNESCO)", "Mărțișor; Doina (UNESCO)"],
+  RU: ["Ballet; banya", "Ballett; Banja"],
+  SK: ["Fujara (UNESCO)", "Fujara (UNESCO)"],
+  UA: ["Vyshyvanka; pysanky", "Wyschywanka; Pysanky"],
+  AM: ["Duduk (UNESCO)", "Duduk (UNESCO)"],
+  AZ: ["Mugham (UNESCO); Novruz", "Mugham (UNESCO); Nouruz"],
+  BH: ["Pearling heritage (UNESCO)", "Erbe der Perlenfischerei (UNESCO)"],
+  CY: ["Lefkara lace (UNESCO)", "Lefkara-Spitze (UNESCO)"],
+  GE: ["The supra feast and its tamada; polyphonic singing", "Supra-Festmahl mit Tamada; polyphoner Gesang"],
+  IR: ["Nowruz; taarof (politeness)", "Nouruz; Taarof (Höflichkeit)"],
+  IQ: ["Iraqi maqam (UNESCO)", "Irakischer Maqam (UNESCO)"],
+  IL: ["Shabbat", "Schabbat"],
+  JO: ["Bedouin coffee and hospitality; Petra", "Beduinenkaffee und Gastfreundschaft; Petra"],
+  KW: ["Diwaniya (discussion gatherings)", "Diwaniya (Gesprächsrunden)"],
+  LB: ["Dabke", "Dabke"],
+  OM: ["Frankincense; khanjar (dagger)", "Weihrauch; Khanjar (Dolch)"],
+  PS: ["Tatreez embroidery (UNESCO); dabke", "Tatreez-Stickerei (UNESCO); Dabke"],
+  QA: ["Falconry (UNESCO)", "Falknerei (UNESCO)"],
+  SA: ["Arabic coffee and dates (UNESCO)", "Arabischer Kaffee und Datteln (UNESCO)"],
+  SY: ["Damascene hospitality; shadow play", "Damaszener Gastfreundschaft; Schattentheater"],
+  TR: ["Turkish coffee (UNESCO); tea", "Türkischer Mokka (UNESCO); Tee"],
+  AE: ["Falconry; al-ayyala dance (UNESCO)", "Falknerei; Al-Ayyala-Tanz (UNESCO)"],
+  YE: ["Song of Sana'a (UNESCO)", "Gesang von Sanaa (UNESCO)"],
+  KZ: ["Dombra; yurt", "Dombra; Jurte"],
+  KG: ["The Manas epic (UNESCO)", "Manas-Epos (UNESCO)"],
+  TJ: ["Shashmaqam (UNESCO)", "Schaschmaqam (UNESCO)"],
+  TM: ["Akhal-Teke horses; carpets", "Achal-Tekkiner-Pferde; Teppiche"],
+  UZ: ["Shashmaqam; Samarkand", "Schaschmaqam; Samarkand"],
+  AF: ["Attan dance; Nowruz", "Attan-Tanz; Nouruz"],
+  BD: ["Pohela Boishakh (New Year)", "Pohela Boishakh (Neujahr)"],
+  BT: ["Gross National Happiness; tshechu festivals", "Bruttonationalglück; Tshechu-Feste"],
+  IN: ["Diwali; Bollywood; 22 scheduled languages", "Diwali; Bollywood; 22 anerkannte Sprachen"],
+  MV: ["Bodu beru drumming", "Bodu-Beru-Trommeln"],
+  NP: ["Dashain, Tihar", "Dashain, Tihar"],
+  PK: ["Qawwali", "Qawwali"],
+  LK: ["Esala Perahera (Kandy)", "Esala Perahera (Kandy)"],
+  CN: ["Spring Festival; 'face' (mianzi)", "Frühlingsfest; das „Gesicht“ (Mianzi)"],
+  JP: ["Bowing; hanami", "Verbeugung; Hanami"],
+  MN: ["Naadam; khöömei throat singing", "Naadam; Kehlgesang Chöömej"],
+  KP: ["Arirang (UNESCO)", "Arirang (UNESCO)"],
+  KR: ["K-pop; Chuseok", "K-Pop; Chuseok"],
+  BN: ["Kampong Ayer water village", "Wasserdorf Kampong Ayer"],
+  KH: ["Apsara dance; sampeah greeting", "Apsara-Tanz; Sampeah-Gruß"],
+  ID: ["Batik (UNESCO); gamelan", "Batik (UNESCO); Gamelan"],
+  LA: ["Baci ceremony", "Baci-Zeremonie"],
+  MY: ["Hari Raya open houses", "„Open House“ zu Hari Raya"],
+  MM: ["Thanaka face paste; Thingyan", "Thanaka-Paste im Gesicht; Thingyan"],
+  PH: ["Karaoke; neighbourhood fiestas", "Karaoke; Viertelfeste (Fiestas)"],
+  SG: ["Hawker culture (UNESCO)", "Hawker-Kultur (UNESCO)"],
+  TH: ["Wai greeting; Songkran", "Wai-Gruß; Songkran"],
+  TL: ["Tais weaving (UNESCO)", "Tais-Weberei (UNESCO)"],
+  VN: ["Tết; áo dài", "Tết; Áo dài"],
+  CA: ["Hockey; maple syrup", "Eishockey; Ahornsirup"],
+  MX: ["Day of the Dead (UNESCO); mariachi", "Tag der Toten (UNESCO); Mariachi"],
+  US: ["Jazz; Thanksgiving", "Jazz; Thanksgiving"],
+  BZ: ["Garifuna punta (UNESCO)", "Punta der Garifuna (UNESCO)"],
+  CR: ["'Pura vida'; no army since 1948", "„Pura vida“; seit 1948 keine Armee"],
+  SV: ["National Pupusa Day", "Nationaler Pupusa-Tag"],
+  GT: ["Maya textiles; Holy Week carpets", "Maya-Textilien; Blumenteppiche der Karwoche"],
+  HN: ["Garifuna punta (UNESCO)", "Punta der Garifuna (UNESCO)"],
+  NI: ["El Güegüense (UNESCO)", "El Güegüense (UNESCO)"],
+  PA: ["Guna molas; carnival", "Molas der Guna; Karneval"],
+  AG: ["Carnival; cricket", "Karneval; Cricket"],
+  BS: ["Junkanoo", "Junkanoo"],
+  BB: ["Crop Over festival", "Crop-Over-Festival"],
+  CU: ["Rumba (UNESCO); son", "Rumba (UNESCO); Son"],
+  DM: ["World Creole Music Festival", "World Creole Music Festival"],
+  DO: ["Merengue, bachata (UNESCO)", "Merengue, Bachata (UNESCO)"],
+  GD: ["Spicemas; the 'Isle of Spice' (nutmeg)", "Spicemas; die „Gewürzinsel“ (Muskat)"],
+  HT: ["Kompa; rara", "Kompa; Rara"],
+  JM: ["Reggae (UNESCO)", "Reggae (UNESCO)"],
+  KN: ["Sugar Mas carnival", "Sugar-Mas-Karneval"],
+  LC: ["Jounen Kwéyòl (Creole Day)", "Jounen Kwéyòl (Kreolischer Tag)"],
+  VC: ["Vincy Mas", "Vincy Mas"],
+  TT: ["Steelpan; carnival; calypso", "Steelpan; Karneval; Calypso"],
+  AR: ["Tango (UNESCO); mate", "Tango (UNESCO); Mate"],
+  BO: ["Oruro Carnival (UNESCO)", "Karneval von Oruro (UNESCO)"],
+  BR: ["Samba; carnival", "Samba; Karneval"],
+  CL: ["Cueca", "Cueca"],
+  CO: ["Cumbia; vallenato (UNESCO)", "Cumbia; Vallenato (UNESCO)"],
+  EC: ["Inti Raymi; toquilla straw hat (UNESCO)", "Inti Raymi; Toquilla-Strohhut (UNESCO)"],
+  GY: ["Mashramani", "Mashramani"],
+  PY: ["Paraguayan harp; tereré (UNESCO)", "Paraguayische Harfe; Tereré (UNESCO)"],
+  PE: ["Inti Raymi; marinera", "Inti Raymi; Marinera"],
+  SR: ["Keti Koti (1 July)", "Keti Koti (1. Juli)"],
+  UY: ["Candombe (UNESCO); mate", "Candombe (UNESCO); Mate"],
+  VE: ["Joropo", "Joropo"],
+  AU: ["Aboriginal cultures (60,000+ years); footy", "Kulturen der Aborigines (über 60 000 Jahre); Footy"],
+  NZ: ["Haka", "Haka"],
+  FJ: ["Kava (yaqona) ceremony", "Kava-Zeremonie (Yaqona)"],
+  PG: ["Sing-sing; 800+ languages", "Sing-Sing; über 800 Sprachen"],
+  SB: ["Panpipes", "Panflöten"],
+  VU: ["Land diving (Nagol)", "Turmspringen (Nagol)"],
+  KI: ["Frigatebird dance", "Fregattvogel-Tanz"],
+  MH: ["Stick chart navigation", "Stabkarten zur Navigation"],
+  FM: ["Yap stone money", "Steingeld von Yap"],
+  NR: ["Angam Day", "Angam Day"],
+  PW: ["Bai meeting houses; stone money", "Bai-Versammlungshäuser; Steingeld"],
+  WS: ["Fa'a Samoa; tatau", "Fa'a Samoa; Tatau"],
+  TO: ["Kava; Sunday rest", "Kava; Sonntagsruhe"],
+  TV: ["Fatele dance", "Fatele-Tanz"]
+};
+var DISH_I18N = {
+  BJ: ["Amiwo (red maize paste)", "Amiwo (roter Maisbrei)"], GN: ["Rice with peanut sauce", "Reis mit Erdnusssoße"], CF: ["Gozo (cassava)", "Gozo (Maniok)"],
+  TD: ["Boule (millet porridge)", "Boule (Hirsebrei)"], GQ: ["Pepesup (pepper soup)", "Pepesup (scharfe Suppe)"], BI: ["Beans and plantains", "Bohnen mit Kochbananen"],
+  KM: ["Lobster in vanilla sauce", "Languste in Vanillesoße"], ER: ["Zigni with injera", "Zigni mit Injera"], MZ: ["Matapa, piri-piri prawns", "Matapa, Piri-Piri-Garnelen"],
+  SC: ["Octopus curry", "Oktopus-Curry"], LS: ["Papa (maize porridge)", "Papa (Maisbrei)"], NA: ["Kapana (grilled meat)", "Kapana (gegrilltes Fleisch)"],
+  EE: ["Rye bread (leib)", "Roggenbrot (Leib)"], LV: ["Grey peas with bacon", "Graue Erbsen mit Speck"], IT: ["Pizza napoletana (UNESCO), pasta", "Pizza napoletana (UNESCO), Pasta"],
+  MT: ["Pastizzi, rabbit stew (fenkata)", "Pastizzi, Kaninchen (Fenkata)"], NL: ["Stamppot, herring", "Stamppot, Hering"], VA: ["Italian cuisine", "Italienische Küche"],
+  BG: ["Banitsa, shopska salad", "Banitsa, Schopska-Salat"], RU: ["Borscht, pelmeni", "Borschtsch, Pelmeni"], UA: ["Borscht (UNESCO)", "Borschtsch (UNESCO)"],
+  CY: ["Halloumi, meze", "Halloumi, Meze"], GE: ["Khachapuri, khinkali", "Chatschapuri, Chinkali"], IR: ["Chelow kabab, ghormeh sabzi", "Tschelo Kabab, Ghormeh Sabzi"],
+  IL: ["Falafel, hummus", "Falafel, Hummus"], LB: ["Tabbouleh, kibbeh", "Taboulé, Kibbeh"], PS: ["Musakhan, maqluba", "Musakhan, Maqluba"],
+  SY: ["Kibbeh, fattoush", "Kibbeh, Fattusch"], BD: ["Hilsa (fish)", "Hilsa (Fisch)"], LK: ["Rice and curry", "Reis mit Curry"],
+  CN: ["Jiaozi dumplings, Peking duck", "Jiaozi-Teigtaschen, Pekingente"], KH: ["Fish amok", "Fisch-Amok"], LA: ["Larb, sticky rice", "Larb, Klebreis"],
+  SG: ["Hainanese chicken rice", "Hainan-Hühnerreis"], US: ["Burgers, Thanksgiving turkey", "Burger, Truthahn zu Thanksgiving"], BZ: ["Rice and beans", "Reis mit Bohnen"],
+  AG: ["Fungee and pepperpot", "Fungee und Pepperpot"], BS: ["Conch salad", "Conch-Salat"], BB: ["Cou-cou and flying fish", "Cou-Cou mit fliegendem Fisch"],
+  DO: ["La bandera (rice, beans, meat)", "La bandera (Reis, Bohnen, Fleisch)"], KN: ["Saltfish, dumplings, plantain", "Salzfisch, Klöße, Kochbanane"],
+  VC: ["Roast breadfruit and jackfish", "Geröstete Brotfrucht und Jackfish"], PG: ["Mumu (earth oven)", "Mumu (Erdofen)"], SB: ["Fish and taro", "Fisch und Taro"],
+  KI: ["Coconut crab, breadfruit", "Palmendieb, Brotfrucht"], MH: ["Breadfruit, coconut", "Brotfrucht, Kokosnuss"], FM: ["Breadfruit, taro", "Brotfrucht, Taro"],
+  NR: ["Coconut fish", "Fisch in Kokosmilch"], PW: ["Taro, fish", "Taro, Fisch"], TV: ["Pulaka (swamp taro)", "Pulaka (Sumpf-Taro)"],
+  CD: ["Moambe chicken", "Moambe-Huhn"], GA: ["Nyembwe chicken", "Nyembwe-Huhn"], MA: ["Tagine, couscous", "Tajine, Couscous"], TN: ["Couscous, brik", "Couscous, Brik"],
+  FR: ["Baguette (UNESCO), bœuf bourguignon", "Baguette (UNESCO), Bœuf bourguignon"], ML: ["Tiguadèguè (peanut stew)", "Tiguadèguè (Erdnusseintopf)"],
+  TH: ["Pad thai, tom yum", "Pad Thai, Tom Yum"], KR: ["Kimchi (kimjang, UNESCO), bibimbap", "Kimchi (Kimjang, UNESCO), Bibimbap"], CL: ["Empanadas de pino, pastel de choclo", "Empanadas de pino, Pastel de choclo"]
+};
+// words inside greeting parentheses, French -> [English, German]
+var HELLO_WORDS = {
+  "mooré": ["Mooré", "Mooré"], "twi : bienvenue": ["Twi: welcome", "Twi: willkommen"], "malinké": ["Malinke", "Malinke"], "anglais libérien": ["Liberian English", "liberianisches Englisch"],
+  "bambara": ["Bambara", "Bambara"], "haoussa": ["Hausa", "Hausa"], "wolof": ["Wolof", "Wolof"], "krio": ["Krio", "Krio"], "éwé : bienvenue": ["Ewe: welcome", "Ewe: willkommen"],
+  "pidgin": ["Pidgin", "Pidgin"], "sango": ["Sango", "Sango"], "lingala": ["Lingala", "Lingala"], "fang": ["Fang", "Fang"], "paix": ["peace", "Frieden"], "somali": ["Somali", "Somali"],
+  "kreol": ["Kreol", "Kreol"], "chichewa": ["Chichewa", "Chichewa"], "seselwa": ["Seselwa", "Seselwa"], "arabe de Juba": ["Juba Arabic", "Juba-Arabisch"], "aux aînés": ["to elders", "zu Älteren"],
+  "luganda": ["Luganda", "Luganda"], "bemba": ["Bemba", "Bemba"], "shona": ["Shona", "Shona"], "ndébélé": ["Ndebele", "Ndebele"], "otjiherero, oshiwambo": ["Otjiherero, Oshiwambo", "Otjiherero, Oshiwambo"],
+  "latin": ["Latin", "Latein"], "kurde": ["Kurdish", "Kurdisch"], "kriol": ["Kriol", "Kriol"], "kwéyòl": ["Kwéyòl", "Kwéyòl"], "aymara": ["Aymara", "Aymara"], "kichwa": ["Kichwa", "Kichwa"],
+  "guarani": ["Guaraní", "Guaraní"], "quechua": ["Quechua", "Quechua"], "sranan": ["Sranan", "Sranan"], "tok pisin": ["Tok Pisin", "Tok Pisin"], "pijin": ["Pijin", "Pijin"],
+  "bichelamar": ["Bislama", "Bislama"], "pohnpei": ["Pohnpeian", "Pohnpeanisch"], "khrap / kha": ["khrap / kha", "khrap / kha"]
+};
+var CM_CULTURE_I18N = {
+  "CM-AD": ["Lamidate of Ngaoundéré; Fulfulde is spoken", "Lamidat von Ngaoundéré; man spricht Fulfulde"],
+  "CM-CE": ["Beti culture and bikutsi music", "Beti-Kultur und Bikutsi-Musik"],
+  "CM-ES": ["Baka forest peoples; Dja reserve (UNESCO)", "Baka-Waldvölker; Dja-Reservat (UNESCO)"],
+  "CM-EN": ["Mandara mountains, Rhumsiki; Musgum shell huts", "Mandara-Berge, Rhumsiki; Granatenhütten der Musgum"],
+  "CM-LT": ["Ngondo festival of the Sawa; makossa was born in Douala", "Ngondo-Fest der Sawa; Makossa entstand in Douala"],
+  "CM-NO": ["Lamidate of Rey Bouba; Bénoué National Park", "Lamidat von Rey Bouba; Nationalpark Bénoué"],
+  "CM-NW": ["Palace of the Fon of Bafut; Grassfields masks", "Palast des Fon von Bafut; Masken des Graslands"],
+  "CM-OU": ["Bamileke chiefdoms; Bamoun Nguon festival in Foumban", "Bamileke-Häuptlingstümer; Nguon-Fest der Bamoun in Foumban"],
+  "CM-SU": ["Bulu people; Kribi beaches and Lobé falls", "Volk der Bulu; Strände von Kribi und Lobé-Fälle"],
+  "CM-SW": ["Race of Hope up Mount Cameroon; Bakweri culture", "Race of Hope auf den Kamerunberg; Bakweri-Kultur"]
+};
+// Capital notes (English base) -> [French, German]
+var NOTE_I18N = {
+  MA: ["Casablanca est la plus grande ville.", "Casablanca ist die größte Stadt."],
+  SD: ["Port-Soudan a servi de siège provisoire du gouvernement pendant la guerre.", "Port Sudan diente im Krieg als vorläufiger Regierungssitz."],
+  BJ: ["Capitale officielle. Cotonou est le siège du gouvernement.", "Offizielle Hauptstadt. Cotonou ist Regierungssitz."],
+  CI: ["Capitale officielle. Abidjan est la capitale économique.", "Offizielle Hauptstadt. Abidjan ist die Wirtschaftsmetropole."],
+  NG: ["Lagos est la plus grande ville et l'ancienne capitale.", "Lagos ist die größte Stadt und frühere Hauptstadt."],
+  CM: ["Douala est la plus grande ville et la capitale économique.", "Douala ist die größte Stadt und Wirtschaftsmetropole."],
+  GQ: ["Capitale transférée de Malabo à Ciudad de la Paz par décret en janvier 2026.", "Hauptstadt per Dekret im Januar 2026 von Malabo nach Ciudad de la Paz verlegt."],
+  BI: ["Capitale politique depuis 2019. Bujumbura est la capitale économique.", "Politische Hauptstadt seit 2019. Bujumbura ist die Wirtschaftsmetropole."],
+  TZ: ["Dar es Salaam est la plus grande ville.", "Daressalam ist die größte Stadt."],
+  SZ: ["Capitale administrative. Lobamba est la capitale royale et législative.", "Verwaltungshauptstadt. Lobamba ist königliche und legislative Hauptstadt."],
+  ZA: ["Capitale exécutive. Le Cap est législatif, Bloemfontein judiciaire.", "Regierungssitz. Kapstadt ist legislative, Bloemfontein judikative Hauptstadt."],
+  NL: ["Capitale constitutionnelle. La Haye est le siège du gouvernement.", "Verfassungsmäßige Hauptstadt. Den Haag ist Regierungssitz."],
+  CH: ["Officiellement « ville fédérale ».", "Offiziell „Bundesstadt“."],
+  VA: ["Cité-État : le pays est sa propre capitale.", "Stadtstaat: das Land ist seine eigene Hauptstadt."],
+  UA: ["En allemand, on dit aussi Kiew.", "Im Deutschen auch die ältere Form Kiew."],
+  IL: ["Statut contesté. La plupart des ambassades sont à Tel-Aviv.", "Status international umstritten. Die meisten Botschaften sind in Tel Aviv."],
+  PS: ["État observateur à l'ONU. Ramallah est le siège administratif ; Jérusalem-Est est la capitale proclamée.", "UN-Beobachterstaat. Ramallah ist Verwaltungssitz; Ostjerusalem ist die proklamierte Hauptstadt."],
+  TR: ["Istanbul est la plus grande ville.", "Istanbul ist die größte Stadt."],
+  YE: ["Le gouvernement reconnu siège à Aden pendant le conflit.", "Die anerkannte Regierung sitzt während des Konflikts in Aden."],
+  LK: ["Capitale officielle. Colombo est la capitale commerciale.", "Offizielle Hauptstadt. Colombo ist die Handelsmetropole."],
+  ID: ["Le transfert vers Nusantara attend un décret présidentiel (Cour constitutionnelle, mai 2026).", "Der Umzug nach Nusantara wartet auf ein Präsidialdekret (Verfassungsgericht, Mai 2026)."],
+  MY: ["Putrajaya est le centre administratif.", "Putrajaya ist das Verwaltungszentrum."],
+  MM: ["Rangoun (Yangon) est la plus grande ville et l'ancienne capitale.", "Rangun (Yangon) ist die größte Stadt und frühere Hauptstadt."],
+  SG: ["Cité-État : le pays est sa propre capitale.", "Stadtstaat: das Land ist seine eigene Hauptstadt."],
+  BO: ["Capitale constitutionnelle. La Paz est le siège du gouvernement.", "Verfassungsmäßige Hauptstadt. La Paz ist Regierungssitz."],
+  NR: ["Pas de capitale officielle. Le gouvernement siège dans le district de Yaren.", "Keine offizielle Hauptstadt. Die Regierung sitzt im Distrikt Yaren."]
+};
+var CM_NOTE_I18N = {
+  "CM-AD": ["Plateau carrefour entre le nord et le sud. Terminus du Transcamerounais.", "Hochplateau zwischen Nord und Süd. Endpunkt der Transkamerun-Bahn."],
+  "CM-CE": ["Région de la capitale nationale.", "Region der Landeshauptstadt."],
+  "CM-ES": ["Plus grande région, forêts à la frontière de la RCA et du Congo.", "Größte Region, Wälder an der Grenze zur ZAR und zum Kongo."],
+  "CM-EN": ["Frontalière du Nigeria et du Tchad, près du lac Tchad.", "Grenzt an Nigeria und Tschad, nahe dem Tschadsee."],
+  "CM-LT": ["Plus petite région, mais la plus grande ville et le port principal.", "Kleinste Region, aber größte Stadt und wichtigster Hafen."],
+  "CM-NO": ["Sur la Bénoué, qui coule vers le Nigeria.", "Am Benue, der weiter nach Nigeria fließt."],
+  "CM-NW": ["L'une des deux régions anglophones.", "Eine der zwei englischsprachigen Regionen."],
+  "CM-OU": ["Hauts plateaux des Grassfields, nombreuses chefferies.", "Hochland des Graslands, viele traditionelle Häuptlingstümer."],
+  "CM-SU": ["Frontalière de la Guinée équatoriale et du Gabon ; port en eau profonde de Kribi.", "Grenzt an Äquatorialguinea und Gabun; Tiefseehafen Kribi."],
+  "CM-SW": ["Région anglophone au pied du mont Cameroun.", "Englischsprachige Region am Fuß des Kamerunbergs."]
+};
+var CITY_NOTE_I18N = {
+  "Douala": ["Plus grande ville et capitale économique ; port sur l'estuaire du Wouri.", "Größte Stadt und Wirtschaftsmetropole; Hafen am Wouri-Ästuar."],
+  "Yaoundé": ["Capitale politique, la « ville aux sept collines ».", "Politische Hauptstadt, die „Stadt der sieben Hügel“."],
+  "Garoua": ["Port fluvial sur la Bénoué.", "Flusshafen am Benue."],
+  "Bamenda": ["Principale ville du Nord-Ouest anglophone.", "Hauptstadt des englischsprachigen Nordwestens."],
+  "Maroua": ["Plus grande ville de l'Extrême-Nord.", "Größte Stadt des Hohen Nordens."],
+  "Bafoussam": ["Pôle commercial des hauts plateaux de l'Ouest.", "Handelszentrum des westlichen Hochlands."],
+  "Ngaoundéré": ["Terminus nord du chemin de fer Transcamerounais.", "Nördlicher Endpunkt der Transkamerun-Bahn."],
+  "Bertoua": ["Porte des forêts de l'Est.", "Tor zu den Wäldern des Ostens."],
+  "Ebolowa": ["Centre de la culture du cacao dans le Sud.", "Zentrum des Kakaoanbaus im Süden."],
+  "Buea": ["Ancienne capitale du Kamerun allemand, au pied du mont Cameroun (4 040 m).", "Ehemalige Hauptstadt Deutsch-Kameruns, am Fuß des Kamerunbergs (4040 m)."],
+  "Limbe": ["Ville balnéaire avec jardin botanique et raffinerie.", "Badeort mit Botanischem Garten und Raffinerie."],
+  "Kumba": ["Plus grande ville du Sud-Ouest, près du lac Barombi Mbo.", "Größte Stadt des Südwestens, nahe dem Barombi-Mbo-See."],
+  "Kribi": ["Station balnéaire et port en eau profonde ; les chutes de la Lobé tombent dans la mer.", "Badeort und Tiefseehafen; die Lobé-Fälle stürzen ins Meer."],
+  "Edéa": ["Barrage hydroélectrique sur la Sanaga.", "Wasserkraftwerk am Sanaga."],
+  "Nkongsamba": ["Ville caféière de la région du Moungo.", "Kaffeestadt im Mungo-Gebiet."],
+  "Dschang": ["Ville universitaire des hauts plateaux de l'Ouest.", "Universitätsstadt im westlichen Hochland."],
+  "Foumban": ["Siège du sultanat bamoun et de son palais royal.", "Sitz des Bamoun-Sultanats und seines Königspalasts."],
+  "Kousséri": ["Ville frontalière en face de N'Djaména (Tchad).", "Grenzstadt gegenüber N'Djamena (Tschad)."],
+  "Mbalmayo": ["Ville sur le Nyong au sud de Yaoundé.", "Stadt am Nyong südlich von Yaoundé."],
+  "Batouri": ["Ville minière (or) de l'Est.", "Goldgräberstadt im Osten."]
+};
+var CM_FACTS_I18N = {
+  fr: ["Le Cameroun a deux langues officielles, le français et l'anglais : un pays bilingue, comme ta cabine.", "Le Cameroun compte 10 régions, 58 départements et 360 communes.", "Le Nord-Ouest et le Sud-Ouest sont anglophones ; les huit autres régions sont surtout francophones.", "Le mont Cameroun (4 040 m), près de Buea, est le plus haut sommet d'Afrique de l'Ouest et centrale.", "On surnomme le Cameroun « l'Afrique en miniature » pour la variété de ses climats et de ses cultures."],
+  de: ["Kamerun hat zwei Amtssprachen, Französisch und Englisch: ein zweisprachiges Land, wie deine Kabine.", "Kamerun ist in 10 Regionen, 58 Departements und 360 Gemeinden gegliedert.", "Der Nordwesten und Südwesten sind englischsprachig, die übrigen acht Regionen vorwiegend französischsprachig.", "Der Kamerunberg (4040 m) bei Buea ist der höchste Gipfel West- und Zentralafrikas.", "Kamerun heißt wegen seiner Vielfalt an Klimazonen und Kulturen „Afrika im Kleinen“."]
+};
+var PLAN_I18N = {
+  fr: [["Afrique du Nord et australe", "11 pays. Dis chaque capitale à voix haute."], ["Afrique de l'Ouest", "16 pays, ta région. Attention à la Côte d'Ivoire (Yamoussoukro) et au Bénin (Porto-Novo)."], ["Afrique centrale + régions du Cameroun", "9 pays plus les 10 régions du Cameroun et leurs chefs-lieux. Nouveau : Guinée équatoriale → Ciudad de la Paz."], ["Afrique de l'Est", "18 pays, le plus gros bloc. Fais-le en deux séances."], ["Toute l'Afrique + villes du Cameroun", "Révise les 54, ajoute 20 villes du Cameroun. Soirée jeu n°1 avec le paquet Afrique."], ["Europe du Nord et de l'Ouest", "19 pays."], ["Europe du Sud et de l'Est", "25 pays. Trois micro-États sont leur propre capitale."], ["Asie de l'Ouest et centrale", "24 pays : Moyen-Orient, Caucase et les cinq « -stan »."], ["Asie du Sud, de l'Est et du Sud-Est", "24 pays. Sri Lanka et Birmanie sont des pièges classiques."], ["Amérique du Nord, centrale et Caraïbes", "23 pays. Les îles des Caraïbes sont la partie difficile."], ["Amérique du Sud et Océanie", "26 pays. Les capitales du Pacifique sont courtes et peu connues : révise-les deux fois."], ["Points faibles + focus Cameroun", "Seulement les cartes ratées, puis toutes les cartes du Cameroun."], ["Le monde entier, chronométré", "Les 195 contre la montre. Soirée jeu n°2 avec le paquet complet."], ["Examen final", "195 capitales + le Cameroun, sans hésiter."]],
+  de: [["Nord- und Südliches Afrika", "11 Länder. Sprich jede Hauptstadt laut aus."], ["Westafrika", "16 Länder. Achtung bei Elfenbeinküste (Yamoussoukro) und Benin (Porto-Novo)."], ["Zentralafrika + Regionen Kameruns", "9 Länder plus Kameruns 10 Regionen und ihre Hauptstädte. Neu: Äquatorialguinea → Ciudad de la Paz."], ["Ostafrika", "18 Länder, der größte Block. In zwei Sitzungen aufteilen."], ["Ganz Afrika + Städte Kameruns", "Alle 54 wiederholen, 20 Städte Kameruns dazu. Spieleabend 1 mit dem Afrika-Deck."], ["Nord- und Westeuropa", "19 Länder."], ["Süd- und Osteuropa", "25 Länder. Drei Kleinstaaten sind ihre eigene Hauptstadt."], ["West- und Zentralasien", "24 Länder: Naher Osten, Kaukasus und die fünf „-stans“."], ["Süd-, Ost- und Südostasien", "24 Länder. Sri Lanka und Myanmar sind klassische Fallen."], ["Nord- und Mittelamerika, Karibik", "23 Länder. Die Karibikinseln sind der schwierige Teil."], ["Südamerika und Ozeanien", "26 Länder. Die Pazifik-Hauptstädte sind kurz und unbekannt: zweimal üben."], ["Schwachstellen + Fokus Kamerun", "Nur verpasste Karten, dann alle Kamerun-Karten."], ["Die ganze Welt, auf Zeit", "Alle 195 gegen die Uhr. Spieleabend 2 mit dem ganzen Deck."], ["Abschlussprüfung", "195 Hauptstädte + Kamerun, ohne Zögern."]]
+};
+var PLAN_DATES = {
+  fr: ["jeu. 19 nov.", "ven. 20 nov.", "sam. 21 nov.", "dim. 22 nov.", "lun. 23 nov.", "mar. 24 nov.", "mer. 25 nov.", "jeu. 26 nov.", "ven. 27 nov.", "sam. 28 nov.", "dim. 29 nov.", "lun. 30 nov.", "mar. 1er déc.", "mer. 2 déc."],
+  de: ["Do. 19. Nov.", "Fr. 20. Nov.", "Sa. 21. Nov.", "So. 22. Nov.", "Mo. 23. Nov.", "Di. 24. Nov.", "Mi. 25. Nov.", "Do. 26. Nov.", "Fr. 27. Nov.", "Sa. 28. Nov.", "So. 29. Nov.", "Mo. 30. Nov.", "Di. 1. Dez.", "Mi. 2. Dez."]
+};
+// lang: "fr" | "en" | "de"; returns culture fields in that language
+function cultureIn(id, lang) {
+  var k = CULTURE[id]; if (!k) return null;
+  var i = lang === "en" ? 0 : lang === "de" ? 1 : -1;
+  var hello = k.hello;
+  if (i >= 0) hello = hello.replace(/\(([^)]+)\)/g, function (m, w) { return HELLO_WORDS[w] ? "(" + HELLO_WORDS[w][i] + ")" : m; }).replace(/ : /g, ": ");
+  return {
+    langs: k.langs.map(function (c) { return LANGNAMES[c][lang === "en" ? 0 : lang === "fr" ? 1 : 2]; }),
+    spoken: (k.spoken || []).map(function (c) { return LANGNAMES[c][lang === "en" ? 0 : lang === "fr" ? 1 : 2]; }),
+    hello: hello,
+    dish: i >= 0 && DISH_I18N[id] ? DISH_I18N[id][i] : k.dish,
+    trad: i >= 0 ? TRAD_I18N[id][i] : k.trad
+  };
+}
+function cmCultureIn(rid, lang) { return lang === "fr" ? CM_CULTURE[rid] : CM_CULTURE_I18N[rid][lang === "en" ? 0 : 1]; }
+function noteIn(id, en, lang) { return lang === "en" || !en ? en : (NOTE_I18N[id] ? NOTE_I18N[id][lang === "fr" ? 0 : 1] : en); }
+if (typeof module !== "undefined") module.exports = { TRAD_I18N, DISH_I18N, HELLO_WORDS, CM_CULTURE_I18N, NOTE_I18N, CM_NOTE_I18N, CITY_NOTE_I18N, CM_FACTS_I18N, PLAN_I18N, PLAN_DATES, cultureIn: cultureIn, cmCultureIn: cmCultureIn, noteIn: noteIn };
+
+</script>
+<script>
+(function () {
+"use strict";
+const EDITIONS = { fr: ["fr"], en: ["en"], de: ["de"], "fr-en": ["fr", "en"], "fr-de": ["fr", "de"], all: ["en", "fr", "de"] };
+const EDNAME = { fr: "FR", en: "EN", de: "DE", "fr-en": "FR–EN", "fr-de": "FR–DE", all: "All 3" };
+const UI = {
+  capOf: { en: "Capital of", fr: "Capitale de", de: "Hauptstadt von" },
+  flagQ: { en: "Which country flies this flag?", fr: "Quel pays a ce drapeau ?", de: "Welches Land hat diese Flagge?" },
+  revQ: { en: "Which country has this capital?", fr: "Quel pays a cette capitale ?", de: "Welches Land hat diese Hauptstadt?" },
+  langQ: { en: "Which country speaks these languages?", fr: "Quel pays parle ces langues ?", de: "Welches Land spricht diese Sprachen?" },
+  rcapOf: { en: "Regional capital of", fr: "Chef-lieu de la région", de: "Regionshauptstadt von" },
+  rrevQ: { en: "Which Cameroonian region has this capital?", fr: "Quelle région du Cameroun a ce chef-lieu ?", de: "Welche Region Kameruns hat diese Hauptstadt?" },
+  cityQ: { en: "Which region of Cameroon is this city in?", fr: "Dans quelle région du Cameroun est cette ville ?", de: "In welcher Region Kameruns liegt diese Stadt?" },
+  cm: { en: "Cameroon", fr: "Cameroun", de: "Kamerun" }, capital: { en: "Capital", fr: "Capitale", de: "Hauptstadt" },
+  rcapital: { en: "Regional capital.", fr: "Chef-lieu de région.", de: "Regionshauptstadt." },
+  official: { en: "Official languages", fr: "Langues officielles", de: "Amtssprachen" }, spoken: { en: "Also spoken", fr: "Aussi parlées", de: "Auch gesprochen" },
+  hello: { en: "Greeting", fr: "Salutation", de: "Gruß" }, dish: { en: "Dish", fr: "Plat", de: "Gericht" }, trad: { en: "Culture", fr: "Culture", de: "Kultur" }
+};
+const ui = (k) => UI[k][S.prefs.tgt] || UI[k].en;
+const sig = (id) => { const k = CULTURE[id]; return k ? k.langs.concat(k.spoken || []).slice().sort().join(",") : id; };
+const planLang = () => (LANGS.length === 1 ? LANGS[0] : "en");
+const planT = (p, i) => { const l = planLang(); return l === "en" ? p : { day: p.day, date: PLAN_DATES[l][i], title: PLAN_I18N[l][i][0], tip: PLAN_I18N[l][i][1] }; };
+const cmNote = (r, l) => (l === "en" ? r.note : CM_NOTE_I18N[r.id][l === "fr" ? 0 : 1]);
+const cityNote = (y, l) => (l === "en" ? y.note : CITY_NOTE_I18N[y.name][l === "fr" ? 0 : 1]);
+let LANGS = EDITIONS.all;
+const LNAME = { en: "EN", fr: "FR", de: "DE" };
+const ALT = { UA: ["Kiew", "Kiev", "Kyjiw"], KI: ["Tarawa"], US: ["Washington"], MX: ["Mexico"], GT: ["Guatemala"], PA: ["Panama"], KW: ["Kuwait"], VA: ["Vatican"], YE: ["Sanaa"], MN: ["Ulan Bator", "Ulan-Bator"], SZ: ["Lobamba"], ZA: ["Cape Town", "Bloemfontein", "Le Cap", "Kapstadt"], BO: ["La Paz"], NL: ["The Hague", "Den Haag", "La Haye"], MD: ["Kishinev"], CD: ["Kinshasa"], AG: ["Saint Johns", "St Johns"], TL: ["Dili"], LK: ["Kotte"], MM: ["Nay Pyi Taw", "Nay Pyi Daw"], CN: ["Peking"], KZ: ["Nur-Sultan"] };
+const DAY = 86400000, MIN = 60000;
+const INTERVAL = [0, 10 * MIN, DAY, 2 * DAY, 4 * DAY, 7 * DAY];
+const START = new Date(2026, 10, 19); // Thu 19 Nov 2026, Day 1
+const contColor = (k) => `var(--${k})`;
+
+// ---------- items ----------
+const ITEMS = [];
+COUNTRIES.forEach((c) => ITEMS.push({ key: "c:" + c.id, kind: "country", cont: c.continent, region: c.region, c }));
+CM_REGIONS.forEach((r) => ITEMS.push({ key: "r:" + r.id, kind: "cmr", cont: "CM", region: "CM-R", r }));
+CM_CITIES.forEach((y) => ITEMS.push({ key: "y:" + y.name, kind: "cmc", cont: "CM", region: "CM-C", y, r: CM_REGIONS.find((r) => r.id === y.region) }));
+const BYKEY = Object.fromEntries(ITEMS.map((i) => [i.key, i]));
+
+// ---------- state ----------
+const LSKEY = "capital-relay-solo-v1";
+let S = { items: {}, days: {}, prefs: { src: "en", tgt: "en", mode: "mc", deck: "plan", len: 20 }, total: 0, right: 0, updatedAt: 0 };
+function lsRead() { try { const t = localStorage.getItem(LSKEY); return t ? JSON.parse(t) : null; } catch (e) { return null; } }
+function lsWrite() { try { localStorage.setItem(LSKEY, JSON.stringify(S)); } catch (e) {} }
+function merge(o) { if (!o || typeof o !== "object") return; S = Object.assign(S, o); S.prefs = Object.assign({ src: "en", tgt: "en", mode: "mc", deck: "plan", len: 20 }, o.prefs || {}); S.items = o.items || {}; S.days = o.days || {}; }
+merge(lsRead());
+
+let dbRef = null, saving = false, pending = false, saveTimer = null;
+function markSaved(t) { const el = document.getElementById("saved"); if (el) el.textContent = t; }
+function save() {
+  S.updatedAt = Date.now(); lsWrite();
+  if (!dbRef) return;
+  clearTimeout(saveTimer); saveTimer = setTimeout(flush, 1500);
+}
+async function flush() {
+  if (!dbRef) return;
+  if (saving) { pending = true; return; }
+  saving = true;
+  try { await dbRef.set(JSON.parse(JSON.stringify(S))); markSaved("Saved to your account."); }
+  catch (e) { markSaved("Saved in this browser only."); }
+  saving = false;
+  if (pending) { pending = false; flush(); }
+}
+(async function connect() {
+  try {
+    if (!window.claude || !window.claude.use) return;
+    const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if (!db || !user) return;
+    const id = await user.id(); if (!id) return;
+    dbRef = db.collection("data/users/" + id).doc("srs");
+    const timer = setTimeout(() => markSaved("Saved in this browser."), 10000);
+    const snap = await dbRef.get(); clearTimeout(timer);
+    if (snap.exists) { const remote = snap.data(); if ((remote.updatedAt || 0) > (S.updatedAt || 0)) { merge(JSON.parse(JSON.stringify(remote))); applyEdition(EDITIONS[location.hash.slice(1)] ? location.hash.slice(1) : S.prefs.ed); lsWrite(); renderAll(); } else if (S.updatedAt) flush(); }
+    else if (S.updatedAt) flush();
+    markSaved("Synced with your account.");
+  } catch (e) { markSaved("Saved in this browser."); }
+})();
+let tts = null;
+(async function () { try { if (window.claude && window.claude.use) { tts = await window.claude.use("tts"); if (tts) renderAll(); } } catch (e) { tts = null; } })();
+function speak(text, lang) { if (!tts) return; tts.speak(text, { language: lang, rate: 0.95 }).catch(() => {}); }
+
+// ---------- helpers ----------
+const st = (k) => S.items[k];
+const box = (k) => (S.items[k] ? S.items[k].b : -1);
+const todayKey = () => { const d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); };
+function planDayIndex() { const d = new Date(); d.setHours(0, 0, 0, 0); const n = Math.floor((d - START) / DAY) + 1; return Math.max(1, Math.min(14, n)); }
+function norm(s) { return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/ß/g, "ss").replace(/\bst\.?\s/g, "saint ").replace(/[^a-z0-9]+/g, " ").trim(); }
+function lev(a, b) { const m = a.length, n = b.length; const d = Array.from({ length: m + 1 }, (_, i) => [i]); for (let j = 1; j <= n; j++) d[0][j] = j; for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[m][n]; }
+const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const h = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// deck definitions
+function deckItems(code) {
+  if (code === "ALL") return ITEMS.filter((i) => i.kind === "country");
+  if (code === "CM") return ITEMS.filter((i) => i.cont === "CM");
+  if (code === "CM-R" || code === "CM-C") return ITEMS.filter((i) => i.region === code);
+  if (code === "WEAK") return ITEMS.filter((i) => st(i.key) && st(i.key).w > 0).sort((a, b) => (st(b.key).w - st(b.key).r) - (st(a.key).w - st(a.key).r));
+  if (code === "DUE") return ITEMS.filter((i) => st(i.key) && st(i.key).due <= Date.now()).sort((a, b) => st(a.key).due - st(b.key).due);
+  if (CONTINENTS[code]) return ITEMS.filter((i) => i.cont === code);
+  return ITEMS.filter((i) => i.region === code);
+}
+function planItems(day) { const p = PLAN[day - 1]; const seen = new Set(); const out = []; p.regions.forEach((r) => deckItems(r).forEach((i) => { if (!seen.has(i.key)) { seen.add(i.key); out.push(i); } })); return out; }
+function deckLabel(code) {
+  if (code === "plan") return "Day " + planDayIndex() + ": " + planT(PLAN[planDayIndex() - 1], planDayIndex() - 1).title;
+  const map = { ALL: "Whole world", CM: "All of Cameroon", "CM-R": "Cameroon regions", "CM-C": "Cameroon cities", WEAK: "My weak cards", DUE: "Due for review" };
+  if (map[code]) return map[code];
+  if (CONTINENTS[code]) return CONTINENTS[code].en;
+  return REGIONS[code] ? REGIONS[code].en : code;
+}
+function pickItems(code) { return code === "plan" ? planItems(planDayIndex()) : code.startsWith("day") ? planItems(+code.slice(3)) : deckItems(code); }
+function stats(list) { let m = 0, l = 0; list.forEach((i) => { const b = box(i.key); if (b >= 4) m++; else if (b >= 1) l++; }); return { m, l, n: list.length - m - l, t: list.length }; }
+const dueCount = () => ITEMS.filter((i) => st(i.key) && st(i.key).due <= Date.now()).length;
+function streak() { const d = new Date(); const k = (x) => x.getFullYear() + "-" + (x.getMonth() + 1) + "-" + x.getDate(); if (!S.days[k(d)]) d.setDate(d.getDate() - 1); let n = 0; while (S.days[k(d)]) { n++; d.setDate(d.getDate() - 1); } return n; }
+
+// ---------- question building ----------
+function q(item, mode) {
+  const src = S.prefs.src, tgt = S.prefs.tgt;
+  const reverse = mode === "rev" && item.kind !== "cmc";
+  if (item.kind === "country") {
+    const c = item.c, note = noteIn(c.id, c.note, tgt);
+    const names = { en: c.en, fr: c.fr, de: c.de };
+    if (mode === "flag") return { eyebrow: ui("flagQ"), flagOnly: true, prompt: "", answer: c[tgt], all: names, accept: [c.en, c.fr, c.de], pool: (o) => o.kind === "country" ? o.c[tgt] : null, note: ui("capital") + ": " + c.cap[tgt] + (note ? ". " + note : "") };
+    if (mode === "lang") { const k = cultureIn(c.id, tgt), me = sig(c.id); return { eyebrow: ui("langQ"), langsOnly: k, prompt: "", answer: c[tgt], all: names, accept: [c.en, c.fr, c.de], pool: (o) => o.kind === "country" && sig(o.c.id) !== me ? o.c[tgt] : null, note: ui("capital") + ": " + c.cap[tgt] + (note ? ". " + note : "") }; }
+    if (reverse) return { eyebrow: ui("revQ"), prompt: c.cap[src], answer: c[tgt], all: names, accept: [c.en, c.fr, c.de], pool: (o) => o.kind === "country" ? o.c[tgt] : null, note: note };
+    return { eyebrow: ui("capOf"), prompt: c[src], answer: c.cap[tgt], all: c.cap, accept: [c.cap.en, c.cap.fr, c.cap.de].concat(ALT[c.id] || []), pool: (o) => o.kind === "country" ? o.c.cap[tgt] : null, note: note };
+  }
+  if (item.kind === "cmr") {
+    const r = item.r;
+    if (reverse) return { eyebrow: ui("rrevQ"), prompt: r.cap, answer: r[tgt], all: { en: r.en, fr: r.fr, de: r.de }, accept: [r.en, r.fr, r.de], pool: (o) => o.kind === "cmr" ? o.r[tgt] : null, note: cmNote(r, tgt) };
+    return { eyebrow: ui("rcapOf"), prompt: r[src], sub: ui("cm"), answer: r.cap, all: { en: r.cap, fr: r.cap, de: r.cap }, accept: [r.cap], pool: (o) => o.kind === "cmr" ? o.r.cap : null, note: cmNote(r, tgt) };
+  }
+  const y = item.y, r = item.r;
+  return { eyebrow: ui("cityQ"), prompt: y.name, answer: r[tgt], all: { en: r.en, fr: r.fr, de: r.de }, accept: [r.en, r.fr, r.de], pool: (o) => o.kind === "cmr" ? o.r[tgt] : null, note: cityNote(y, tgt) + (r.cap === y.name ? " " + ui("rcapital") : "") };
+}
+function options(item, Q) {
+  const used = new Set([norm(Q.answer)]); const out = [Q.answer];
+  const tiers = [ITEMS.filter((o) => o.region === item.region), ITEMS.filter((o) => o.cont === item.cont), ITEMS];
+  for (const tier of tiers) { for (const o of shuffle(tier)) { if (out.length >= 4) break; if (o === item) continue; const v = Q.pool(o); if (v && !used.has(norm(v))) { used.add(norm(v)); out.push(v); } } }
+  return shuffle(out);
+}
+
+// ---------- SRS ----------
+function grade(key, g) { // g: 0 again, 1 hard, 2 good, 3 easy
+  const s = S.items[key] || { b: 0, r: 0, w: 0, due: 0 };
+  if (g === 0) { s.b = 1; s.w++; s.due = Date.now() + MIN; }
+  else { s.r++; s.b = g === 1 ? Math.max(1, s.b) : Math.min(5, s.b + (g === 3 ? 2 : 1)); s.due = Date.now() + (g === 1 ? INTERVAL[s.b] / 2 : INTERVAL[s.b]); }
+  s.last = Date.now(); S.items[key] = s;
+  S.total++; if (g > 0) S.right++; S.days[todayKey()] = (S.days[todayKey()] || 0) + 1;
+  save();
+}
+function buildQueue(list, len) {
+  const now = Date.now();
+  const due = list.filter((i) => st(i.key) && st(i.key).due <= now).sort((a, b) => st(a.key).due - st(b.key).due);
+  const fresh = list.filter((i) => !st(i.key));
+  const rest = list.filter((i) => st(i.key) && st(i.key).due > now).sort((a, b) => box(a.key) - box(b.key) || st(a.key).due - st(b.key).due);
+  let qq = shuffle(due).concat(shuffle(fresh), rest);
+  return len === "all" ? qq : qq.slice(0, len);
+}
+
+// ---------- rendering ----------
+const $ = (id) => document.getElementById(id);
+let tab = "plan", session = null;
+function applyEdition(ed) {
+  if (!EDITIONS[ed]) ed = "all";
+  S.prefs.ed = ed; LANGS = EDITIONS[ed];
+  if (!LANGS.includes(S.prefs.src)) S.prefs.src = LANGS[0];
+  if (!LANGS.includes(S.prefs.tgt)) S.prefs.tgt = LANGS[LANGS.length - 1];
+  if (session && session.state === "ask") { session.Q = null; session.opts = null; }
+  const want = ed === "all" ? "" : "#" + ed;
+  try { if (location.hash !== want && (want || location.hash)) history.replaceState(null, "", want || location.pathname + location.search); } catch (e) { if (want) location.hash = want; }
+}
+function renderLangs() {
+  $("edSeg").innerHTML = Object.keys(EDITIONS).map((e) => `<button aria-pressed="${S.prefs.ed === e}" data-ed="${e}" aria-label="Edition ${EDNAME[e]}">${EDNAME[e]}</button>`).join("");
+  $("edLabel").textContent = "195 countries · Cameroon · " + LANGS.map((l) => LNAME[l]).join(" / ");
+  ["src", "tgt"].forEach((k) => {
+    $(k + "Seg").innerHTML = LANGS.map((l) => `<button aria-pressed="${S.prefs[k] === l}" data-l="${l}" data-k="${k}" aria-label="${k === "src" ? "Prompt" : "Answer"} language ${LNAME[l]}">${LNAME[l]}</button>`).join("");
+  });
+}
+function renderStrip() {
+  const countries = ITEMS.filter((i) => i.kind === "country"); const s = stats(countries); const c = stats(deckItems("CM"));
+  const acc = S.total ? Math.round((S.right / S.total) * 100) + "%" : "–";
+  $("strip").innerHTML = `<div><b>${s.m}<span class="muted" style="font-size:13px;text-transform:none;letter-spacing:0">/195</span></b><span>Capitals mastered</span></div><div><b>${c.m}<span class="muted" style="font-size:13px;text-transform:none;letter-spacing:0">/30</span></b><span>Cameroon mastered</span></div><div><b>${dueCount()}</b><span>Due now</span></div><div><b>${streak()}<span class="muted" style="font-size:13px;text-transform:none;letter-spacing:0"> d · ${acc}</span></b><span>Streak · accuracy</span></div>`;
+}
+function stackBar(list) { const s = stats(list); const pc = (x) => (s.t ? (x / s.t) * 100 : 0); return `<div class="bar" role="img" aria-label="${s.m} mastered, ${s.l} learning, ${s.n} new"><i style="width:${pc(s.m)}%;background:var(--good)"></i><i style="width:${pc(s.l)}%;background:var(--live)"></i></div>`; }
+function renderPlan() {
+  const today = planDayIndex();
+  $("view-plan").innerHTML = `<div class="days">${PLAN.map((p0, pi) => { const p = planT(p0, pi);
+    const list = planItems(p.day); const s = stats(list);
+    return `<div class="day ${p.day === today ? "today" : ""}">
+      <div class="dn">${p.day}<small>${p.date.split(" ").slice(1).join(" ")}</small></div>
+      <div style="min-width:0"><h3>${h(p.title)} ${p.day === today ? '<span class="pill live">today</span>' : ""}</h3><p>${h(p.tip)}</p>${stackBar(list)}<div class="mono muted" style="font-size:11.5px;margin-top:4px">${s.m} mastered · ${s.l} learning · ${s.n} new of ${s.t}</div></div>
+      <button class="btn ${p.day === today ? "primary" : ""}" data-start="day${p.day}">Practise</button>
+    </div>`; }).join("")}</div>`;
+}
+const DECKS = [["plan", "Today's plan"], ["DUE", "Due for review"], ["WEAK", "My weak cards"], ["AF", null], ["AF-N", null], ["AF-W", null], ["AF-C", null], ["AF-E", null], ["AF-S", null], ["CM-R", null], ["CM-C", null], ["EU", null], ["AS", null], ["NA", null], ["SA", null], ["OC", null], ["ALL", null]];
+const EXTRA = Object.keys(REGIONS).filter((k) => !k.startsWith("AF") && REGIONS[k].c !== "SA");
+const isChoice = (m) => m === "mc" || m === "rev" || m === "flag" || m === "lang";
+const MODES = [["mc", "Multiple choice"], ["flag", "Flags"], ["lang", "Languages"], ["type", "Type it"], ["flash", "Flashcards"], ["rev", "Reverse (capital → country)"]];
+function renderPractice() {
+  if (session) return renderSession();
+  const p = S.prefs;
+  $("view-practice").innerHTML = `<div class="panel">
+    <div><div class="label">Deck</div><div class="chips">${DECKS.map(([code, name]) => { const list = pickItems(code); const col = code.startsWith("CM") ? "CM" : (code.split("-")[0]); const dot = CONTINENTS[col] || col === "CM" ? `<span class="dot" style="background:${contColor(col)}"></span>` : ""; return `<button class="chip" aria-pressed="${p.deck === code}" data-deck="${code}">${dot}${h(name || deckLabel(code))}<span class="n">${list.length}</span></button>`; }).join("")}</div></div>
+    <details ${EXTRA.includes(p.deck) ? "open" : ""}><summary class="label" style="cursor:pointer">More regions: Europe, Asia, Americas, Oceania</summary><div class="chips" style="margin-top:8px">${EXTRA.map((code) => { const col = code.split("-")[0]; return `<button class="chip" aria-pressed="${p.deck === code}" data-deck="${code}"><span class="dot" style="background:${contColor(col)}"></span>${h(deckLabel(code))}<span class="n">${pickItems(code).length}</span></button>`; }).join("")}</div></details>
+    <div><div class="label">Mode</div><div class="chips">${MODES.map(([m, n]) => `<button class="chip" aria-pressed="${p.mode === m}" data-mode="${m}">${n}</button>`).join("")}</div></div>
+    <div class="row"><div><div class="label">Cards per round</div><div class="chips">${[10, 20, 40, "all"].map((n) => `<button class="chip" aria-pressed="${p.len === n}" data-len="${n}">${n === "all" ? "All" : n}</button>`).join("")}</div></div>
+    <div style="margin-left:auto;align-self:flex-end"><button class="btn primary" id="go">Start round</button></div></div>
+    <p class="muted" style="margin:0;font-size:13px">${h(deckLabel(p.deck))}. Cards due for review come first, then new ones. Prompts in <b>${LNAME[p.src]}</b>, answers in <b>${LNAME[p.tgt]}</b>; switch them at the top for interpreting practice. Typed answers accept any of the three languages and ignore accents.</p>
+  </div>`;
+}
+function startSession(deck) {
+  if (deck) { S.prefs.deck = deck.startsWith("day") && +deck.slice(3) === planDayIndex() ? "plan" : deck; }
+  const list = pickItems(deck || S.prefs.deck);
+  const queue = buildQueue(list, S.prefs.len);
+  session = { queue, i: 0, right: 0, wrong: 0, label: deck && deck.startsWith("day") ? "Day " + deck.slice(3) + ": " + PLAN[+deck.slice(3) - 1].title : deckLabel(S.prefs.deck), state: "ask", requeued: new Set() };
+  setTab("practice"); save();
+}
+function renderSession() {
+  const v = $("view-practice"); const s = session;
+  if (!s.queue.length) { v.innerHTML = `<div class="stage"><div class="done"><h2>Nothing to review here yet</h2><p class="muted">This deck has no cards due and no missed cards. Pick another deck.</p><div class="actions"><button class="btn primary" data-act="exit">Back to decks</button></div></div></div>`; return; }
+  if (s.i >= s.queue.length) {
+    const tot = s.right + s.wrong;
+    v.innerHTML = `<div class="stage"><div class="progress"><i style="width:100%"></i></div><div class="done"><div class="label">${h(s.label)}</div><h2>Round done: ${s.right}/${tot}</h2><p class="muted">Missed cards come back in a minute; the ones you knew return in 10 minutes, then after 1, 2, 4 and 7 days. A card counts as mastered after four correct reviews in a row.</p><div class="actions"><button class="btn" data-act="exit">Change deck</button><button class="btn primary" data-act="again">Next round</button></div></div></div>`;
+    renderStrip(); return;
+  }
+  const item = s.queue[s.i]; const mode = S.prefs.mode; const Q = s.Q || (s.Q = q(item, mode));
+  if (isChoice(mode)) s.opts = s.opts || options(item, Q);
+  const tl = S.prefs.tgt;
+  const contName = item.cont === "CM" ? ui("cm") : CONTINENTS[item.cont][tl];
+  const regName = item.cont === "CM" ? (item.kind === "cmc" ? { en: "City", fr: "Ville", de: "Stadt" }[tl] : { en: "Region", fr: "Région", de: "Region" }[tl]) : REGIONS[item.region][tl];
+  const srcTag = mode === "flag" || (mode === "lang" && item.kind === "country") || item.kind === "cmc" || (mode === "rev" && item.kind === "cmr") ? "" : `<span class="tag">${LNAME[S.prefs.src]}</span>`;
+  let body = "";
+  if (s.state === "ask") {
+    if (isChoice(mode)) body = `<div class="opts">${s.opts.map((o, k) => `<button class="opt" data-opt="${k}"><kbd>${k + 1}</kbd>${h(o)}</button>`).join("")}</div>`;
+    else if (mode === "type") body = `<form class="type" id="typeForm"><input id="typeIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the ${item.kind === "country" && mode !== "rev" ? "capital" : "answer"} (${LNAME[S.prefs.tgt]})" aria-label="Your answer"><button class="btn primary" type="submit">Check</button></form>`;
+    else body = `<div class="actions" style="justify-content:flex-start"><button class="btn primary" data-act="flip">Show answer <span class="mono muted" style="color:inherit;opacity:.7">space</span></button></div>`;
+  } else {
+    const r = s.result;
+    const verdict = r === "ok" ? '<div class="verdict ok">Correct</div>' : r === "close" ? `<div class="verdict close">Almost: check the spelling</div>` : r === "no" ? `<div class="verdict no">Not quite${s.given ? `: you said "${h(s.given)}"` : ""}</div>` : "";
+    const tri = `<div class="tri" style="--n:${LANGS.length}">${LANGS.map((l) => `<div><span class="tag">${LNAME[l]}</span><b>${h(Q.all[l])}</b>${tts ? `<button data-say="${l}">Hear it</button>` : ""}</div>`).join("")}</div>`;
+    const ctl = mode === "flash"
+      ? `<div class="grades"><button class="btn" data-g="0">Again<small>1 min</small></button><button class="btn" data-g="1">Hard<small>shorter</small></button><button class="btn primary" data-g="2">Good<small>next box</small></button><button class="btn" data-g="3">Easy<small>skip a box</small></button></div>`
+      : `<div class="actions"><button class="btn primary" data-act="next">Next <span class="mono" style="opacity:.7">↵</span></button></div>`;
+    if (isChoice(mode)) body = `<div class="opts">${s.opts.map((o, k) => `<button class="opt ${norm(o) === norm(Q.answer) ? "right" : k === s.pick ? "wrong" : ""}" disabled><kbd>${k + 1}</kbd>${h(o)}</button>`).join("")}</div>`;
+    body += `<div class="answer">${verdict}${tri}${Q.note ? `<div class="note">${h(Q.note)}</div>` : ""}${cultureBlock(item)}${ctl}</div>`;
+  }
+  v.innerHTML = `<div class="stage"><div class="stage-top"><span><b>${h(s.label)}</b></span><span class="mono muted">${s.i + 1}/${s.queue.length} · ✓${s.right} ✗${s.wrong}</span><button class="btn" data-act="exit" style="padding:4px 10px;font-size:13px">End round</button></div>
+    <div class="progress"><i style="width:${(s.i / s.queue.length) * 100}%"></i></div>
+    <div class="q"><div class="eyebrow" style="color:${contColor(item.cont)}">${h(contName)} · ${h(regName)}</div>
+    <div class="eyebrow muted" style="text-transform:none;letter-spacing:0;font-weight:500;font-size:14px">${srcTag}${h(Q.eyebrow)}${Q.sub ? " · " + h(Q.sub) : ""}</div>
+    ${Q.flagOnly ? `<img class="flagbig" src="${flagSrc(item)}" alt="Flag to identify">` : Q.langsOnly ? `${s.state === "ask" ? "" : `<img class="flagimg" src="${flagSrc(item)}" alt="" style="margin-bottom:8px">`}<div class="langq"><div><span>${ui("official")}</span><b>${h(Q.langsOnly.langs.join(", "))}</b></div>${Q.langsOnly.spoken.length ? `<div><span>${ui("spoken")}</span><b>${h(Q.langsOnly.spoken.join(", "))}</b></div>` : ""}</div>` : `<div class="prow">${(mode === "rev" && s.state === "ask") ? "" : `<img class="flagimg" src="${flagSrc(item)}" alt="">`}<div class="prompt">${h(Q.prompt)}</div></div>`}${body}</div></div>`;
+  const inp = $("typeIn"); if (inp) inp.focus();
+}
+function flagSrc(item) { return "flags/" + (item.kind === "country" ? item.c.id : "CM").toLowerCase() + ".svg"; }
+function cultureBlock(item) {
+  const l = S.prefs.tgt;
+  if (item.kind === "cmr") return `<div class="cult"><div><span>${ui("trad")}</span><b>${h(cmCultureIn(item.r.id, l))}</b></div></div>`;
+  if (item.kind !== "country") return "";
+  const k = cultureIn(item.c.id, l); if (!k) return "";
+  return `<div class="cult"><div><span>${ui("official")}</span><b>${h(k.langs.join(", "))}</b></div>${k.spoken.length ? `<div><span>${ui("spoken")}</span><b>${h(k.spoken.join(", "))}</b></div>` : ""}<div><span>${ui("hello")}</span><b>${h(k.hello)}</b></div><div><span>${ui("dish")}</span><b>${h(k.dish)}</b></div><div><span>${ui("trad")}</span><b>${h(k.trad)}</b></div></div>`;
+}
+function answer(result, given, pick) {
+  const s = session; const item = s.queue[s.i];
+  s.result = result; s.given = given; s.pick = pick; s.state = "shown";
+  if (S.prefs.mode !== "flash") {
+    const ok = result === "ok" || result === "close";
+    grade(item.key, ok ? 2 : 0);
+    if (ok) s.right++; else { s.wrong++; if (!s.requeued.has(item.key)) { s.requeued.add(item.key); s.queue.splice(Math.min(s.queue.length, s.i + 4), 0, item); } }
+  }
+  renderSession(); renderStrip();
+  if (tts && result) speak(s.Q.answer, S.prefs.tgt);
+}
+function next() { session.i++; session.state = "ask"; session.Q = null; session.opts = null; session.result = null; renderSession(); }
+function checkTyped(val) {
+  const Q = session.Q; const n = norm(val); if (!n) return;
+  const acc = Q.accept.map(norm);
+  if (acc.includes(n)) return answer("ok", val);
+  if (acc.some((a) => a.length > 4 && lev(a, n) <= (a.length > 9 ? 2 : 1))) return answer("close", val);
+  answer("no", val);
+}
+function renderProgress() {
+  const rows = Object.keys(CONTINENTS).map((k) => { const list = deckItems(k); const s = stats(list); return `<div class="cont"><span><span class="dot" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${contColor(k)};margin-right:8px"></span>${CONTINENTS[k].en}</span>${stackBar(list)}<span class="mono" style="text-align:right">${s.m}/${s.t}</span></div>`; }).join("")
+    + (() => { const list = deckItems("CM"); const s = stats(list); return `<div class="cont"><span><span class="dot" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--CM);margin-right:8px"></span>Cameroon</span>${stackBar(list)}<span class="mono" style="text-align:right">${s.m}/${s.t}</span></div>`; })();
+  const afr = ["AF-N", "AF-W", "AF-C", "AF-E", "AF-S"].map((k) => { const list = deckItems(k); const s = stats(list); return `<div class="cont"><span>${REGIONS[k].en}</span>${stackBar(list)}<span class="mono" style="text-align:right">${s.m}/${s.t}</span></div>`; }).join("");
+  const weak = ITEMS.filter((i) => st(i.key) && st(i.key).w > 0).sort((a, b) => (st(b.key).w - st(b.key).r) - (st(a.key).w - st(a.key).r)).slice(0, 12);
+  const label = (i) => i.kind === "country" ? `<img class="flagimg" style="width:22px;vertical-align:-3px;margin-right:6px" src="${flagSrc(i)}" alt="">${i.c.en} → <b>${h(i.c.cap.en)}</b>` : i.kind === "cmr" ? `${i.r.en} → <b>${h(i.r.cap)}</b>` : `${i.y.name} → <b>${h(i.r.en)}</b>`;
+  $("view-progress").innerHTML = `<div class="panel">
+    <div class="legend"><span><i style="background:var(--good)"></i>Mastered (4+ correct reviews)</span><span><i style="background:var(--live)"></i>Learning</span><span><i style="background:var(--sunk)"></i>New</span></div>
+    <div><div class="label">By continent</div>${rows}</div>
+    <div><div class="label">Africa by region</div>${afr}</div>
+    <div><div class="label">Hardest so far</div>${weak.length ? `<div class="weak">${weak.map((i) => `<div><span>${label(i)}</span><span class="mono muted">✗${st(i.key).w} ✓${st(i.key).r}</span></div>`).join("")}</div><div class="actions" style="margin-top:10px"><button class="btn primary" data-start="WEAK">Drill these</button></div>` : `<p class="muted" style="margin:4px 0 0">Cards you miss will show up here.</p>`}</div>
+    <div class="actions"><span id="resetZone"><button class="btn" data-act="reset">Reset all progress</button></span></div>
+  </div>`;
+}
+function setTab(t) {
+  tab = t;
+  document.querySelectorAll("nav.tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === t));
+  ["plan", "practice", "progress"].forEach((k) => ($("view-" + k).hidden = k !== t));
+  renderAll();
+}
+function renderAll() { renderLangs(); renderStrip(); if (tab === "plan") renderPlan(); if (tab === "practice") renderPractice(); if (tab === "progress") renderProgress(); }
+
+// ---------- events ----------
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.tab) return setTab(b.dataset.tab);
+  if (b.dataset.ed) { applyEdition(b.dataset.ed); save(); return renderAll(); }
+  if (b.dataset.l) { S.prefs[b.dataset.k] = b.dataset.l; save(); if (session && session.state === "ask") { session.Q = null; session.opts = null; } return renderAll(); }
+  if (b.dataset.start) return startSession(b.dataset.start);
+  if (b.dataset.deck) { S.prefs.deck = b.dataset.deck; save(); return renderPractice(); }
+  if (b.dataset.mode) { S.prefs.mode = b.dataset.mode; save(); return renderPractice(); }
+  if (b.dataset.len) { S.prefs.len = b.dataset.len === "all" ? "all" : +b.dataset.len; save(); return renderPractice(); }
+  if (b.id === "go") return startSession();
+  if (b.dataset.opt !== undefined && session) { const k = +b.dataset.opt; const o = session.opts[k]; return answer(norm(o) === norm(session.Q.answer) ? "ok" : "no", null, k); }
+  if (b.dataset.say) return speak(session.Q.all[b.dataset.say], b.dataset.say);
+  if (b.dataset.g !== undefined) { const g = +b.dataset.g; const item = session.queue[session.i]; grade(item.key, g); if (g > 0) session.right++; else { session.wrong++; if (!session.requeued.has(item.key)) { session.requeued.add(item.key); session.queue.splice(Math.min(session.queue.length, session.i + 4), 0, item); } } return next(); }
+  const act = b.dataset.act;
+  if (act === "flip") { session.state = "shown"; session.result = null; renderSession(); if (tts) speak(session.Q.answer, S.prefs.tgt); return; }
+  if (act === "next") return next();
+  if (act === "exit") { session = null; return renderAll(); }
+  if (act === "again") return startSession();
+  if (act === "reset") { $("resetZone").innerHTML = `<span class="muted" style="font-size:13px;margin-right:8px">Erase every card's progress?</span><button class="btn" data-act="cancelReset">Keep it</button> <button class="btn" style="border-color:var(--bad);color:var(--bad)" data-act="confirmReset">Erase</button>`; return; }
+  if (act === "cancelReset") return renderProgress();
+  if (act === "confirmReset") { S.items = {}; S.days = {}; S.total = 0; S.right = 0; save(); return renderAll(); }
+});
+document.addEventListener("submit", (e) => { if (e.target.id === "typeForm") { e.preventDefault(); checkTyped($("typeIn").value); } });
+document.addEventListener("keydown", (e) => {
+  if (tab !== "practice" || !session || session.i >= session.queue.length) return;
+  const typing = e.target.tagName === "INPUT";
+  if (session.state === "ask") {
+    if (isChoice(S.prefs.mode) && /^[1-4]$/.test(e.key)) { const btn = document.querySelector(`[data-opt="${+e.key - 1}"]`); if (btn) btn.click(); }
+    if (S.prefs.mode === "flash" && (e.key === " " || e.key === "Enter") && !typing) { e.preventDefault(); document.querySelector('[data-act="flip"]').click(); }
+  } else {
+    if (S.prefs.mode === "flash" && /^[1-4]$/.test(e.key)) { const btn = document.querySelector(`[data-g="${+e.key - 1}"]`); if (btn) btn.click(); }
+    else if (e.key === "Enter" && S.prefs.mode !== "flash") { e.preventDefault(); next(); }
+  }
+});
+window.addEventListener("hashchange", () => { const e = location.hash.slice(1); if (EDITIONS[e] && e !== S.prefs.ed) { applyEdition(e); save(); renderAll(); } });
+(function () { const e = location.hash.slice(1); applyEdition(EDITIONS[e] ? e : (S.prefs.ed || "all")); })();
+renderAll();
+})();
+</script>
+
+</body></html>

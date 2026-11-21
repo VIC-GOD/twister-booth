@@ -1,0 +1,176 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><a href="../" id="hub-back" style="position:fixed;z-index:9999;left:max(10px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));background:#16202c;color:#fff;font:600 14px/1 -apple-system,Segoe UI,Arial,sans-serif;padding:10px 14px;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">&larr; All games</a>
+<title>Sujet libre</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one big topic card in the middle of the floor; meters above, controls (category, time) beside it. */
+:root{
+  --bg:#EDF1EF; --panel:#FFFFFF; --ink:#14232B; --muted:#5A6A6E; --line:#D2DBD9;
+  --accent:#0E6E6B; --accent-soft:#D8ECE9; --signal:#D97A12; --signal-soft:#FBEBD6; --bad:#B23A3A;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --c0:#2F5D8A;--c1:#7A5C12;--c2:#6A3F7A;--c3:#A2412E;--c4:#1F7A4A;--c5:#13707A;--c6:#4B4F58;--c7:#B0567A;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1619; --panel:#16232A; --ink:#E5EEEC; --muted:#93A5A7; --line:#27383E;
+  --accent:#4DB6AF; --accent-soft:#163A3A; --signal:#F0A445; --signal-soft:#3A2A14; --bad:#E57A7A;
+  --c0:#7FB0DE;--c1:#D9B45A;--c2:#C39AD3;--c3:#E8907D;--c4:#6FCB97;--c5:#6CC6CF;--c6:#AEB4BF;--c7:#E596B6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1619; --panel:#16232A; --ink:#E5EEEC; --muted:#93A5A7; --line:#27383E;
+  --accent:#4DB6AF; --accent-soft:#163A3A; --signal:#F0A445; --signal-soft:#3A2A14; --bad:#E57A7A;
+  --c0:#7FB0DE;--c1:#D9B45A;--c2:#C39AD3;--c3:#E8907D;--c4:#6FCB97;--c5:#6CC6CF;--c6:#AEB4BF;--c7:#E596B6; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:820px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:18px}
+h1{font-family:var(--display);margin:0;font-size:clamp(28px,6vw,40px);font-weight:800;font-stretch:80%;line-height:1.05}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--panel);padding:11px 20px;border-radius:6px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--accent)}
+.brand{display:flex;align-items:center;gap:12px}
+.lamp{width:14px;height:14px;border-radius:50%;background:var(--line);flex:none;transition:background .3s}
+.lamp.on{background:var(--signal);box-shadow:0 0 0 4px var(--signal-soft)}
+.meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.meter{background:var(--panel);padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.meter b{font-family:var(--display);font-size:22px;font-weight:750;font-stretch:85%;font-variant-numeric:tabular-nums}
+.meter span.s{font-size:12px;color:var(--muted)}
+.controls{display:flex;flex-direction:column;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:5px 12px;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.seg button{white-space:nowrap;border:0;background:transparent;padding:7px 14px;font-family:var(--mono);font-size:13px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--panel)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 22px 20px;min-height:280px;display:flex;flex-direction:column;gap:14px;overflow:hidden;min-width:0}
+.card::before{content:"";position:absolute;inset:0 auto 0 0;width:8px;background:var(--cat,var(--accent))}
+.cat{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--cat,var(--accent));font-weight:600}
+.topic{font-family:var(--display);font-size:clamp(28px,6.5vw,46px);font-weight:800;font-stretch:78%;line-height:1.05;flex:1;display:flex;align-items:center;overflow-wrap:anywhere}
+.tip{font-size:14px;color:var(--muted)}
+.tip b{color:var(--ink);font-weight:600}
+.card.flip{animation:flip .35s ease}
+@keyframes flip{from{transform:rotateX(70deg);opacity:.3}to{transform:none;opacity:1}}
+.speak{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.dial{position:relative;width:170px;height:170px;display:grid;place-items:center}
+.dial svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.dial .t{font-family:var(--mono);font-size:38px;font-weight:600;font-variant-numeric:tabular-nums}
+.dial.warn .t{color:var(--signal)} .dial.last .t{color:var(--bad)}
+.checks{display:grid;gap:8px}
+.checks label{display:flex;gap:10px;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:var(--panel)}
+.checks input{width:18px;height:18px;accent-color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.show{opacity:1}
+footer{font-size:13px;color:var(--muted)}
+@media (max-width:560px){.meters{grid-template-columns:1fr 1fr}.meters .meter:first-child{grid-column:span 2}.speak{grid-template-columns:1fr;justify-items:center}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<div class="wrap">
+  <header class="brand"><span class="lamp" id="lamp"></span><div><div class="label" id="eyebrow"></div><h1 id="h1"></h1></div></header>
+  <section class="meters">
+    <div class="meter"><span class="label" id="mSpeechL"></span><b id="mSpeech"></b><span class="s" id="mMin"></span></div>
+    <div class="meter"><span class="label" id="mStreakL"></span><b id="mStreak"></b><span class="s" id="mStreakN"></span></div>
+    <div class="meter"><span class="label" id="mDeckL"></span><b id="mDeck"></b><span class="s" id="mDeckN"></span></div>
+  </section>
+  <section class="controls">
+    <div class="chips" id="cats" role="group"></div>
+    <div class="row"><span class="label" id="timeL"></span><div class="seg" id="times" role="group"></div></div>
+  </section>
+  <main id="stage"></main>
+  <footer id="foot"></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const LANG="FR";const CATS=["Actualité et politique","Économie et travail","Société et éducation","Culture et arts","Afrique","Sciences et environnement","Idées abstraites","Ludique et personnel"];const DECK=[{"id":0,"c":0,"t":"Faut-il voter en ligne ?"},{"id":1,"c":0,"t":"Le rôle de l'ONU aujourd'hui"},{"id":2,"c":0,"t":"La limitation des mandats présidentiels"},{"id":3,"c":0,"t":"Les pays doivent-ils dépenser plus pour la défense ?"},{"id":4,"c":0,"t":"Les réfugiés et le devoir de protection"},{"id":5,"c":0,"t":"La diplomatie est-elle encore possible dans un monde divisé ?"},{"id":6,"c":0,"t":"Les jeunes en politique"},{"id":7,"c":0,"t":"Les sanctions sont-elles efficaces ?"},{"id":8,"c":0,"t":"La liberté de la presse"},{"id":9,"c":0,"t":"La corruption : un remède"},{"id":10,"c":0,"t":"Les pays riches doivent-ils payer pour les dégâts climatiques ?"},{"id":11,"c":0,"t":"Le pouvoir des manifestations"},{"id":12,"c":0,"t":"La double nationalité"},{"id":13,"c":0,"t":"Le monde devient-il plus ou moins pacifique ?"},{"id":14,"c":0,"t":"Qu'est-ce qu'un bon dirigeant ?"},{"id":15,"c":1,"t":"Un diplôme universitaire vaut-il encore la peine ?"},{"id":16,"c":1,"t":"Le télétravail pour toujours"},{"id":17,"c":1,"t":"Faut-il augmenter le salaire minimum ?"},{"id":18,"c":1,"t":"Start-up ou emploi stable ?"},{"id":19,"c":1,"t":"L'économie informelle"},{"id":20,"c":1,"t":"Faut-il supprimer les pourboires ?"},{"id":21,"c":1,"t":"Acheter local ou acheter moins cher ?"},{"id":22,"c":1,"t":"Les robots vont-ils prendre nos emplois ?"},{"id":23,"c":1,"t":"Taxer les plus riches"},{"id":24,"c":1,"t":"L'entretien d'embauche parfait"},{"id":25,"c":1,"t":"Les femmes aux postes de direction"},{"id":26,"c":1,"t":"Les étudiants doivent-ils travailler pendant leurs études ?"},{"id":27,"c":1,"t":"La publicité : utile ou nuisible ?"},{"id":28,"c":1,"t":"Épargner à vingt ans"},{"id":29,"c":1,"t":"L'économie des petits boulots"},{"id":30,"c":2,"t":"L'école devrait-elle commencer plus tard ?"},{"id":31,"c":2,"t":"Les examens mesurent la mémoire, pas l'intelligence"},{"id":32,"c":2,"t":"Faut-il interdire les téléphones à l'école ?"},{"id":33,"c":2,"t":"Le respect des aînés"},{"id":34,"c":2,"t":"Le mariage au XXIe siècle"},{"id":35,"c":2,"t":"Internet nous rend-il plus seuls ?"},{"id":36,"c":2,"t":"L'université devrait-elle être gratuite ?"},{"id":37,"c":2,"t":"L'inclusion des personnes handicapées"},{"id":38,"c":2,"t":"Vie en ville ou vie au village ?"},{"id":39,"c":2,"t":"La valeur du bénévolat"},{"id":40,"c":2,"t":"Les parents doivent-ils surveiller le téléphone de leurs enfants ?"},{"id":41,"c":2,"t":"Apprendre de ses échecs"},{"id":42,"c":2,"t":"L'égalité femmes-hommes à la maison"},{"id":43,"c":2,"t":"Lire des livres, est-ce démodé ?"},{"id":44,"c":2,"t":"La prise de parole devrait s'enseigner à l'école"},{"id":45,"c":3,"t":"La musique qui définit une génération"},{"id":46,"c":3,"t":"L'accès à l'art devrait-il être gratuit ?"},{"id":47,"c":3,"t":"Les tenues traditionnelles dans la vie moderne"},{"id":48,"c":3,"t":"Le meilleur film que vous ayez vu"},{"id":49,"c":3,"t":"Les contes au coin du feu"},{"id":50,"c":3,"t":"Sous-titres ou doublage ?"},{"id":51,"c":3,"t":"La cuisine comme identité"},{"id":52,"c":3,"t":"Les célébrités comme modèles"},{"id":53,"c":3,"t":"Le graffiti, est-ce de l'art ?"},{"id":54,"c":3,"t":"Les fêtes qui rassemblent"},{"id":55,"c":3,"t":"Peut-on traduire la poésie ?"},{"id":56,"c":3,"t":"La mode : expression de soi ou gaspillage ?"},{"id":57,"c":3,"t":"Le pouvoir d'une bonne chanson"},{"id":58,"c":3,"t":"Les musées doivent-ils devenir numériques ?"},{"id":59,"c":3,"t":"Une tradition à garder pour toujours"},{"id":60,"c":4,"t":"Le bilinguisme au Cameroun"},{"id":61,"c":4,"t":"Les 500 langues du Nigeria : richesse ou défi ?"},{"id":62,"c":4,"t":"Une monnaie africaine unique"},{"id":63,"c":4,"t":"Voyager sans visa en Afrique"},{"id":64,"c":4,"t":"Le football africain sur la scène mondiale"},{"id":65,"c":4,"t":"Faut-il enseigner d'abord les langues africaines à l'école ?"},{"id":66,"c":4,"t":"L'Agenda 2063 de l'Union africaine"},{"id":67,"c":4,"t":"Lagos, Douala, Nairobi : les mégapoles africaines"},{"id":68,"c":4,"t":"La diaspora et le développement"},{"id":69,"c":4,"t":"Les pôles technologiques africains"},{"id":70,"c":4,"t":"Le mont Cameroun et l'écotourisme"},{"id":71,"c":4,"t":"Le panafricanisme aujourd'hui"},{"id":72,"c":4,"t":"L'avenir de l'agriculture africaine"},{"id":73,"c":4,"t":"Français, anglais ou langues locales : quel avenir ?"},{"id":74,"c":4,"t":"Un proverbe de votre culture et sa leçon"},{"id":75,"c":5,"t":"Faut-il avoir peur de l'intelligence artificielle ?"},{"id":76,"c":5,"t":"L'énergie solaire pour chaque foyer"},{"id":77,"c":5,"t":"Le plastique dans les océans"},{"id":78,"c":5,"t":"Faut-il aller sur Mars ?"},{"id":79,"c":5,"t":"Les vaccins et la confiance du public"},{"id":80,"c":5,"t":"La déforestation"},{"id":81,"c":5,"t":"La vie privée à l'ère numérique"},{"id":82,"c":5,"t":"Les machines remplaceront-elles les traducteurs ?"},{"id":83,"c":5,"t":"L'eau : prochaine cause de guerre ?"},{"id":84,"c":5,"t":"Faut-il taxer la viande ?"},{"id":85,"c":5,"t":"Le temps d'écran et la santé"},{"id":86,"c":5,"t":"Le recyclage sert-il vraiment ?"},{"id":87,"c":5,"t":"Les OGM dans l'alimentation"},{"id":88,"c":5,"t":"L'invention que vous supprimeriez"},{"id":89,"c":5,"t":"Des villes sans voitures"},{"id":90,"c":6,"t":"Le temps"},{"id":91,"c":6,"t":"La liberté"},{"id":92,"c":6,"t":"Le silence"},{"id":93,"c":6,"t":"La confiance"},{"id":94,"c":6,"t":"Chez soi"},{"id":95,"c":6,"t":"Le courage"},{"id":96,"c":6,"t":"La chance"},{"id":97,"c":6,"t":"Les frontières"},{"id":98,"c":6,"t":"La patience"},{"id":99,"c":6,"t":"La réussite"},{"id":100,"c":6,"t":"La mémoire"},{"id":101,"c":6,"t":"La vérité"},{"id":102,"c":6,"t":"Le changement"},{"id":103,"c":6,"t":"Les ponts"},{"id":104,"c":6,"t":"Les mots"},{"id":105,"c":7,"t":"Votre super-pouvoir pour une journée"},{"id":106,"c":7,"t":"Le meilleur repas de votre vie"},{"id":107,"c":7,"t":"Si vous pouviez vivre dans n'importe quelle ville"},{"id":108,"c":7,"t":"Votre routine du matin"},{"id":109,"c":7,"t":"Une erreur qui vous a appris quelque chose"},{"id":110,"c":7,"t":"Vos vacances de rêve"},{"id":111,"c":7,"t":"Le week-end parfait"},{"id":112,"c":7,"t":"Une personne qui vous inspire"},{"id":113,"c":7,"t":"Chats ou chiens ?"},{"id":114,"c":7,"t":"Si vous aviez une machine à remonter le temps"},{"id":115,"c":7,"t":"L'objet le plus utile de votre sac"},{"id":116,"c":7,"t":"Votre mot préféré et pourquoi"},{"id":117,"c":7,"t":"Une compétence que vous voulez apprendre"},{"id":118,"c":7,"t":"Ce que vous feriez avec un million"},{"id":119,"c":7,"t":"Votre vie dans dix ans"}];const U={title:"Sujet libre",eyebrow:"Cartes sujets · édition française",speeches:"Discours",streak:"Série",deck:"Cartes restantes",time:"Temps de parole",random:"Au hasard",allCats:"Tous les sujets",
+foot:"Tirez un sujet, prenez 15 secondes pour vous préparer, puis parlez jusqu'à la fin du chrono. Votre progression est enregistrée dans ce navigateur.",
+minutes:n=>n+" min de parole au total",days:n=>n+(n===1?" jour":" jours"),kept:"Maintenue aujourd'hui",keep:"Parlez aujourd'hui pour la garder",start:"Faites un discours pour la lancer",
+reshuffled:"Paquet remélangé",tryLabel:"Essayez :",go:m=>"Commencer ("+m+" min)",another:"Tirer un autre",pause:"Pause",resume:"Reprendre",finish:"J'ai terminé",skipPrep:"Parler tout de suite",
+prepLabel:"15 s de préparation",speakLabel:m=>"Prise de parole · "+m+" min",spoke:(m,s)=>"Vous avez parlé "+m+" min "+s+" s. Cochez ce que vous avez réussi :",
+checks:["J'ai parlé sans longues pauses","Mon discours avait une structure claire","J'ai terminé par une phrase forte"],logNext:"Enregistrer et tirer la suivante",again:"Refaire ce sujet",great:"Excellent discours. Carte suivante.",logged:"Enregistré. Carte suivante.",
+tips:["Idée, raison, exemple, idée","Passé, présent, avenir","Problème, cause, solution","Définir, illustrer, donner son avis","Pour, contre, mon verdict","Commencer par une question, finir par la réponse","Une histoire personnelle, puis la vue d'ensemble","Trois raisons, de la plus faible à la plus forte"]};
+const $=s=>document.querySelector(s);
+const el=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}for(const c of kids.flat()){if(c==null)continue;e.append(c.nodeType?c:document.createTextNode(c))}return e};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const dayKey=d=>{d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const KEY="openfloor."+LANG+".v1";
+let S={speeches:0,seconds:0,streak:0,lastDay:null,used:[],cat:-1,time:2};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s)S=Object.assign(S,s)}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const TIMES=[1,2,3,5,0]; // 0 = random
+let card=null,timer=null,audio=null;
+document.title=U.title;$("#eyebrow").textContent=U.eyebrow;$("#h1").textContent=U.title;
+$("#mSpeechL").textContent=U.speeches;$("#mStreakL").textContent=U.streak;$("#mDeckL").textContent=U.deck;$("#timeL").textContent=U.time;$("#foot").textContent=U.foot;
+function meters(){
+  $("#mSpeech").textContent=S.speeches;$("#mMin").textContent=U.minutes(Math.round(S.seconds/60));
+  const t=dayKey(),y=dayKey(new Date(Date.now()-864e5));const alive=S.lastDay===t||S.lastDay===y;
+  $("#mStreak").textContent=U.days(alive?S.streak:0);$("#mStreakN").textContent=S.lastDay===t?U.kept:alive?U.keep:U.start;
+  const pool=poolAll();const left=pool.filter(c=>!S.used.includes(c.id)).length;
+  $("#mDeck").textContent=`${left}/${pool.length}`;$("#mDeckN").textContent=S.cat<0?U.allCats:CATS[S.cat];
+}
+function poolAll(){return DECK.filter(c=>S.cat<0||c.c===S.cat)}
+function controls(){
+  const cats=$("#cats");cats.replaceChildren(...[-1,...CATS.map((_,i)=>i)].map(i=>el("button",{class:"chip","aria-pressed":String(S.cat===i),onclick:()=>{S.cat=i;save();controls();meters();draw()}},i<0?null:el("span",{class:"dot",style:`background:var(--c${i})`}),i<0?U.allCats:CATS[i])));
+  const ts=$("#times");ts.replaceChildren(...TIMES.map(m=>el("button",{"aria-pressed":String(S.time===m),onclick:()=>{S.time=m;save();controls();if(card)showCard(false)}},m?m+" min":U.random)));
+}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("show"),2600)}
+function draw(){
+  let pool=poolAll().filter(c=>!S.used.includes(c.id));
+  if(!pool.length){S.used=S.used.filter(id=>!poolAll().some(c=>c.id===id));pool=poolAll();toast(U.reshuffled)}
+  card={...pick(pool),tip:pick(U.tips),mins:S.time||pick([1,2,3,5])};
+  showCard(true);
+}
+function showCard(anim){
+  clearInterval(timer);$("#lamp").classList.remove("on");
+  if(S.time)card.mins=S.time;
+  const c=el("div",{class:"card"+(anim?" flip":""),style:`--cat:var(--c${card.c})`},
+    el("div",{class:"row",style:"justify-content:space-between"},el("span",{class:"cat"},CATS[card.c]),el("span",{class:"label"},card.mins+" min")),
+    el("div",{class:"topic"},card.t),
+    el("div",{class:"tip"},el("b",{},U.tryLabel+" "),card.tip),
+    el("div",{class:"row"},el("button",{class:"btn",onclick:()=>prep()},U.go(card.mins)),el("button",{class:"btn ghost",onclick:draw},U.another)));
+  $("#stage").replaceChildren(c);
+}
+function beep(){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=880;g.gain.setValueAtTime(.15,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.6);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+.6)}catch(e){}}
+function ring(total){
+  const r=78,C=2*Math.PI*r,ns="http://www.w3.org/2000/svg";
+  const svg=document.createElementNS(ns,"svg");svg.setAttribute("viewBox","0 0 170 170");
+  const mk=(st)=>{const c=document.createElementNS(ns,"circle");[["cx",85],["cy",85],["r",r],["fill","none"],["stroke",st],["stroke-width",8],["stroke-linecap","round"]].forEach(([k,v])=>c.setAttribute(k,v));return c};
+  const bg=mk("var(--line)"),fg=mk("var(--signal)");fg.setAttribute("stroke-dasharray",C);svg.append(bg,fg);
+  const t=el("span",{class:"t"});const node=el("div",{class:"dial"},svg,t);
+  return {node,set:(left)=>{t.textContent=Math.floor(left/60)+":"+String(left%60).padStart(2,"0");fg.setAttribute("stroke-dashoffset",C*(1-left/total));node.classList.toggle("warn",left<=30&&left>10);node.classList.toggle("last",left<=10)}};
+}
+function run(total,label,onEnd,isPrep){
+  const R=ring(total);let left=total,paused=false,spoken=0;R.set(left);
+  const pauseBtn=el("button",{class:"btn ghost",onclick:()=>{paused=!paused;pauseBtn.textContent=paused?U.resume:U.pause;$("#lamp").classList.toggle("on",!paused&&!isPrep)}},U.pause);
+  const endBtn=el("button",{class:"btn",onclick:()=>{clearInterval(timer);onEnd(spoken)}},isPrep?U.skipPrep:U.finish);
+  $("#stage").replaceChildren(el("div",{class:"card",style:`--cat:var(--c${card.c})`},
+    el("div",{class:"row",style:"justify-content:space-between"},el("span",{class:"cat"},CATS[card.c]),el("span",{class:"label"},label)),
+    el("div",{class:"speak"},R.node,el("div",{style:"min-width:0;display:flex;flex-direction:column;gap:10px"},el("div",{class:"topic",style:"font-size:clamp(22px,4.5vw,32px)"},card.t),el("div",{class:"tip"},el("b",{},U.tryLabel+" "),card.tip))),
+    el("div",{class:"row"},isPrep?null:pauseBtn,endBtn)));
+  $("#lamp").classList.toggle("on",!isPrep);
+  clearInterval(timer);timer=setInterval(()=>{if(paused)return;left--;spoken++;R.set(left);if(left<=0){clearInterval(timer);if(!isPrep)beep();onEnd(spoken)}},1000);
+}
+function prep(){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)()}catch(e){}run(15,U.prepLabel,()=>speak(),true)}
+function speak(){run(card.mins*60,U.speakLabel(card.mins),(spoken)=>review(spoken),false)}
+function review(spoken){
+  $("#lamp").classList.remove("on");
+  const boxes=U.checks.map((c,k)=>{const i=el("input",{type:"checkbox",id:"ck"+k});return{i,node:el("label",{for:"ck"+k},i,c)}});
+  const m=Math.floor(spoken/60),s=spoken%60;
+  $("#stage").replaceChildren(el("div",{class:"card",style:`--cat:var(--c${card.c})`},
+    el("span",{class:"cat"},CATS[card.c]),
+    el("div",{class:"topic",style:"font-size:clamp(22px,4.5vw,30px);flex:none"},card.t),
+    el("div",{},U.spoke(m,s)),
+    el("div",{class:"checks"},boxes.map(b=>b.node)),
+    el("div",{class:"row"},el("button",{class:"btn",onclick:()=>{
+      const t=dayKey(),y=dayKey(new Date(Date.now()-864e5));
+      if(S.lastDay!==t){S.streak=S.lastDay===y?S.streak+1:1;S.lastDay=t}
+      S.speeches++;S.seconds+=spoken;if(!S.used.includes(card.id))S.used.push(card.id);save();meters();
+      const n=boxes.filter(b=>b.i.checked).length;toast(n===3?U.great:U.logged);draw();
+    }},U.logNext),el("button",{class:"btn ghost",onclick:()=>showCard(false)},U.again))));
+}
+controls();meters();draw();
+</script>
+
+</body></html>
