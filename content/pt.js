@@ -77,5 +77,5 @@ if(window.VOCAB)window.VOCAB.forEach((v,i)=>{v[4]=VO[i]||v[0]});window.VOCAB_PT=
 window.PT_LAYER=true;
 window.PT={CO,CONT,REG,ID,AC,VO,
  country(c){const p=CO[c.id];c.pt=p?p[0]:c.en;c.cap.pt=p&&p[1]?p[1]:c.cap.en},
- idiom(i){i.pt=ID[i.id]||i.en}};
+ idiom(i){const d=typeof DOCLIST!=="undefined"&&DOCLIST.find(x=>x.id===i.id);i.pt=ID[i.id]||(d&&d.pt)||i.en}};
 })();
