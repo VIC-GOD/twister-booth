@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vanishing Text · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
+<link rel="stylesheet" href="../live/shell.css">
+<style>
+:root{--c:#9d8cff;--bg:#12122a}
+.pass{font:500 clamp(20px,4.8vw,28px)/1.55 "Source Serif 4",Georgia,serif;min-height:8em}
+.pass span{transition:opacity .35s,filter .35s}.pass span.gone{opacity:0;filter:blur(4px)}
+.wpm{font-weight:800;font-size:clamp(26px,7vw,40px);color:var(--c);text-align:center}
+.q{font-weight:700;font-size:clamp(20px,5vw,28px);text-align:center;text-wrap:balance}
+.ans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.an{font-weight:800;font-size:clamp(20px,5vw,28px);border-radius:14px;min-height:64px;border:2px solid #ffffff22;background:#23234a}
+.an.ok{background:var(--ok);border-color:#7ff0b2}.an.bad{background:var(--bad);border-color:#ffb3c2}
+.hand{text-align:center;display:grid;gap:14px;padding:30px 10px}.hand h2{margin:0;font-size:clamp(28px,7vw,44px)}
+.hl{background:#7ff0b244;border-radius:4px;padding:0 3px}
+</style>
+</head>
+<body>
+<div class="wrap" id="game"></div>
+<div class="ov on" id="menu"></div><div class="ov" id="over"></div>
+<script src="../live/sfx.js"></script>
+<script src="../live/xp.js"></script>
+<script src="../live/shell.js"></script>
+<script src="../live/party.js"></script>
+<script>
+"use strict";
+const {$,esc}=SH;
+const L10={
+ en:{title:"Vanishing Text",lead:"A short conference passage appears, then disappears word by word from the start. Read it, or sight-translate it aloud into another language, before the words vanish under your eyes. Then one question checks the detail you kept: a figure, a year, a name, up or down. Every right answer speeds the text up.",
+  lang:"Language of the text",speed:"Starting speed",n:"Passages per player",start:"Start reading",aloud:"Sight-translate aloud as you read: the question checks what you kept.",
+  ready:"Get ready…",wpm:"words per minute",best:"Top speed",over:"Reading over",tap:"Tap when ready",score:"Score",up:"↑ Up",down:"↓ Down",
+  L:{en:"English",fr:"French",de:"German",pt:"Portuguese"},next:"Next passage →",text:"The passage"},
+ fr:{title:"Texte qui s'efface",lead:"Un court passage de conférence s'affiche, puis s'efface mot à mot depuis le début. Lisez-le, ou traduisez-le à vue à voix haute dans une autre langue, avant que les mots disparaissent. Une question vérifie ensuite le détail retenu : un chiffre, une année, un nom, hausse ou baisse. Chaque bonne réponse accélère le texte.",
+  lang:"Langue du texte",speed:"Vitesse de départ",n:"Passages par joueur",start:"Commencer la lecture",aloud:"Traduisez à vue à voix haute en lisant : la question vérifie ce que vous avez retenu.",
+  ready:"Préparez-vous…",wpm:"mots par minute",best:"Vitesse maximale",over:"Lecture terminée",tap:"Touchez quand vous êtes prêt",score:"Score",up:"↑ Hausse",down:"↓ Baisse",
+  L:{en:"anglais",fr:"français",de:"allemand",pt:"portugais"},next:"Passage suivant →",text:"Le passage"},
+ de:{title:"Verschwindender Text",lead:"Ein kurzer Konferenztext erscheint und verschwindet dann Wort für Wort von vorne. Lesen Sie ihn, oder dolmetschen Sie ihn vom Blatt laut in eine andere Sprache, bevor die Wörter vor Ihren Augen verschwinden. Dann prüft eine Frage das Detail, das Sie behalten haben: eine Zahl, ein Jahr, einen Namen, steigend oder fallend. Jede richtige Antwort macht den Text schneller.",
+  lang:"Sprache des Textes",speed:"Starttempo",n:"Texte pro Spieler",start:"Lesen starten",aloud:"Dolmetschen Sie beim Lesen laut vom Blatt: Die Frage prüft, was Sie behalten haben.",
+  ready:"Achtung…",wpm:"Wörter pro Minute",best:"Höchsttempo",over:"Lesen beendet",tap:"Tippen, wenn bereit",score:"Punkte",up:"↑ Gestiegen",down:"↓ Gesunken",
+  L:{en:"Englisch",fr:"Französisch",de:"Deutsch",pt:"Portugiesisch"},next:"Nächster Text →",text:"Der Text"}};
+let t=L10[SH.UI];
+// ---------- passage templates (each sentence is grammatical for every value it can get) ----------
+const NAMES=[["Diallo","f"],["Mbarga","m"],["Okafor","f"],["Fischer","m"],["Dubois","f"],["Silva","m"],["Haddad","f"],["Nguema","m"],["Tanaka","f"],["Costa","m"]];
+const TI={en:{m:"Mr",f:"Ms"},fr:{m:"M.",f:"Mme"},de:{m:"Herr",f:"Frau"},ded:{m:"Herrn",f:"Frau"},pt:{m:"o Sr.",f:"a Sra."},ptc:{m:"O Sr.",f:"A Sra."}};
+const MON={en:["January","February","March","April","May","June","July","August","September","October","November","December"],
+ fr:["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"],
+ de:["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
+ pt:["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"]};
+const pc=(l,p)=>l==="en"?p+"%":p+" %";
+const TPL=[
+ {id:"budget",v:r=>({nm:NAMES[Math.floor(r()*NAMES.length)],up:r()<.5,p:3+Math.floor(r()*35),y:2027+Math.floor(r()*12),a:12+Math.floor(r()*880)}),
+  s:{en:v=>`According to ${TI.en[v.nm[1]]} ${v.nm[0]}, the agency's budget will ${v.up?"rise":"fall"} by ${pc("en",v.p)} by ${v.y}, to ${v.a} million euros.`,
+     fr:v=>`Selon ${TI.fr[v.nm[1]]} ${v.nm[0]}, le budget de l'agence ${v.up?"augmentera":"diminuera"} de ${pc("fr",v.p)} d'ici ${v.y}, pour atteindre ${v.a} millions d'euros.`,
+     de:v=>`Laut ${TI.ded[v.nm[1]]} ${v.nm[0]} wird das Budget der Agentur bis ${v.y} um ${pc("de",v.p)} ${v.up?"steigen":"sinken"}, und zwar auf ${v.a} Millionen Euro.`,
+     pt:v=>`Segundo ${TI.pt[v.nm[1]]} ${v.nm[0]}, o orçamento da agência vai ${v.up?"aumentar":"diminuir"} ${pc("pt",v.p)} até ${v.y}, para ${v.a} milhões de euros.`},
+  q:[{k:"p",t:"pct",en:"By how many percent will the agency's budget change?",fr:"De combien de pour cent le budget de l'agence va-t-il changer ?",de:"Um wie viel Prozent ändert sich das Budget der Agentur?"},
+     {k:"y",t:"year",en:"By which year will the budget change?",fr:"D'ici quelle année le budget changera-t-il ?",de:"Bis zu welchem Jahr ändert sich das Budget?"},
+     {k:"a",t:"num",en:"What will the budget reach, in millions of euros?",fr:"Quel montant le budget atteindra-t-il, en millions d'euros ?",de:"Auf wie viele Millionen Euro kommt das Budget?"},
+     {k:"nm",t:"name",en:"Who spoke about the agency's budget?",fr:"Qui a parlé du budget de l'agence ?",de:"Wer sprach über das Budget der Agentur?"},
+     {k:"up",t:"dir",en:"Will the agency's budget rise or fall?",fr:"Le budget de l'agence va-t-il augmenter ou baisser ?",de:"Steigt oder sinkt das Budget der Agentur?"}]},
+ {id:"refugees",v:r=>({nm:NAMES[Math.floor(r()*NAMES.length)],up:r()<.5,a:12+Math.floor(r()*470),py:2015+Math.floor(r()*10)}),
+  s:{en:v=>`${TI.en[v.nm[1]]} ${v.nm[0]} told the committee that the number of refugees in the region had ${v.up?"risen":"fallen"} to ${v.a},000 in ${v.py}.`,
+     fr:v=>`${TI.fr[v.nm[1]]} ${v.nm[0]} a indiqué au comité que le nombre de réfugiés dans la région ${v.up?"avait augmenté":"avait baissé"} pour s'établir à ${v.a} 000 en ${v.py}.`,
+     de:v=>`${TI.de[v.nm[1]]} ${v.nm[0]} erklärte vor dem Ausschuss, die Zahl der Flüchtlinge in der Region sei ${v.py} auf ${v.a}.000 ${v.up?"gestiegen":"gesunken"}.`,
+     pt:v=>`${TI.ptc[v.nm[1]]} ${v.nm[0]} disse à comissão que o número de refugiados na região ${v.up?"subiu":"desceu"} para ${v.a} mil em ${v.py}.`},
+  q:[{k:"a",t:"num",en:"How many refugees, in thousands?",fr:"Combien de réfugiés, en milliers ?",de:"Wie viele Flüchtlinge, in Tausend?"},
+     {k:"py",t:"year",en:"For which year was the refugee figure given?",fr:"Pour quelle année le chiffre des réfugiés a-t-il été donné ?",de:"Für welches Jahr galt die Flüchtlingszahl?"},
+     {k:"nm",t:"name",en:"Who spoke about the refugees?",fr:"Qui a parlé des réfugiés ?",de:"Wer sprach über die Flüchtlinge?"},
+     {k:"up",t:"dir",en:"Did the number of refugees rise or fall?",fr:"Le nombre de réfugiés a-t-il augmenté ou baissé ?",de:"Ist die Zahl der Flüchtlinge gestiegen oder gesunken?"}]},
+ {id:"emissions",v:r=>{const py=2008+Math.floor(r()*10);return{up:r()<.5,p:2+Math.floor(r()*30),py,py2:py+3+Math.floor(r()*5)}},
+  s:{en:v=>`The report shows that emissions ${v.up?"increased":"decreased"} by ${pc("en",v.p)} between ${v.py} and ${v.py2}.`,
+     fr:v=>`Le rapport montre que les émissions ${v.up?"ont augmenté":"ont diminué"} de ${pc("fr",v.p)} entre ${v.py} et ${v.py2}.`,
+     de:v=>`Der Bericht zeigt, dass die Emissionen zwischen ${v.py} und ${v.py2} um ${pc("de",v.p)} ${v.up?"gestiegen":"gesunken"} sind.`,
+     pt:v=>`O relatório mostra que as emissões ${v.up?"aumentaram":"diminuíram"} ${pc("pt",v.p)} entre ${v.py} e ${v.py2}.`},
+  q:[{k:"p",t:"pct",en:"By how many percent did emissions change?",fr:"De combien de pour cent les émissions ont-elles changé ?",de:"Um wie viel Prozent haben sich die Emissionen verändert?"},
+     {k:"py",t:"year",en:"From which year was the change in emissions measured?",fr:"À partir de quelle année l'évolution des émissions a-t-elle été mesurée ?",de:"Ab welchem Jahr wurde die Veränderung der Emissionen gemessen?"},
+     {k:"up",t:"dir",en:"Did emissions rise or fall?",fr:"Les émissions ont-elles augmenté ou baissé ?",de:"Sind die Emissionen gestiegen oder gesunken?"}]},
+ {id:"session",v:r=>({d:2+Math.floor(r()*27),mo:Math.floor(r()*12),a:120+Math.floor(r()*780)}),
+  s:{en:v=>`The next session will open on ${v.d} ${MON.en[v.mo]} and ${v.a} delegates are expected to attend.`,
+     fr:v=>`La prochaine session s'ouvrira le ${v.d} ${MON.fr[v.mo]} et ${v.a} délégués sont attendus.`,
+     de:v=>`Die nächste Sitzung wird am ${v.d}. ${MON.de[v.mo]} eröffnet; erwartet werden ${v.a} Delegierte.`,
+     pt:v=>`A próxima sessão abre a ${v.d} de ${MON.pt[v.mo]} e são esperados ${v.a} delegados.`},
+  q:[{k:"date",t:"date",en:"When does the next session open?",fr:"Quand s'ouvre la prochaine session ?",de:"Wann wird die nächste Sitzung eröffnet?"},
+     {k:"a",t:"num",en:"How many delegates are expected?",fr:"Combien de délégués sont attendus ?",de:"Wie viele Delegierte werden erwartet?"}]},
+ {id:"vote",v:r=>{const y=40+Math.floor(r()*100),n=5+Math.floor(r()*30),ab=2+Math.floor(r()*20);return{y,n:n===y?n+1:n,ab:ab===n?ab+1:ab}},
+  s:{en:v=>`In the vote, ${v.y} delegations voted in favour, ${v.n} against and ${v.ab} abstained.`,
+     fr:v=>`Lors du vote, ${v.y} délégations ont voté pour, ${v.n} contre et ${v.ab} se sont abstenues.`,
+     de:v=>`Bei der Abstimmung stimmten ${v.y} Delegationen dafür, ${v.n} dagegen und ${v.ab} enthielten sich.`,
+     pt:v=>`Na votação, ${v.y} delegações votaram a favor, ${v.n} contra e ${v.ab} abstiveram-se.`},
+  q:[{k:"y",t:"num",en:"How many delegations voted in favour?",fr:"Combien de délégations ont voté pour ?",de:"Wie viele Delegationen stimmten dafür?"},
+     {k:"n",t:"num",en:"How many delegations voted against?",fr:"Combien de délégations ont voté contre ?",de:"Wie viele Delegationen stimmten dagegen?"},
+     {k:"ab",t:"num",en:"How many delegations abstained?",fr:"Combien de délégations se sont abstenues ?",de:"Wie viele Delegationen enthielten sich?"}]},
+ {id:"exports",v:r=>({up:r()<.5,p:2+Math.floor(r()*25),a:3+Math.floor(r()*95)}),
+  s:{en:v=>`Exports to the region ${v.up?"grew":"shrank"} by ${pc("en",v.p)} last year, reaching ${v.a} billion dollars.`,
+     fr:v=>`Les exportations vers la région ${v.up?"ont progressé":"ont reculé"} de ${pc("fr",v.p)} l'an dernier, à ${v.a} milliards de dollars.`,
+     de:v=>`Die Exporte in die Region sind im vergangenen Jahr um ${pc("de",v.p)} ${v.up?"gewachsen":"geschrumpft"} und erreichten ${v.a} Milliarden Dollar.`,
+     pt:v=>`As exportações para a região ${v.up?"cresceram":"recuaram"} ${pc("pt",v.p)} no ano passado, atingindo ${v.a} mil milhões de dólares.`},
+  q:[{k:"p",t:"pct",en:"By how many percent did exports to the region change?",fr:"De combien de pour cent les exportations vers la région ont-elles changé ?",de:"Um wie viel Prozent haben sich die Exporte in die Region verändert?"},
+     {k:"a",t:"num",en:"What did exports reach, in billions of dollars?",fr:"Quel montant les exportations ont-elles atteint, en milliards de dollars ?",de:"Welchen Wert erreichten die Exporte, in Milliarden Dollar?"},
+     {k:"up",t:"dir",en:"Did exports grow or shrink?",fr:"Les exportations ont-elles progressé ou reculé ?",de:"Sind die Exporte gewachsen oder geschrumpft?"}]}];
+function near(v,r,pool,isYear){const out=new Set(),d=Math.max(1,Math.round(v*(isYear?0:.15)))||1;
+ for(const x of pool)if(x!==v&&out.size<1&&Math.abs(x-v)<Math.max(30,v))out.add(x);
+ const sw=+String(v).split("").reverse().join("");if(String(v).length===2&&sw!==v&&sw>0)out.add(sw);
+ let guard=0;while(out.size<3&&guard++<50){const k=isYear?(1+Math.floor(r()*4))*(r()<.5?-1:1):(1+Math.floor(r()*3))*d*(r()<.5?-1:1);const x=v+k;if(x>0&&x!==v)out.add(x)}
+ return [...out].slice(0,3)}
+function makePassage(r,lang){const tp=PARTY.shuffle(TPL,r).slice(0,3),vs=tp.map(x=>x.v(r));
+ const used=new Set();vs.forEach(o=>{if(!o.nm)return;while(used.has(o.nm[0]))o.nm=NAMES[Math.floor(r()*NAMES.length)];used.add(o.nm[0])});
+ const text=tp.map((x,i)=>x.s[lang](vs[i])).join(" ");const qi=Math.floor(r()*3),T=tp[qi],v=vs[qi],q=T.q[Math.floor(r()*T.q.length)];
+ const nums=[];vs.forEach(o=>{for(const k of ["p","a","y","py","py2","n","ab","d"])if(typeof o[k]==="number")nums.push(o[k])});
+ let right,opts;
+ if(q.t==="dir"){right=v.up?"U":"D";opts=["U","D"]}
+ else if(q.t==="name"){right=v.nm[0];const other=[...used].filter(n=>n!==right);opts=PARTY.shuffle([right].concat(other,PARTY.shuffle(NAMES.map(n=>n[0]).filter(n=>n!==right&&!other.includes(n)),r)).slice(0,4),r)}
+ else if(q.t==="date"){right=v.d+"|"+v.mo;const alt=[(v.d+(v.d>15?-10:10))+"|"+v.mo,v.d+"|"+((v.mo+1)%12),(v.d+(v.d>15?-1:1))+"|"+((v.mo+11)%12)];opts=PARTY.shuffle([right].concat(alt),r)}
+ else{const val=v[q.k];right=val;opts=PARTY.shuffle([val].concat(near(val,r,nums.filter(x=>x!==val&&(q.t!=="year"||x>1900)&&(q.t==="year"||x<1900)),q.t==="year")),r)}
+ return{text,q,right,opts,lang}}
+function label(o,q){if(q.t==="dir")return o==="U"?t.up:t.down;if(q.t==="date"){const [d,m]=String(o).split("|");return SH.UI==="de"?d+". "+MON.de[m]:d+" "+MON[SH.UI][m]}if(q.t==="pct")return pc(SH.UI,o);return String(o)}
+// ---------- game ----------
+let cfg=Object.assign({lang:"en",wpm:150,n:8,np:1,names:[]},JSON.parse(localStorage.getItem("vt-cfg")||"{}"));
+let G=null,timer=0;
+function start(seed){seed=seed||PARTY.newSeed();G={seed,r:PARTY.mulberry(seed),players:PARTY.players(cfg,3),pi:0,lives:true,miss:[],round:0};
+ G.players.forEach(p=>{p.wpm=cfg.wpm;p.top=0;p.done=0});G.bank=[];
+ $("#menu").classList.remove("on");$("#over").classList.remove("on");SH.state="run";SH.music=null;SH.onMenu=menu;SH.onPause=()=>clearTimeout(timer);SH.onResume=()=>{if(G.cur&&G.cur.phase==="read")vanish()};hand()}
+function passage(i){while(G.bank.length<=i)G.bank.push(makePassage(G.r,cfg.lang));return G.bank[i]}
+function hand(){if(G.players.length<2)return play();const p=G.players[G.pi];SH.state="menu";
+ $("#game").innerHTML=SH.header()+PARTY.pills(G)+`<div class="card hand"><h2>${esc(PARTY.t().turn(p.name))}</h2><div class="wpm">${p.wpm} <span style="font-size:16px">${t.wpm}</span></div><button class="pri" id="rdy">${t.tap} →</button></div>`;SH.mount();$("#rdy").onclick=()=>{SH.state="run";play()}}
+function play(){const p=G.players[G.pi],ps=passage(p.done);const words=ps.text.split(" ");G.cur={ps,words,k:0,phase:"wait",p};
+ $("#game").innerHTML=SH.header()+PARTY.pills(G)+`<div class="wpm">${p.wpm} <span style="font-size:16px">${t.wpm}</span></div><div class="card"><div class="pass" id="pass">${words.map(w=>`<span>${esc(w)}</span>`).join(" ")}</div></div><div id="qa"><p class="muted" style="text-align:center">${t.ready}</p></div>`;
+ SH.mount();st();timer=setTimeout(()=>{G.cur.phase="read";vanish()},1500+words.length*60000/p.wpm*.35)}
+function st(){PARTY.refresh(G);const p=G.players[G.pi];$("#sh-st").innerHTML=`<span>${t.score}: ${p.score}</span><span>${"❤".repeat(Math.max(0,p.lives))}</span>`}
+function vanish(){if(SH.state!=="run"||!G.cur||G.cur.phase!=="read")return;const c=G.cur,sp=$("#pass").children;
+ if(c.k<sp.length){sp[c.k].classList.add("gone");c.k++;timer=setTimeout(vanish,60000/c.p.wpm)}else ask()}
+function ask(){const c=G.cur;c.phase="q";const q=c.ps.q;
+ $("#qa").innerHTML=`<div class="q">${esc(q[SH.UI]||q.en)}</div><div class="ans" id="ans">${c.ps.opts.map((o,i)=>`<button class="an" data-i="${i}">${esc(label(o,q))}</button>`).join("")}</div>`;
+ $("#ans").onclick=e=>{const b=e.target.closest(".an");if(b&&c.phase==="q")answer(+b.dataset.i)}}
+function answer(i){const c=G.cur,p=c.p,ps=c.ps,ok=ps.opts[i]===ps.right;c.phase="done";
+ document.querySelectorAll(".an").forEach((b,j)=>{b.disabled=true;if(ps.opts[j]===ps.right)b.classList.add("ok");else if(j===i)b.classList.add("bad")});
+ if(ok){p.ok++;p.score+=Math.round(p.wpm/10);p.top=Math.max(p.top,p.wpm);p.wpm+=15;SFX.ok()}
+ else{p.lives--;p.wpm=Math.max(80,p.wpm-10);SFX.bad();const q=ps.q[SH.UI]||ps.q.en;G.miss.push({q,a:label(ps.right,ps.q),text:ps.text});if(window.BANK)BANK.add({game:"vanish",lang:ps.lang,q:ps.text+" — "+q,a:label(ps.right,ps.q)})}
+ p.done++;st();
+ $("#pass").querySelectorAll("span").forEach(s=>s.classList.remove("gone"));
+ $("#qa").insertAdjacentHTML("beforeend",`<div class="row" style="justify-content:center;margin-top:12px"><button class="pri" id="nx">${t.next}</button></div>`);$("#nx").onclick=next;$("#nx").focus()}
+function next(){const alive=G.players.filter(p=>p.lives>0&&p.done<cfg.n);if(!alive.length)return end();
+ if(G.players.length>1){const n=G.players.length;for(let k=1;k<=n;k++){const j=(G.pi+k)%n,q=G.players[j];if(q.lives>0&&q.done<cfg.n){G.pi=j;break}}}hand()}
+function end(){SH.state="over";clearTimeout(timer);SFX.stop();const p=G.players[0],top=Math.max(...G.players.map(x=>x.top));
+ const xi=XP.add(Math.round(Math.max(...G.players.map(x=>x.score))/3),{lang:cfg.lang,max:{vtTop:top}});SFX.win();
+ const k="vt-best-"+cfg.lang,old=+(localStorage.getItem(k)||0);if(G.players.length<2&&p.top>old)try{localStorage.setItem(k,p.top)}catch(e){}
+ const sorted=G.players.slice().sort((a,b)=>b.top-a.top||b.score-a.score);
+ $("#over").innerHTML=`<div class="box"><h1>${G.players.length>1?PARTY.t().win(sorted[0].name):t.over}</h1>
+  ${sorted.map(x=>`<div class="card"><b>${esc(x.name)}: ${t.best} ${x.top} ${t.wpm}</b><span class="muted">${t.score} ${x.score} · ✓ ${x.ok}/${x.done}</span></div>`).join("")}
+  ${G.players.length<2?`<p class="muted">${SH.t.best}: ${Math.max(old,p.top)} ${t.wpm}</p>`:""}<p class="muted">+${xi.gained||0} XP · ${xi.rank[SH.UI]||xi.rank.en}</p>
+  <div class="row"><button class="pri" id="ag">${SH.t.again}</button><button id="mn">${SH.t.change}</button></div>${PARTY.share(G.seed)}
+  <h2>${SH.t.review}</h2>${G.miss.length?G.miss.map(m=>`<div class="rv"><div class="muted">${esc(m.text)}</div><b>${esc(m.q)}</b> → <b class="ok">${esc(m.a)}</b></div>`).join("")+`<p class="muted">${SH.t.bank}</p>`:`<p>${SH.t.none}</p>`}</div>`;
+ $("#over").classList.add("on");$("#ag").onclick=()=>start();$("#mn").onclick=menu}
+function menu(){SH.state="menu";clearTimeout(timer);SFX.stop();$("#over").classList.remove("on");$("#game").innerHTML="";
+ const o=(k,v,l)=>SH.opt(cfg,k,v,l),hs=PARTY.hashSeed();
+ $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font-weight:600">${SH.t.all}</a>${SH.langBar()}</div>
+  <h1>👁️ ${t.title}</h1><p>${t.lead}</p>
+  <div class="lbl">${t.lang}</div><div class="row">${["en","fr","de","pt"].map(l=>o("lang",l,t.L[l])).join("")}</div>
+  <div class="lbl">${t.speed}</div><div class="row">${[110,150,190,230].map(n=>o("wpm",n,n+" "+t.wpm)).join("")}</div>
+  <div class="lbl">${t.n}</div><div class="row">${[5,8,12].map(n=>o("n",n,n)).join("")}</div>
+  ${PARTY.menu(cfg)}<p class="muted">🎙️ ${t.aloud}</p>
+  <div class="row"><button class="pri" id="go">${t.start} →</button>${hs?`<button id="ch">🎯 ${PARTY.t().ch}</button>`:""}</div></div>`;
+ $("#menu").classList.add("on");
+ SH.bindOpts($("#menu"),cfg,"vt-cfg",menu);PARTY.bind($("#menu"),cfg,"vt-cfg");SH.bindLang($("#menu"),()=>{t=L10[SH.UI];menu()});
+ $("#go").onclick=()=>start();const ch=$("#ch");if(ch)ch.onclick=()=>start(hs)}
+menu();
+</script>
+</body>
+</html>

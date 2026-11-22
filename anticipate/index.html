@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Anticipation Bet · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="../live/shell.css">
+<style>
+:root{--c:#ffb703;--bg:#10202b}
+.sent{font-weight:700;font-size:clamp(22px,5.4vw,34px);line-height:1.35;text-align:center;min-height:3.2em;text-wrap:balance}
+.sent .w{animation:pop .25s}.sent .hid{display:inline-block;min-width:5em;border-bottom:4px dashed var(--c);color:transparent}
+.sent .end{color:#7ff0b2;border-bottom:4px solid #7ff0b2}.sent .end.badc{color:#ff8fa8;border-color:#ff8fa8}
+.bets{display:grid;gap:10px}
+.bet{font-weight:800;font-size:clamp(18px,4.6vw,26px);border-radius:16px;min-height:64px;border:3px solid #ffffff22;background:#1b3343;text-wrap:balance;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.bet .pts{font-size:15px;color:#14100a;background:var(--c);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.bet.ok{background:var(--ok);border-color:#7ff0b2}.bet.bad{background:var(--bad);border-color:#ffb3c2}
+.pot{font-weight:800;font-size:22px;text-align:center;color:var(--c)}
+.why{display:grid;gap:6px}
+.hand{text-align:center;display:grid;gap:14px;padding:30px 10px}.hand h2{margin:0;font-size:clamp(28px,7vw,44px)}
+</style>
+</head>
+<body>
+<div class="wrap" id="game"></div>
+<div class="ov on" id="menu"></div><div class="ov" id="over"></div>
+<script src="../content/anticipation.js"></script>
+<script src="../live/sfx.js"></script>
+<script src="../live/xp.js"></script>
+<script src="../live/shell.js"></script>
+<script src="../live/party.js"></script>
+<script>
+"use strict";
+const {$,esc}=SH;
+const L10={
+ en:{title:"Anticipation Bet",lead:"Interpreters cannot wait for the verb. Words arrive one by one; bet on how the sentence ends before you hear it. The earlier you bet, the more you win. A wrong bet costs a life. After each sentence you see the cue that gave the ending away.",
+  lang:"Language of the sentences",speed:"Speed",slow:"Slow",mid:"Medium",fast:"Fast",n:"Sentences",start:"Place your bets",pot:p=>"Bet now: "+p+" points",
+  next:"Next sentence →",cue:"The cue",gloss:"Meaning",tooLate:"Too late: no bet placed.",right:"Right!",wrong:"Wrong bet.",
+  score:"Score",early:"Average bet position",over:"Round over",tap:"Tap when ready",L:{de:"German",fr:"French",en:"English",pt:"Portuguese"},
+  tip:"Tip: German puts the verb at the end. Listen for the cue words that come before it."},
+ fr:{title:"Pari d'anticipation",lead:"L'interprète ne peut pas attendre le verbe. Les mots arrivent un par un ; pariez sur la fin de la phrase avant de l'entendre. Plus vous pariez tôt, plus vous gagnez. Un mauvais pari coûte une vie. Après chaque phrase, vous voyez l'indice qui trahissait la fin.",
+  lang:"Langue des phrases",speed:"Vitesse",slow:"Lente",mid:"Moyenne",fast:"Rapide",n:"Phrases",start:"Faites vos jeux",pot:p=>"Pariez maintenant : "+p+" points",
+  next:"Phrase suivante →",cue:"L'indice",gloss:"Sens",tooLate:"Trop tard : aucun pari.",right:"Gagné !",wrong:"Mauvais pari.",
+  score:"Score",early:"Position moyenne du pari",over:"Manche terminée",tap:"Touchez quand vous êtes prêt",L:{de:"allemand",fr:"français",en:"anglais",pt:"portugais"},
+  tip:"Astuce : l'allemand met le verbe à la fin. Repérez les mots-indices qui le précèdent."},
+ de:{title:"Antizipations-Wette",lead:"Dolmetscher können nicht auf das Verb warten. Die Wörter kommen einzeln; wetten Sie auf das Satzende, bevor Sie es hören. Je früher Sie wetten, desto mehr gewinnen Sie. Eine falsche Wette kostet ein Leben. Nach jedem Satz sehen Sie den Hinweis, der das Ende verraten hat.",
+  lang:"Sprache der Sätze",speed:"Tempo",slow:"Langsam",mid:"Mittel",fast:"Schnell",n:"Sätze",start:"Wetten, bitte",pot:p=>"Jetzt wetten: "+p+" Punkte",
+  next:"Nächster Satz →",cue:"Der Hinweis",gloss:"Bedeutung",tooLate:"Zu spät: keine Wette.",right:"Richtig!",wrong:"Falsche Wette.",
+  score:"Punkte",early:"Durchschnittliche Wettposition",over:"Runde vorbei",tap:"Tippen, wenn bereit",L:{de:"Deutsch",fr:"Französisch",en:"Englisch",pt:"Portugiesisch"},
+  tip:"Tipp: Im Deutschen steht das Verb am Ende. Achten Sie auf die Hinweiswörter davor."}};
+let t=L10[SH.UI];
+let cfg=Object.assign({lang:"de",sp:1,n:10,np:1,names:[]},JSON.parse(localStorage.getItem("ab-cfg")||"{}"));
+const SPD=[900,650,450];
+let G=null,timer=0;
+function start(seed){seed=seed||PARTY.newSeed();const r=PARTY.mulberry(seed);
+ const deck=PARTY.shuffle(ANTICIP[cfg.lang],r).slice(0,cfg.n).map(x=>{const [pre,end]=x.s.split(" | ");return Object.assign({},x,{pre:pre.split(" "),end,opts:PARTY.shuffle(x.o,r)})});
+ G={seed,deck,i:0,players:PARTY.players(cfg,3),pi:0,lives:true,miss:[],pos:[]};
+ $("#menu").classList.remove("on");$("#over").classList.remove("on");SH.state="run";SH.music="quiz";SFX.music("quiz");SH.onMenu=menu;SH.onPause=()=>clearTimeout(timer);SH.onResume=()=>{if(G&&G.cur&&!G.cur.done)step()};
+ hand()}
+function hand(){if(G.players.length<2)return play();const p=G.players[G.pi];SH.state="menu";
+ $("#game").innerHTML=SH.header()+PARTY.pills(G)+`<div class="card hand"><h2>${esc(PARTY.t().turn(p.name))}</h2><button class="pri" id="rdy">${t.tap} →</button></div>`;SH.mount();$("#rdy").onclick=()=>{SH.state="run";play()}}
+function play(){const s=G.deck[G.i];G.cur={s,k:0,done:false,bet:-1};
+ $("#game").innerHTML=SH.header()+PARTY.pills(G)+`<div class="card"><div class="muted" style="text-align:center">${G.i+1}/${G.deck.length} · ${t.L[cfg.lang]}</div><div class="sent" id="sent"></div><div class="pot" id="pot"></div></div>
+  <div class="bets" id="bets">${s.opts.map((o,i)=>`<button class="bet" data-i="${i}"><span>… ${esc(o)}</span></button>`).join("")}</div><div id="why"></div>`;
+ SH.mount();st();$("#bets").onclick=e=>{const b=e.target.closest(".bet");if(b&&!G.cur.done)bet(+b.dataset.i)};step()}
+function st(){PARTY.refresh(G);const p=G.players[G.pi];$("#sh-st").innerHTML=`<span>${t.score}: ${p.score}</span><span>${"❤".repeat(Math.max(0,p.lives))}</span>`}
+function pts(){const c=G.cur,n=c.s.pre.length;return 10+Math.round(40*Math.max(0,n-c.k)/n)}
+function render(){const c=G.cur;$("#sent").innerHTML=c.s.pre.slice(0,c.k).map((w,j)=>`<span${!c.done&&j===c.k-1?' class="w"':""}>${esc(w)}</span>`).join(" ")+" "+(c.done?`<span class="end${c.bet>=0&&c.s.opts[c.bet]!==c.s.o[0]?" badc":""}">${esc(c.s.end)}</span>`:`<span class="hid">…</span>`);
+ $("#pot").textContent=c.done?"":t.pot(pts())}
+function step(){if(SH.state!=="run"||!G||G.cur.done)return;const c=G.cur;
+ if(c.k<c.s.pre.length){c.k++;render();timer=setTimeout(step,SPD[cfg.sp]+(c.s.pre[c.k-1].length>9?150:0));if(c.k===c.s.pre.length)SFX.tick()}
+ else timer=setTimeout(()=>{if(!G.cur.done)finish(-1)},2500)}
+function bet(i){clearTimeout(timer);finish(i)}
+function finish(i){const c=G.cur,p=G.players[G.pi];c.done=true;c.bet=i;const ok=i>=0&&c.s.opts[i]===c.s.o[0],gain=ok?pts():0;
+ document.querySelectorAll(".bet").forEach((b,j)=>{b.disabled=true;if(c.s.opts[j]===c.s.o[0])b.classList.add("ok");else if(j===i)b.classList.add("bad")});
+ if(ok){p.score+=gain;p.ok++;p.streak++;p.best=Math.max(p.best,p.streak);SFX.ok();SH.toast("+"+gain,1);G.pos.push(c.k/c.s.pre.length)}
+ else{p.streak=0;if(i>=0){p.lives--;SFX.bad();SH.toast(t.wrong)}else SH.toast(t.tooLate);
+  const q=c.s.pre.join(" ")+" …";G.miss.push({q,a:c.s.o[0],c:c.s.c,g:c.s.g});if(window.BANK)BANK.add({game:"anticipate",lang:cfg.lang,q,a:c.s.o[0],note:c.s.c})}
+ c.k=c.s.pre.length;render();st();
+ $("#why").innerHTML=`<div class="card why"><div><b>${t.cue}:</b> ${esc(c.s.c)}</div>${c.s.g?`<div class="muted"><b>${t.gloss}:</b> ${esc(c.s.g)}</div>`:""}<button class="pri" id="nx">${t.next}</button></div>`;
+ $("#nx").onclick=next;$("#nx").focus()}
+function next(){G.i++;const alive=G.players.some(p=>p.lives>0);if(G.i>=G.deck.length||!alive)return end();
+ if(G.players.length>1){if(!PARTY.advance(G))return end()}else if(G.players[0].lives<=0)return end();hand()}
+function end(){SH.state="over";clearTimeout(timer);SFX.stop();const p=G.players[0],best=Math.max(...G.players.map(x=>x.score));
+ const xi=XP.add(Math.round(best/6),{lang:cfg.lang});if(G.players.some(x=>x.lives>0))SFX.win();else SFX.over();
+ const avg=G.pos.length?Math.round(100*G.pos.reduce((a,b)=>a+b,0)/G.pos.length):0;
+ const k="ab-best-"+cfg.lang,old=+(localStorage.getItem(k)||0);if(G.players.length<2&&p.score>old)try{localStorage.setItem(k,p.score)}catch(e){}
+ $("#over").innerHTML=`<div class="box"><h1>${G.players.length>1?PARTY.winner(G):t.over}</h1>
+  ${G.players.map(x=>`<div class="card"><b>${esc(x.name)}: ${x.score} ${t.score.toLowerCase()}</b><span class="muted">✓ ${x.ok} · 🔥 ${x.best}</span></div>`).join("")}
+  ${G.players.length<2?`<p class="muted">${SH.t.best}: ${Math.max(old,p.score)} · ${t.early}: ${avg}%</p>`:""}
+  <p class="muted">+${xi.gained||0} XP · ${xi.rank?xi.rank[SH.UI]||xi.rank.en:""}</p>
+  <div class="row"><button class="pri" id="ag">${SH.t.again}</button><button id="mn">${SH.t.change}</button></div>
+  ${PARTY.share(G.seed)}
+  <h2>${SH.t.review}</h2>${G.miss.length?G.miss.map(m=>`<div class="rv"><b>${esc(m.q)}</b> → <b class="ok">${esc(m.a)}</b><div class="muted">${esc(m.c)}${m.g?"<br>"+esc(m.g):""}</div></div>`).join("")+`<p class="muted">${SH.t.bank}</p>`:`<p>${SH.t.none}</p>`}</div>`;
+ $("#over").classList.add("on");$("#ag").onclick=()=>start();$("#mn").onclick=menu}
+function menu(){SH.state="menu";clearTimeout(timer);SFX.stop();$("#over").classList.remove("on");$("#game").innerHTML="";
+ const o=(k,v,l)=>SH.opt(cfg,k,v,l),hs=PARTY.hashSeed();
+ $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font-weight:600">${SH.t.all}</a>${SH.langBar()}</div>
+  <h1>🎲 ${t.title}</h1><p>${t.lead}</p>
+  <div class="lbl">${t.lang}</div><div class="row">${["de","fr","en","pt"].map(l=>o("lang",l,t.L[l])).join("")}</div>
+  <div class="lbl">${t.speed}</div><div class="row">${o("sp",0,t.slow)}${o("sp",1,t.mid)}${o("sp",2,t.fast)}</div>
+  <div class="lbl">${t.n}</div><div class="row">${[5,10,15].map(n=>o("n",n,n)).join("")}</div>
+  ${PARTY.menu(cfg)}
+  ${cfg.lang==="de"?`<p class="muted">${t.tip}</p>`:""}
+  <div class="row"><button class="pri" id="go">${t.start} →</button>${hs?`<button id="ch">🎯 ${PARTY.t().ch}</button>`:""}</div></div>`;
+ $("#menu").classList.add("on");
+ SH.bindOpts($("#menu"),cfg,"ab-cfg",menu);PARTY.bind($("#menu"),cfg,"ab-cfg");SH.bindLang($("#menu"),()=>{t=L10[SH.UI];menu()});
+ $("#go").onclick=()=>start();const ch=$("#ch");if(ch)ch.onclick=()=>start(hs)}
+menu();
+</script>
+</body>
+</html>

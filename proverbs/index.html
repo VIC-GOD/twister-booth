@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Proverb Duel · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;1,8..60,500&display=swap">
+<link rel="stylesheet" href="../live/shell.css">
+<style>
+:root{--c:#e9c46a;--bg:#21150c}
+body{background:radial-gradient(circle at 50% 0%,#4a2f16,#21150c 60%) fixed}
+.src{font:600 clamp(24px,6vw,38px)/1.25 "Source Serif 4",Georgia,serif;text-align:center;text-wrap:balance}
+.lit{font:italic 500 clamp(16px,4vw,20px)/1.4 "Source Serif 4",Georgia,serif;text-align:center;color:var(--muted)}
+.org{text-align:center;font-weight:700;font-size:14px;color:var(--c);text-transform:uppercase;letter-spacing:.05em}
+.ans{display:grid;gap:10px}
+.an{font:600 clamp(17px,4.2vw,22px)/1.3 "Source Serif 4",Georgia,serif;text-align:left;border-radius:14px;padding:12px 14px;min-height:58px;border:2px solid #ffffff22;background:#3a2716}
+.an.ok{background:var(--ok);border-color:#7ff0b2}.an.bad{background:var(--bad);border-color:#ffb3c2}
+.all{display:grid;gap:4px;font-size:16px}.all div{display:flex;gap:8px}.all b{min-width:2.4em;color:var(--c)}
+.hand{text-align:center;display:grid;gap:14px;padding:30px 10px}.hand h2{margin:0;font-size:clamp(28px,7vw,44px)}
+.flag{font-size:13px;color:#ffd166}
+</style>
+</head>
+<body>
+<div class="wrap" id="game"></div>
+<div class="ov on" id="menu"></div><div class="ov" id="over"></div>
+<script src="../content/proverbs.js"></script>
+<script src="../live/sfx.js"></script>
+<script src="../live/xp.js"></script>
+<script src="../live/shell.js"></script>
+<script src="../live/party.js"></script>
+<script>
+"use strict";
+const {$,esc}=SH;
+const L10={
+ en:{title:"Proverb Duel",lead:"A proverb appears. Find the one native speakers really use in the other language, not a word-for-word copy. African proverbs from Swahili, Igbo and Wolof meet their European cousins. Answer fast for bonus points; three mistakes and you are out.",
+  from:"Proverb in",to:"Find the equivalent in",start:"Start the duel",next:"Next proverb →",meaning:"Meaning",all:"In every language",
+  time:"Time!",score:"Score",over:"Duel over",check:"⚠ To be checked by a speaker of this language.",tap:"Tap when ready",
+  L:{en:"English",fr:"French",de:"German",pt:"Portuguese",af:"African languages",mix:"Mix"},lit:"Literally"},
+ fr:{title:"Duel de proverbes",lead:"Un proverbe s'affiche. Trouvez celui que les locuteurs natifs emploient vraiment dans l'autre langue, pas une traduction mot à mot. Des proverbes africains en swahili, igbo et wolof rencontrent leurs cousins européens. Répondez vite pour un bonus ; trois erreurs et vous êtes éliminé.",
+  from:"Proverbe en",to:"Trouver l'équivalent en",start:"Lancer le duel",next:"Proverbe suivant →",meaning:"Sens",all:"Dans chaque langue",
+  time:"Temps écoulé !",score:"Score",over:"Duel terminé",check:"⚠ À vérifier par un locuteur de cette langue.",tap:"Touchez quand vous êtes prêt",
+  L:{en:"anglais",fr:"français",de:"allemand",pt:"portugais",af:"langues africaines",mix:"mélange"},lit:"Littéralement"},
+ de:{title:"Sprichwort-Duell",lead:"Ein Sprichwort erscheint. Finden Sie das, was Muttersprachler in der anderen Sprache wirklich sagen, keine Wort-für-Wort-Übersetzung. Afrikanische Sprichwörter auf Swahili, Igbo und Wolof treffen ihre europäischen Verwandten. Schnelle Antworten bringen Bonus; nach drei Fehlern sind Sie raus.",
+  from:"Sprichwort auf",to:"Entsprechung auf",start:"Duell starten",next:"Nächstes Sprichwort →",meaning:"Bedeutung",all:"In jeder Sprache",
+  time:"Zeit!",score:"Punkte",over:"Duell vorbei",check:"⚠ Von einem Sprecher dieser Sprache zu prüfen.",tap:"Tippen, wenn bereit",
+  L:{en:"Englisch",fr:"Französisch",de:"Deutsch",pt:"Portugiesisch",af:"afrikanischen Sprachen",mix:"Mix"},lit:"Wörtlich"}};
+let t=L10[SH.UI];
+const LS=["en","fr","de","pt"],FL={en:"EN",fr:"FR",de:"DE",pt:"PT"},TIME=15000;
+let cfg=Object.assign({from:"af",to:"fr",np:1,names:[]},JSON.parse(localStorage.getItem("pv-cfg")||"{}"));
+let G=null,raf=0;
+function items(r){const out=[];const froms=cfg.from==="mix"?LS.concat("af"):[cfg.from];
+ for(const c of PROVERBS){if(!c[cfg.to])continue;
+  for(const f of froms){if(f==="af"){(c.af||[]).forEach((a,ai)=>out.push({c,f,ai}))}else if(f!==cfg.to&&c[f])out.push({c,f})}}
+ return PARTY.shuffle(out,r)}
+function start(seed){seed=seed||PARTY.newSeed();const r=PARTY.mulberry(seed);const deck=items(r);
+ deck.forEach(it=>{const others=PARTY.shuffle(PROVERBS.filter(x=>x!==it.c&&x[cfg.to]),r).slice(0,3);it.opts=PARTY.shuffle([it.c].concat(others),r)});
+ G={seed,deck,i:0,players:PARTY.players(cfg,3),pi:0,lives:true,miss:[]};
+ $("#menu").classList.remove("on");$("#over").classList.remove("on");SH.state="run";SH.music="quiz";SFX.music("quiz");SH.onMenu=menu;
+ SH.onPause=()=>{G.pz=performance.now()};SH.onResume=()=>{if(G.pz&&G.cur)G.cur.t0+=performance.now()-G.pz;G.pz=0};hand()}
+function hand(){if(G.players.length<2)return play();const p=G.players[G.pi];SH.state="menu";
+ $("#game").innerHTML=SH.header()+PARTY.pills(G)+`<div class="card hand"><h2>${esc(PARTY.t().turn(p.name))}</h2><button class="pri" id="rdy">${t.tap} →</button></div>`;SH.mount();$("#rdy").onclick=()=>{SH.state="run";play()}}
+function srcHTML(it){if(it.f!=="af")return `<div class="org">${FL[it.f]}</div><div class="src">${esc(it.c[it.f])}</div>`;
+ const a=it.c.af[it.ai],lit=SH.UI==="fr"?a.fr:a.en;
+ return `<div class="org">🌍 ${esc(a.o[SH.UI]||a.o.en)}</div>${a.t?`<div class="src">${esc(a.t)}</div><div class="lit">${t.lit}: “${esc(lit)}”</div>`:`<div class="src">“${esc(lit)}”</div>`}${a.v?`<div class="flag" style="text-align:center">${t.check}</div>`:""}`}
+function play(){if(G.i>=G.deck.length)G.i=0;const it=G.deck[G.i];G.cur={it,t0:performance.now(),done:false};
+ $("#game").innerHTML=SH.header()+PARTY.pills(G)+`<div class="bar"><i id="fuse"></i></div><div class="card">${srcHTML(it)}</div>
+  <div class="lbl">${t.to} ${t.L[cfg.to]}</div><div class="ans" id="ans">${it.opts.map((c,i)=>`<button class="an" data-i="${i}">${esc(c[cfg.to])}</button>`).join("")}</div><div id="why"></div>`;
+ SH.mount();st();$("#ans").onclick=e=>{const b=e.target.closest(".an");if(b&&!G.cur.done)answer(+b.dataset.i)};cancelAnimationFrame(raf);raf=requestAnimationFrame(tick)}
+function st(){PARTY.refresh(G);const p=G.players[G.pi];$("#sh-st").innerHTML=`<span>${t.score}: ${p.score}</span><span>${"❤".repeat(Math.max(0,p.lives))}</span>${p.streak>1?`<span>🔥 ${p.streak}</span>`:""}`}
+function tick(now){if(!G||!G.cur||G.cur.done)return;raf=requestAnimationFrame(tick);if(SH.state!=="run")return;const f=1-(now-G.cur.t0)/TIME;const e=$("#fuse");if(e)e.style.width=Math.max(0,f*100)+"%";if(f<=0)answer(-1)}
+function answer(i){const c=G.cur,it=c.it,p=G.players[G.pi];c.done=true;cancelAnimationFrame(raf);const ok=i>=0&&it.opts[i]===it.c;
+ document.querySelectorAll(".an").forEach((b,j)=>{b.disabled=true;if(it.opts[j]===it.c)b.classList.add("ok");else if(j===i)b.classList.add("bad")});
+ if(ok){const left=Math.max(0,1-(performance.now()-c.t0)/TIME),g=10+Math.round(10*left)+Math.min(10,p.streak*2);p.score+=g;p.ok++;p.streak++;p.best=Math.max(p.best,p.streak);SFX.ok();SH.toast("+"+g,1)}
+ else{p.lives--;p.streak=0;SFX.bad();if(i<0)SH.toast(t.time);
+  const q=it.f==="af"?(it.c.af[it.ai].t||it.c.af[it.ai].en):it.c[it.f];G.miss.push({q,a:it.c[cfg.to],m:it.c.m[SH.UI]});if(window.BANK)BANK.add({game:"proverbs",lang:cfg.to,q,a:it.c[cfg.to],note:it.c.m.en})}
+ st();const n=it.c.note;
+ $("#why").innerHTML=`<div class="card"><div><b>${t.meaning}:</b> ${esc(it.c.m[SH.UI])}</div>${n?`<div class="flag">💡 ${esc(n[SH.UI]||n.en)}</div>`:""}
+  <div class="lbl">${t.all}</div><div class="all">${LS.filter(l=>it.c[l]).map(l=>`<div><b>${FL[l]}</b><span>${esc(it.c[l])}</span></div>`).join("")}${(it.c.af||[]).filter(a=>a.t).map(a=>`<div><b>🌍</b><span>${esc(a.t)} <span class="muted">(${esc((a.o[SH.UI]||a.o.en).split(/[,(;]/)[0].trim())})</span></span></div>`).join("")}</div>
+  <button class="pri" id="nx">${t.next}</button></div>`;$("#nx").onclick=next;$("#nx").focus()}
+function next(){G.i++;if(!G.players.some(p=>p.lives>0))return end();
+ if(G.players.length>1){if(!PARTY.advance(G))return end()}else if(G.players[0].lives<=0)return end();hand()}
+function end(){SH.state="over";cancelAnimationFrame(raf);SFX.stop();SFX.over();const p=G.players[0],best=Math.max(...G.players.map(x=>x.score));
+ const xi=XP.add(Math.round(best/6),{lang:cfg.to});const k="pv-best",old=+(localStorage.getItem(k)||0);if(G.players.length<2&&p.score>old)try{localStorage.setItem(k,p.score)}catch(e){}
+ $("#over").innerHTML=`<div class="box"><h1>${G.players.length>1?PARTY.winner(G):t.over}</h1>
+  ${G.players.map(x=>`<div class="card"><b>${esc(x.name)}: ${x.score} ${t.score.toLowerCase()}</b><span class="muted">✓ ${x.ok} · 🔥 ${x.best}</span></div>`).join("")}
+  ${G.players.length<2?`<p class="muted">${SH.t.best}: ${Math.max(old,p.score)}</p>`:""}<p class="muted">+${xi.gained||0} XP · ${xi.rank[SH.UI]||xi.rank.en}</p>
+  <div class="row"><button class="pri" id="ag">${SH.t.again}</button><button id="mn">${SH.t.change}</button></div>${PARTY.share(G.seed)}
+  <h2>${SH.t.review}</h2>${G.miss.length?G.miss.map(m=>`<div class="rv"><b>${esc(m.q)}</b> → <b class="ok">${esc(m.a)}</b><div class="muted">${esc(m.m)}</div></div>`).join("")+`<p class="muted">${SH.t.bank}</p>`:`<p>${SH.t.none}</p>`}</div>`;
+ $("#over").classList.add("on");$("#ag").onclick=()=>start();$("#mn").onclick=menu}
+function menu(){SH.state="menu";cancelAnimationFrame(raf);SFX.stop();$("#over").classList.remove("on");$("#game").innerHTML="";if(cfg.from===cfg.to)cfg.from="af";
+ const o=(k,v,l)=>SH.opt(cfg,k,v,l),hs=PARTY.hashSeed();
+ $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font-weight:600">${SH.t.all}</a>${SH.langBar()}</div>
+  <h1>🦁 ${t.title}</h1><p>${t.lead}</p>
+  <div class="lbl">${t.from}</div><div class="row">${["af"].concat(LS).filter(l=>l!==cfg.to).concat("mix").map(l=>o("from",l,(l==="af"?"🌍 ":"")+t.L[l])).join("")}</div>
+  <div class="lbl">${t.to}</div><div class="row">${LS.filter(l=>l!==cfg.from).map(l=>o("to",l,t.L[l])).join("")}</div>
+  ${PARTY.menu(cfg)}
+  <div class="row"><button class="pri" id="go">${t.start} →</button>${hs?`<button id="ch">🎯 ${PARTY.t().ch}</button>`:""}</div></div>`;
+ $("#menu").classList.add("on");
+ SH.bindOpts($("#menu"),cfg,"pv-cfg",menu);PARTY.bind($("#menu"),cfg,"pv-cfg");SH.bindLang($("#menu"),()=>{t=L10[SH.UI];menu()});
+ $("#go").onclick=()=>start();const ch=$("#ch");if(ch)ch.onclick=()=>start(hs)}
+menu();
+</script>
+</body>
+</html>

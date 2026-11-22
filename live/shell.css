@@ -35,3 +35,4 @@ a{color:var(--c)}
 .rv{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .shake{animation:sh .35s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 .pop{animation:pop .3s}@keyframes pop{from{transform:scale(.7);opacity:0}}
+.pl{display:inline-flex;gap:6px;align-items:center;background:#0004;border-radius:999px;padding:4px 12px;font-weight:700;font-size:15px}.pl.on{outline:2px solid var(--c)}.pl.out{opacity:.4;text-decoration:line-through}

@@ -156,7 +156,7 @@ const DS={
   all:"← All games",xp:"XP",lvl:"Level",learn:"Learn this first",keys:"Keys 1 2 3 4 also answer.",
   facehint:"Put the phone flat between you. The top half is turned for the player opposite.",
   rating:"Duel rating",rank:"Career rank",point:"+1",out:"Out",time:"Time!",theyans:"answered",thinking:"thinking…",waiting:"waiting for",
-  faster:"faster",ranks:"Ranks: Trainee, Student Interpreter, Liaison Interpreter, Conference Interpreter, Senior Interpreter, Chief Interpreter, UN Booth."},
+  faster:"faster",ranks:"Duel ranks: Trainee (below 1000), Community Interpreter 1000, Liaison 1100, Conference 1200, Chief 1300, UN Booth 1400."},
  fr:{title:"Duel en direct",lead:"Un contre un, même question, même instant. La première bonne réponse prend le point. Une mauvaise réponse vous bloque pour cette question : la vitesse ne paie que si vous êtes sûr.",
   mode:"Contre qui ?",face:"Face à face (un téléphone)",bot:"Ordinateur",room:"Ami en ligne",level:"Niveau de l'ordinateur",easy:"Facile",mid:"Moyen",hard:"Difficile",
   len:"Questions",start:"Duel",yname:"Votre nom",create:"Créer une salle",join:"Rejoindre",code:"Code de la salle",share:"Votre ami ouvre cette page, choisit Ami en ligne et tape le code.",
@@ -167,7 +167,7 @@ const DS={
   all:"← Tous les jeux",xp:"XP",lvl:"Niveau",learn:"Apprendre d'abord",keys:"Les touches 1 2 3 4 répondent aussi.",
   facehint:"Posez le téléphone à plat entre vous. La moitié du haut est tournée vers le joueur d'en face.",
   rating:"Classement duel",rank:"Grade",point:"+1",out:"Bloqué",time:"Temps !",theyans:"a répondu",thinking:"réfléchit…",waiting:"en attente de",
-  faster:"plus rapide",ranks:"Grades : Stagiaire, Étudiant interprète, Interprète de liaison, Interprète de conférence, Interprète principal, Chef interprète, Cabine ONU."},
+  faster:"plus rapide",ranks:"Grades en duel : Stagiaire (moins de 1000), Interprète communautaire 1000, Liaison 1100, Conférence 1200, Interprète en chef 1300, Cabine ONU 1400."},
  de:{title:"Live-Duell",lead:"Eins gegen eins, dieselbe Frage im selben Moment. Die erste richtige Antwort holt den Punkt. Ein falscher Tipp sperrt Sie für diese Frage: Tempo lohnt sich nur, wenn Sie sicher sind.",
   mode:"Gegen wen?",face:"Gegenüber (ein Handy)",bot:"Computer",room:"Freund online",level:"Computer-Stufe",easy:"Leicht",mid:"Mittel",hard:"Schwer",
   len:"Fragen",start:"Duell",yname:"Ihr Name",create:"Raum eröffnen",join:"Beitreten",code:"Raum-Code",share:"Ihr Freund öffnet diese Seite, wählt Freund online und gibt den Code ein.",
@@ -178,11 +178,11 @@ const DS={
   all:"← Alle Spiele",xp:"XP",lvl:"Stufe",learn:"Erst lernen",keys:"Die Tasten 1 2 3 4 antworten auch.",
   facehint:"Legen Sie das Handy flach zwischen sich. Die obere Hälfte ist zum Gegenüber gedreht.",
   rating:"Duell-Wertung",rank:"Rang",point:"+1",out:"Gesperrt",time:"Zeit!",theyans:"hat geantwortet",thinking:"überlegt…",waiting:"warten auf",
-  faster:"schneller",ranks:"Ränge: Praktikant, Dolmetschstudent, Verhandlungsdolmetscher, Konferenzdolmetscher, Senior-Dolmetscher, Chefdolmetscher, UN-Kabine."}};
-const RANKS={en:["Trainee","Student Interpreter","Liaison Interpreter","Conference Interpreter","Senior Interpreter","Chief Interpreter","UN Booth"],
- fr:["Stagiaire","Étudiant interprète","Interprète de liaison","Interprète de conférence","Interprète principal","Chef interprète","Cabine ONU"],
- de:["Praktikant","Dolmetschstudent","Verhandlungsdolmetscher","Konferenzdolmetscher","Senior-Dolmetscher","Chefdolmetscher","UN-Kabine"]};
-const rankOf=e=>RANKS[UI][Math.max(0,Math.min(6,Math.floor((e-850)/100)))];
+  faster:"schneller",ranks:"Duell-Ränge: Praktikant·in (unter 1000), Kommunaldolmetscher·in 1000, Verhandlung 1100, Konferenz 1200, Chefdolmetscher·in 1300, UN-Kabine 1400."}};
+const RANKS={en:["Trainee","Community Interpreter","Liaison Interpreter","Conference Interpreter","Chief Interpreter","UN Booth"],
+ fr:["Stagiaire","Interprète communautaire","Interprète de liaison","Interprète de conférence","Interprète en chef","Cabine ONU"],
+ de:["Praktikant·in","Kommunaldolmetscher·in","Verhandlungsdolmetscher·in","Konferenzdolmetscher·in","Chefdolmetscher·in","UN-Kabine"]};
+const rankOf=e=>RANKS[UI][Math.max(0,Math.min(5,Math.floor((e-900)/100)))];
 let dt_=DS[UI];
 const QT=10000;
 cfg=Object.assign({pack:"mix",lang:UI,to:UI==="en"?"fr":"en",cont:"",n:10,bot:1,who:"bot"},JSON.parse(localStorage.getItem("du-cfg")||"{}"));cfg.lanes=4;
