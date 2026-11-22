@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fingerspelling Rush · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="../live/shell.css">
+<style>
+:root{--c:#ffb703;--bg:#1a1630}
+.hand{background:#fff8e7;border-radius:26px;height:min(46vh,340px);display:grid;place-items:center;box-shadow:inset 0 0 0 6px #ffb70355,0 10px 30px #0006;position:relative;overflow:hidden}
+.hand img{height:88%;max-width:90%;transition:opacity .06s}
+.hand .blank{position:absolute;inset:0;background:#fff8e7;opacity:0;transition:opacity .05s}
+.hand .blank.on{opacity:1}
+.dots{display:flex;gap:6px;justify-content:center}.dots i{width:12px;height:12px;border-radius:50%;background:#ffffff33}.dots i.on{background:var(--c)}
+#ans{width:100%;text-align:center;font-size:clamp(26px,7vw,40px);font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.share{white-space:pre-wrap;background:#0008;border-radius:12px;padding:10px;font-family:ui-monospace,monospace;font-size:15px}
+.note{font-size:14px;color:var(--muted)}
+.alpha{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}.alpha div{background:#fff8e7;color:#1d2a3a;border-radius:12px;text-align:center;font-weight:800;padding:4px}.alpha img{width:100%;height:64px;object-fit:contain}
+</style>
+</head>
+<body>
+<div class="wrap" id="game"></div>
+<div class="ov on" id="menu"></div><div class="ov" id="over"></div>
+<script src="../live/sfx.js"></script>
+<script src="../live/xp.js"></script>
+<script src="../live/shell.js"></script>
+<script>
+"use strict";
+const {$,esc}=SH;
+const L10={
+ en:{title:"Fingerspelling Rush",lead:"Names and words are fingerspelled in ASL, letter by letter, faster each level. Read the hand and type the word. Fingerspelled names, places and new terms are some of the hardest parts of voicing.",
+  set:"Words",names:"Names",places:"Places",terms:"Conference terms",mix:"Mix",speed:"Start speed",slow:"Slow",norm:"Normal",fast:"Fast",start:"Start",daily:"📅 Daily challenge",dailyT:"10 words, same for everyone today.",
+  type:"Type the word, then Enter",check:"Check",replay:"🔁 Again (−5)",skip:"Skip",lv:"Level",over:"Round over",words:"Words read",speedR:"Top speed",lps:"letters/s",copy:"Copy my result",copied:"Copied.",
+  learn:"Learn the alphabet first",alpha:"The ASL manual alphabet",note:"Hand drawings: handsign-multilingual (BSD-2). J and Z move: follow the arrow. Fingerspelling is one part of ASL. Please have Deaf signers check your practice."},
+ fr:{title:"Fingerspelling Rush",lead:"Des noms et des mots sont épelés en ASL, lettre par lettre, de plus en plus vite. Lisez la main et tapez le mot. Les noms propres, lieux et nouveaux termes épelés sont parmi les plus durs à voiser.",
+  set:"Mots",names:"Prénoms",places:"Lieux",terms:"Termes de conférence",mix:"Mélange",speed:"Vitesse de départ",slow:"Lente",norm:"Normale",fast:"Rapide",start:"Commencer",daily:"📅 Défi du jour",dailyT:"10 mots, les mêmes pour tout le monde aujourd'hui.",
+  type:"Tapez le mot puis Entrée",check:"Vérifier",replay:"🔁 Revoir (−5)",skip:"Passer",lv:"Niveau",over:"Manche terminée",words:"Mots lus",speedR:"Vitesse max",lps:"lettres/s",copy:"Copier mon résultat",copied:"Copié.",
+  learn:"Apprendre l'alphabet d'abord",alpha:"L'alphabet manuel ASL",note:"Dessins de mains : handsign-multilingual (BSD-2). J et Z bougent : suivez la flèche. L'épellation n'est qu'une partie de l'ASL. Faites vérifier votre pratique par des signeurs sourds."},
+ de:{title:"Fingerspelling Rush",lead:"Namen und Wörter werden in ASL buchstabiert, Buchstabe für Buchstabe, immer schneller. Lesen Sie die Hand und tippen Sie das Wort. Buchstabierte Namen, Orte und neue Begriffe gehören zum Schwierigsten beim Voicen.",
+  set:"Wörter",names:"Namen",places:"Orte",terms:"Konferenzbegriffe",mix:"Gemischt",speed:"Starttempo",slow:"Langsam",norm:"Normal",fast:"Schnell",start:"Start",daily:"📅 Tages-Challenge",dailyT:"10 Wörter, heute für alle gleich.",
+  type:"Wort tippen, dann Enter",check:"Prüfen",replay:"🔁 Nochmal (−5)",skip:"Weiter",lv:"Stufe",over:"Runde vorbei",words:"Gelesene Wörter",speedR:"Höchsttempo",lps:"Buchst./s",copy:"Ergebnis kopieren",copied:"Kopiert.",
+  learn:"Erst das Alphabet lernen",alpha:"Das ASL-Fingeralphabet",note:"Handzeichnungen: handsign-multilingual (BSD-2). J und Z bewegen sich: dem Pfeil folgen. Buchstabieren ist nur ein Teil von ASL. Lassen Sie Ihre Übung von gehörlosen Signern prüfen."}};
+let t=L10[SH.UI];
+const WORDS={
+ names:["ANA","PAUL","EMMA","JEAN","YVES","AMINA","FATOU","KOFI","NGOZI","PIERRE","MARIE","HANS","JOAO","AISHA","DAVID","SARAH","IBRAHIM","CHANTAL","ROSALIE","EMMANUEL","BRIGITTE","OLUWASEUN","ACHILLE","BLAISE","GERTRUDE","MAMADOU","KWAME","JOSEPHINE","ZAINAB","VALENTIN"],
+ places:["ROME","LIMA","OSLO","DAKAR","ACCRA","BUEA","PARIS","LAGOS","GENEVA","BERLIN","LISBON","DOUALA","YAOUNDE","NAIROBI","KIGALI","ABIDJAN","BAMENDA","LUANDA","MAPUTO","BRUSSELS","MONTREAL","FRANKFURT","KINSHASA","JOHANNESBURG","OUAGADOUGOU","WASHINGTON","STRASBOURG","NGAOUNDERE","LIBREVILLE","BRAZZAVILLE"],
+ terms:["UN","WHO","AGENDA","BUDGET","QUORUM","MOTION","VETO","TREATY","SUMMIT","DECREE","TARIFF","BRIEFING","MANDATE","PROTOCOL","AMENDMENT","DELEGATE","PLENARY","RAPPORTEUR","CONSENSUS","SECRETARIAT","SOVEREIGNTY","CEASEFIRE","SANCTIONS","BILATERAL","MULTILATERAL","FRAMEWORK","STAKEHOLDER","INFRASTRUCTURE","PROCUREMENT","OMBUDSMAN"]};
+let cfg=Object.assign({set:"mix",speed:1},JSON.parse(localStorage.getItem("fs-cfg")||"{}"));
+let G=null;
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let x=Math.imul(a^a>>>15,1|a);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296}}
+const IMG={};"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(c=>{const i=new Image();i.src="../asl/"+c+".svg";IMG[c]=i.src});
+function pool(){return cfg.set==="mix"?WORDS.names.concat(WORDS.places,WORDS.terms):WORDS[cfg.set]}
+function start(daily){const r=daily?mulberry(+XP.day().replace(/-/g,"")*17):Math.random;
+ const P=pool().slice();const pickW=lv=>{const c=P.filter(w=>w.length>=Math.min(3+lv,9)-2&&w.length<=3+lv*2);const a=c.length?c:P;return a[Math.floor(r()*a.length)]};
+ G={daily,pickW,lv:1,score:0,ok:0,n:0,miss:[],grid:[],top:0,total:daily?10:0,left:180,state:"",cps:[1.6,2.2,3][[.75,1,1.35].indexOf(cfg.speed)]||2.2};
+ if(daily)G.cps=2;
+ $("#menu").classList.remove("on");$("#over").classList.remove("on");SH.state="run";SH.music="calm";SFX.music("calm");
+ $("#game").innerHTML=SH.header()+`<div class="bar"><i id="tb"></i></div><div class="hand"><img id="hi" alt=""><div class="blank" id="bl"></div></div><div class="dots" id="dots"></div>
+  <input id="ans" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="…"><div class="row" style="justify-content:center"><button class="pri" id="ck">${t.check}</button><button id="rp">${t.replay}</button><button id="sk">${t.skip}</button></div><div class="muted" style="text-align:center" id="fb">${t.type}</div>`;
+ SH.mount();$("#ans").onkeydown=e=>{if(e.key==="Enter")check()};$("#ck").onclick=check;$("#rp").onclick=()=>{if(G.state==="ask"){G.score=Math.max(0,G.score-5);play()}};$("#sk").onclick=()=>{G.state==="ask"&&result(false)};
+ G.last=performance.now();next();requestAnimationFrame(tick)}
+function next(){if(G.daily&&G.n>=G.total)return end();G.word=G.pickW(G.lv);G.state="ask";$("#ans").value="";$("#ans").focus();$("#fb").textContent=t.type;
+ $("#dots").innerHTML=G.word.split("").map(()=>"<i></i>").join("");play();hud()}
+function play(){const w=G.word,ms=1000/G.cps;let i=0;clearTimeout(G.ph);const img=$("#hi"),bl=$("#bl"),dots=[...document.querySelectorAll("#dots i")];dots.forEach(d=>d.classList.remove("on"));
+ const step=()=>{if(SH.state==="pause"){G.ph=setTimeout(step,200);return}if(i>=w.length){img.src="";return}
+  const c=w[i];// a short blank between two identical letters shows the bounce
+  if(i>0&&w[i-1]===c){bl.classList.add("on");setTimeout(()=>bl.classList.remove("on"),Math.min(120,ms/3))}
+  img.src=IMG[c]||"";dots[i]&&dots[i].classList.add("on");i++;G.ph=setTimeout(step,ms)};step()}
+function hud(){$("#sh-st").innerHTML=`<span>${t.lv} ${G.lv}</span><span>${SH.t.score} ${G.score}</span><span>${G.cps.toFixed(1)} ${t.lps}</span>${G.daily?`<span>${Math.min(G.n+1,10)}/10</span>`:""}`}
+function check(){if(G.state!=="ask")return;const v=$("#ans").value.toUpperCase().replace(/[^A-Z]/g,"");result(v===G.word,v)}
+function result(ok,v){G.state="fb";clearTimeout(G.ph);G.n++;G.grid.push(ok?"🟩":"🟥");
+ if(ok){G.ok++;G.score+=Math.round(G.word.length*G.cps*3);G.top=Math.max(G.top,G.cps);SFX.ok();G.cps=Math.min(8,G.cps*1.08);if(G.ok%3===0)G.lv++;$("#fb").innerHTML=`<b class="ok" style="font-size:26px">✓ ${G.word}</b>`}
+ else{SFX.bad();G.cps=Math.max(1.2,G.cps*.9);G.miss.push({w:G.word,v});BANK.add({game:"fingerspell",lang:"asl",q:"🤟 "+G.word.split("").join("-"),a:G.word});$("#fb").innerHTML=`<b class="bad" style="font-size:26px">${G.word}</b>${v?` <span class="muted">(${esc(v)})</span>`:""}`}
+ hud();setTimeout(()=>{if(SH.state==="run"||SH.state==="pause"){if(!G.daily&&G.left<=0)return end();next()}},ok?800:1800)}
+function tick(now){if(!G||SH.state==="menu"||SH.state==="over")return;requestAnimationFrame(tick);const dt=(now-G.last)/1000;G.last=now;if(SH.state!=="run")return;
+ if(G.daily){$("#tb").style.width=(100-G.n*10)+"%";return}G.left-=dt;$("#tb").style.width=Math.max(0,G.left/180*100)+"%";if(G.left<=0&&G.state==="ask")end()}
+function end(){SH.state="over";SFX.stop();clearTimeout(G.ph);G.ok>=G.n*.7?SFX.win():SFX.over();
+ const xi=XP.add(G.score/5+G.ok*3,{lang:"asl",stats:{fsOk:G.ok},metric:{fsSpeed:+G.top.toFixed(1)}});
+ let share="";if(G.daily){share=`Fingerspelling Rush ${XP.day()} 🤟\n${G.ok}/10 · ${G.score} pts · ${G.top.toFixed(1)} ${t.lps}\n${G.grid.join("")}\nhttps://vic-god.github.io/twister-booth/fingerspell/`;try{localStorage.setItem("fs-daily-"+XP.day(),G.ok)}catch(e){}}
+ $("#over").innerHTML=`<div class="box"><h1>🤟 ${t.over}</h1><div class="row" style="gap:26px"><div><div class="lbl">${SH.t.score}</div><div class="big" style="color:var(--c);text-align:left">${G.score}</div></div><div><div class="lbl">${t.words}</div><div class="big" style="text-align:left">${G.ok}/${G.n}</div></div><div><div class="lbl">${t.speedR}</div><div class="big" style="text-align:left">${G.top.toFixed(1)}</div><span class="muted">${t.lps}</span></div></div>
+  ${XP.strip(xi,SH.UI)}${share?`<div class="share">${esc(share)}</div><button id="cp">📋 ${t.copy}</button>`:""}
+  <div class="row"><button class="pri" id="ag">${SH.t.again}</button><button id="mn">${SH.t.change}</button><a href="../progress/">${SH.t.progress} →</a></div>
+  <div class="lbl">${SH.t.review}</div>${G.miss.length?G.miss.map(m=>`<div class="rv"><b>${m.w}</b>${m.v?` <span class="muted">✗ ${esc(m.v)}</span>`:""}</div>`).join("")+`<p class="muted">${SH.t.bank}</p>`:`<p>${SH.t.none}</p>`}</div>`;
+ $("#over").classList.add("on");$("#ag").onclick=()=>start(false);$("#mn").onclick=menu;const cp=$("#cp");if(cp)cp.onclick=async()=>{try{await navigator.clipboard.writeText(share);SH.toast(t.copied,1)}catch(e){prompt("",share)}}}
+function menu(){SH.state="menu";SFX.stop();if(G)clearTimeout(G.ph);t=L10[SH.UI];const o=(k,v,l)=>SH.opt(cfg,k,v,l);const done=localStorage.getItem("fs-daily-"+XP.day());
+ $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font-weight:600">${SH.t.all}</a>${SH.langBar()}</div>
+  <h1>🤟 ${t.title}</h1><p>${t.lead}</p>
+  <div class="card"><b>${t.daily}</b><span>${t.dailyT}</span>${done!=null?`<span class="ok">✅ ${done}/10</span>`:""}<div><button class="pri" id="dly">${t.daily} →</button></div></div>
+  <div class="lbl">${t.set}</div><div class="row">${o("set","mix",t.mix)}${o("set","names",t.names)}${o("set","places",t.places)}${o("set","terms",t.terms)}</div>
+  <div class="lbl">${t.speed}</div><div class="row">${o("speed",.75,t.slow)}${o("speed",1,t.norm)}${o("speed",1.35,t.fast)}</div>
+  <div class="row" style="margin-top:8px"><button class="pri" id="go">▶ ${t.start}</button></div>
+  <details><summary style="cursor:pointer;font-weight:700">${t.learn}</summary><div class="lbl">${t.alpha}</div><div class="alpha">${"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(c=>`<div><img src="${IMG[c]}" alt="${c}">${c}</div>`).join("")}</div></details>
+  <p class="note">${t.note}</p></div>`;
+ $("#menu").classList.add("on");$("#over").classList.remove("on");SH.bindOpts($("#menu"),cfg,"fs-cfg",menu);SH.bindLang($("#menu"),menu);$("#go").onclick=()=>start(false);$("#dly").onclick=()=>start(true)}
+SH.onMenu=menu;document.documentElement.lang=SH.UI;menu();
+</script>
+</body>
+</html>

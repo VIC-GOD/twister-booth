@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>My progress · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="../live/shell.css">
+<style>
+:root{--c:#ffd166;--bg:#111a2b}
+.ranks{display:grid;gap:6px}.ranks div{display:flex;justify-content:space-between;background:#0004;border-radius:10px;padding:8px 12px}.ranks .on{background:var(--c);color:#1a1300;font-weight:800}.ranks .lock{opacity:.5}
+.chart{display:flex;align-items:flex-end;gap:4px;height:120px}.chart div{flex:1;background:linear-gradient(#ffd166,#ff8a5b);border-radius:4px 4px 0 0;min-height:2px;position:relative}.chart div.g{outline:2px solid #7ff0b2}
+.days{display:flex;gap:4px;font-size:11px;color:var(--muted)}.days span{flex:1;text-align:center}
+.mets{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}.mets div{background:#0004;border-radius:12px;padding:10px 12px}.mets b{font-size:28px;display:block}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.badges div{background:#0004;border-radius:12px;padding:10px;text-align:center;font-size:14px}.badges .i{font-size:34px;display:block}.badges .off{filter:grayscale(1);opacity:.4}
+.flash{background:#fff;color:#14213d;border-radius:18px;padding:22px;display:grid;gap:12px;text-align:center;min-height:220px;align-content:center}
+.flash .q{font-weight:800;font-size:clamp(22px,5vw,32px)}.flash .a{font-weight:800;font-size:clamp(22px,5vw,30px);color:#1b7f4b}.flash img{height:90px;margin:0 auto;border-radius:6px}
+.goal{font-size:20px;font-weight:800}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="../live/sfx.js"></script>
+<script src="../live/xp.js"></script>
+<script src="../live/shell.js"></script>
+<script>
+"use strict";
+const {$,esc}=SH;
+const L10={
+ en:{title:"My progress",career:"Interpreter career",lvl:"Level",xp:"XP",streak:"Day streak",best:"best",freeze:"Streak freeze",freezeOk:"1 free this week: miss a day and your streak survives.",freezeUsed:"Used this week.",
+  goal:"Today's goal",goalDone:"✅ Daily goal reached. Extra rounds are a bonus, not a must.",rounds:"rounds",xp14:"XP, last 14 days",metrics:"My numbers",bank:"Error bank",due:n=>n+" card"+(n===1?"":"s")+" to review today",
+  review:"Review now",show:"Show answer",knew:"I knew it",missed:"I missed it",empty:"Nothing to review today. Your misses from the games appear here the day after, then after 3, 7 and 21 days.",
+  done:"All reviews done for today!",all:"All cards",next:"next",mastered:"mastered",badges:"Badges",daily:"Daily challenges",
+  M:{numAcc:"Numbers accuracy",shadowCov:"Shadowing: words kept",lag:"Shadowing lag (s)",fillersPerMin:"Fillers per minute",fsSpeed:"Fingerspelling (letters/s)"},noData:"Play a round to see this.",del:"Remove"},
+ fr:{title:"Ma progression",career:"Carrière d'interprète",lvl:"Niveau",xp:"XP",streak:"Série de jours",best:"record",freeze:"Gel de série",freezeOk:"1 gratuit cette semaine : sautez un jour, votre série survit.",freezeUsed:"Utilisé cette semaine.",
+  goal:"Objectif du jour",goalDone:"✅ Objectif du jour atteint. Les manches en plus sont un bonus, pas une obligation.",rounds:"manches",xp14:"XP, 14 derniers jours",metrics:"Mes indicateurs",bank:"Banque d'erreurs",due:n=>n+" carte"+(n>1?"s":"")+" à revoir aujourd'hui",
+  review:"Réviser maintenant",show:"Voir la réponse",knew:"Je savais",missed:"Raté",empty:"Rien à revoir aujourd'hui. Vos erreurs des jeux arrivent ici le lendemain, puis après 3, 7 et 21 jours.",
+  done:"Toutes les révisions du jour sont faites !",all:"Toutes les cartes",next:"prochaine",mastered:"maîtrisée",badges:"Badges",daily:"Défis du jour",
+  M:{numAcc:"Précision des nombres",shadowCov:"Shadowing : mots gardés",lag:"Décalage en shadowing (s)",fillersPerMin:"Tics par minute",fsSpeed:"Épellation (lettres/s)"},noData:"Jouez une manche pour voir ceci.",del:"Supprimer"},
+ de:{title:"Mein Fortschritt",career:"Dolmetsch-Karriere",lvl:"Stufe",xp:"XP",streak:"Tage in Folge",best:"Rekord",freeze:"Serien-Schutz",freezeOk:"1 frei diese Woche: Ein verpasster Tag beendet die Serie nicht.",freezeUsed:"Diese Woche genutzt.",
+  goal:"Tagesziel",goalDone:"✅ Tagesziel erreicht. Weitere Runden sind ein Bonus, kein Muss.",rounds:"Runden",xp14:"XP, letzte 14 Tage",metrics:"Meine Werte",bank:"Fehlerbank",due:n=>n+" Karte"+(n===1?"":"n")+" heute zu wiederholen",
+  review:"Jetzt wiederholen",show:"Antwort zeigen",knew:"Gewusst",missed:"Nicht gewusst",empty:"Heute nichts zu wiederholen. Ihre Fehler aus den Spielen erscheinen hier am nächsten Tag, dann nach 3, 7 und 21 Tagen.",
+  done:"Alle Wiederholungen für heute erledigt!",all:"Alle Karten",next:"nächste",mastered:"gemeistert",badges:"Abzeichen",daily:"Tages-Challenges",
+  M:{numAcc:"Zahlen: Genauigkeit",shadowCov:"Shadowing: behaltene Wörter",lag:"Shadowing-Abstand (s)",fillersPerMin:"Füllwörter pro Minute",fsSpeed:"Buchstabieren (Buchst./s)"},noData:"Spielen Sie eine Runde, um das zu sehen.",del:"Löschen"}};
+let t=L10[SH.UI];
+function spark(vals){if(vals.length<2)return"";const w=160,h=36,mx=Math.max(...vals),mn=Math.min(...vals),r=mx-mn||1;return`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline fill="none" stroke="#ffd166" stroke-width="2.5" points="${vals.map((v,i)=>`${i/(vals.length-1)*w},${h-3-(v-mn)/r*(h-6)}`).join(" ")}"/></svg>`}
+let queue=null,qi=0,shown=false;
+function render(){t=L10[SH.UI];const i=XP.info(),L=SH.UI,d=XP.day();const due=BANK.due(),all=BANK.all();
+ const days=[...Array(14)].map((_,k)=>XP.addDays(d,k-13)),mx=Math.max(10,...days.map(x=>i.days[x]||0));
+ const M=(i.stats.metrics)||{};
+ $("#app").innerHTML=`<div class="hud"><a href="../">${SH.t.all}</a>${SH.langBar()}</div><h1 style="margin:0">📈 ${t.title}</h1>
+ <div class="card"><div class="row" style="justify-content:space-between"><b style="font-size:22px">${esc(i.rank[L]||i.rank.en)}</b><span>${t.lvl} ${i.level} · ${i.xp} ${t.xp}</span></div><div class="bar"><i style="width:${Math.round(i.into/Math.max(1,i.span)*100)}%;background:linear-gradient(90deg,#2fbf71,#ffd166)"></i></div>
+  <div class="lbl">${t.career}</div><div class="ranks">${XP.RANKS.map(r=>`<div class="${r===i.rank?"on":i.level<r.lv?"lock":""}"><span>${i.level<r.lv?"🔒 ":""}${esc(r[L]||r.en)}</span><span>${t.lvl} ${r.lv}+</span></div>`).join("")}</div></div>
+ <div class="card"><div class="row" style="gap:28px"><div><div class="lbl">${t.streak}</div><div class="goal">🔥 ${i.streak} <span class="muted" style="font-size:14px">(${t.best} ${i.best})</span></div></div><div><div class="lbl">${t.goal}</div><div class="goal">${Math.min(i.rounds,i.goalRounds)}/${i.goalRounds} ${t.rounds}</div></div><div><div class="lbl">${t.freeze}</div><div>${i.freezeFree?"🧊 "+t.freezeOk:t.freezeUsed}</div></div></div>${i.goalReached?`<div class="fb ok">${t.goalDone}</div>`:""}
+  <div class="lbl">${t.xp14}</div><div class="chart">${days.map(x=>`<div class="${(i.rounds7[x]||0)>=i.goalRounds?"g":""}" style="height:${(i.days[x]||0)/mx*100}%" title="${x}: ${i.days[x]||0} XP"></div>`).join("")}</div><div class="days">${days.map(x=>`<span>${x.slice(8)}</span>`).join("")}</div></div>
+ <div class="card"><b style="font-size:22px">🧠 ${t.bank}</b><div id="rev"></div>
+  <details><summary style="cursor:pointer">${t.all} (${all.length})</summary>${all.slice().reverse().slice(0,200).map(c=>`<div class="rv row" style="justify-content:space-between"><span>${esc(c.q)} → <b>${esc(c.a)}</b></span><span class="muted">${c.done?"✅ "+t.mastered:t.next+": "+c.due} <button data-del="${esc(c.id)}" style="min-height:30px;padding:2px 8px">✕</button></span></div>`).join("")}</details></div>
+ <div class="card"><b style="font-size:22px">📊 ${t.metrics}</b><div class="mets">${Object.keys(t.M).map(k=>{const v=(M[k]||[]).map(x=>x[1]);return`<div>${t.M[k]}<b>${v.length?v[v.length-1]+(k==="numAcc"||k==="shadowCov"?"%":""):"–"}</b>${v.length?spark(v.slice(-20)):`<span class="muted" style="font-size:13px">${t.noData}</span>`}</div>`}).join("")}</div></div>
+ <div class="card"><b style="font-size:22px">🏅 ${t.badges}</b><div class="badges">${Object.entries(XP.BADGES).map(([k,b])=>`<div class="${i.badges[k]?"":"off"}"><span class="i">${b.i}</span>${esc(b[L]||b.en)}</div>`).join("")}</div></div>
+ <div class="card"><b style="font-size:22px">📅 ${t.daily}</b><div class="row"><a href="../numbers/">🔢 Number Avalanche</a><a href="../fingerspell/">🤟 Fingerspelling Rush</a><a href="../runner/#daily">🏃 Lane Runner</a></div></div>`;
+ SH.bindLang($("#app"),render);
+ document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{BANK.remove(b.dataset.del);render()});
+ if(!queue)queue=due;drawRev()}
+function drawRev(){const r=$("#rev");if(!queue.length){r.innerHTML=`<p>${t.empty}</p>`;return}
+ if(qi>=queue.length){r.innerHTML=`<p class="ok" style="font-size:20px">🎉 ${t.done}</p>`;return}
+ const c=queue[qi];r.innerHTML=`<p>${t.due(queue.length-qi)}</p><div class="flash pop"><div class="q">${esc(c.q)}</div>${c.img?`<img src="${c.img}" alt="">`:""}${shown?`<div class="a">${esc(c.a)}</div>${c.note?`<div style="color:#555">${esc(c.note)}</div>`:""}`:""}</div>
+  <div class="row" style="justify-content:center">${shown?`<button class="pri" id="kn">✓ ${t.knew}</button><button id="ms">✗ ${t.missed}</button>`:`<button class="pri" id="sh">${t.show}</button>`}</div>`;
+ const s=$("#sh");if(s)s.onclick=()=>{shown=true;drawRev()};
+ const k=$("#kn");if(k){k.onclick=()=>{BANK.grade(c.id,true);SFX.ok();shown=false;qi++;drawRev()};$("#ms").onclick=()=>{BANK.grade(c.id,false);SFX.bad();shown=false;qi++;drawRev()}}}
+document.documentElement.lang=SH.UI;render();
+</script>
+</body>
+</html>

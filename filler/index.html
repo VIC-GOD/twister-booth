@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Filler Hunter · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="../live/shell.css">
+<style>
+:root{--c:#2ee6a6;--bg:#08201a}
+.topic{font-weight:800;font-size:clamp(26px,6.5vw,40px);text-align:center;line-height:1.15}
+.clock{font-weight:800;font-size:clamp(60px,18vw,120px);text-align:center;font-variant-numeric:tabular-nums;line-height:1}
+.lives{font-size:34px;text-align:center;letter-spacing:4px}
+.tx{min-height:4em;font-size:19px;line-height:1.6;color:#cfeee2}.tx .f{background:#ef476f;color:#fff;border-radius:5px;padding:0 4px}
+.hit{font-size:56px;padding:22px;border-radius:20px;background:var(--bad);border-color:var(--bad);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stats div{background:#0005;border-radius:12px;padding:10px;text-align:center}.stats b{display:block;font-size:30px}
+.tip{background:#ffd16622;border:1px solid #ffd16666;border-radius:12px;padding:10px 14px}
+</style>
+</head>
+<body>
+<div class="wrap" id="game"></div>
+<div class="ov on" id="menu"></div><div class="ov" id="over"></div>
+<script src="../live/sfx.js"></script>
+<script src="../live/xp.js"></script>
+<script src="../live/shell.js"></script>
+<script>
+"use strict";
+const {$,esc}=SH;
+const L10={
+ en:{title:"Filler Hunter",lead:"Speak for 60 seconds on the topic. The microphone hunts your fillers: every “um”, “like” or “you know” costs a life, and so does a silence of more than 3 seconds. Keep all your lives to win.",
+  lang:"Speak in",mode:"Who counts?",mic:"🎤 The microphone",partner:"👂 A partner taps",time:"Length",start:"Start speaking",go:"Speak now!",ready:"Your topic",
+  hit:"Filler!",silence:"Silence!",over:"Time!",out:"Out of lives",fillers:"Fillers",perMin:"Fillers / min",wpm:"Words / min",
+  partnerTip:"Give the phone to a partner. They tap the red button every time they hear a filler or a long silence.",noSR:"This browser cannot listen. Use partner mode, or open the page in Chrome on Android or a computer.",
+  ear:"Speak clearly and not too far from the phone. Speech recognition hides some “um”s, so the partner mode is the strictest.",found:"Fillers we caught",clean:"Clean minute! No filler at all."},
+ fr:{title:"Filler Hunter",lead:"Parlez 60 secondes sur le sujet. Le micro traque vos tics de langage : chaque « euh », « du coup » ou « en fait » coûte une vie, tout comme un silence de plus de 3 secondes. Gardez toutes vos vies pour gagner.",
+  lang:"Parler en",mode:"Qui compte ?",mic:"🎤 Le micro",partner:"👂 Un partenaire tape",time:"Durée",start:"Commencer à parler",go:"Parlez !",ready:"Votre sujet",
+  hit:"Tic !",silence:"Silence !",over:"Temps écoulé !",out:"Plus de vies",fillers:"Tics",perMin:"Tics / min",wpm:"Mots / min",
+  partnerTip:"Donnez le téléphone à un partenaire. Il touche le bouton rouge à chaque tic ou long silence.",noSR:"Ce navigateur ne peut pas écouter. Utilisez le mode partenaire, ou ouvrez la page dans Chrome sur Android ou ordinateur.",
+  ear:"Parlez clairement, près du téléphone. La reconnaissance vocale masque certains « euh » : le mode partenaire est le plus strict.",found:"Tics repérés",clean:"Minute parfaite ! Aucun tic."},
+ de:{title:"Filler Hunter",lead:"Sprechen Sie 60 Sekunden zum Thema. Das Mikrofon jagt Ihre Füllwörter: Jedes „äh“, „also“ oder „halt“ kostet ein Leben, ebenso eine Pause von mehr als 3 Sekunden. Behalten Sie alle Leben, um zu gewinnen.",
+  lang:"Sprechen auf",mode:"Wer zählt?",mic:"🎤 Das Mikrofon",partner:"👂 Partner tippt",time:"Dauer",start:"Losreden",go:"Jetzt sprechen!",ready:"Ihr Thema",
+  hit:"Füllwort!",silence:"Stille!",over:"Zeit!",out:"Keine Leben mehr",fillers:"Füllwörter",perMin:"Füllwörter / Min",wpm:"Wörter / Min",
+  partnerTip:"Geben Sie das Handy einem Partner. Er tippt bei jedem Füllwort oder langer Pause auf den roten Knopf.",noSR:"Dieser Browser kann nicht zuhören. Nutzen Sie den Partnermodus oder Chrome auf Android oder dem Computer.",
+  ear:"Deutlich und nah am Handy sprechen. Die Spracherkennung verschluckt manche „äh“s, der Partnermodus ist am strengsten.",found:"Gefundene Füllwörter",clean:"Saubere Minute! Kein Füllwort."}};
+let t=L10[SH.UI];
+const FL={en:"🇬🇧",fr:"🇫🇷",de:"🇩🇪",pt:"🇵🇹"},LN={en:"English",fr:"Français",de:"Deutsch",pt:"Português"};
+const FILLERS={en:["um","umm","uh","uhh","er","erm","like","you know","basically","literally","i mean","kind of","sort of","you see","okay so"],
+ fr:["euh","heu","ben","bah","en fait","genre","du coup","voilà","quoi","tu vois","enfin bref","bon ben","disons"],
+ de:["äh","ähm","öhm","hm","halt","eigentlich","sozusagen","quasi","irgendwie","ne","gell","weißt du","also ja"],
+ pt:["tipo","né","pronto","quer dizer","ahn","hum","sabe","pois é","então tipo","percebes","olha"]};
+const TOPICS={en:["Why every child should learn a second language","The best meal you have ever eaten","Should cars be banned from city centres?","What makes a good leader","Describe your home town to a tourist","The role of social media in elections","Is working from home good for us?","A book or film that changed your mind","How to welcome refugees well","Football: more than a game?"],
+ fr:["Pourquoi chaque enfant devrait apprendre une deuxième langue","Le meilleur repas de votre vie","Faut-il interdire les voitures en centre-ville ?","Qu'est-ce qu'un bon dirigeant ?","Présentez votre ville à un touriste","Le rôle des réseaux sociaux dans les élections","Le télétravail est-il bon pour nous ?","Un livre ou un film qui vous a fait changer d'avis","Comment bien accueillir les réfugiés","Le football : plus qu'un jeu ?"],
+ de:["Warum jedes Kind eine zweite Sprache lernen sollte","Das beste Essen Ihres Lebens","Sollte man Autos aus den Innenstädten verbannen?","Was macht eine gute Führungskraft aus?","Stellen Sie Ihre Heimatstadt einem Touristen vor","Die Rolle sozialer Medien bei Wahlen","Ist Homeoffice gut für uns?","Ein Buch oder Film, der Ihre Meinung geändert hat","Wie man Geflüchtete gut aufnimmt","Fußball: mehr als ein Spiel?"],
+ pt:["Porque é que todas as crianças deviam aprender uma segunda língua","A melhor refeição da sua vida","Devemos proibir os carros no centro das cidades?","O que faz um bom líder","Apresente a sua cidade a um turista","O papel das redes sociais nas eleições","O teletrabalho faz-nos bem?","Um livro ou filme que mudou a sua opinião","Como acolher bem os refugiados","O futebol: mais do que um jogo?"]};
+let cfg=Object.assign({lang:SH.UI,mode:SH.SR?"mic":"partner",time:60},JSON.parse(localStorage.getItem("fh-cfg")||"{}"));
+if(!SH.SR)cfg.mode="partner";
+let G=null;
+function start(){const topic=TOPICS[cfg.lang][Math.floor(Math.random()*TOPICS[cfg.lang].length)];
+ G={topic,lives:5,fillers:[],finals:"",words:0,left:cfg.time,lastSpeech:performance.now(),state:"count",silences:0};
+ $("#menu").classList.remove("on");$("#over").classList.remove("on");SH.state="run";SH.music=null;SFX.stop();
+ $("#game").innerHTML=SH.header()+`<div class="card"><div class="lbl" style="text-align:center">${t.ready}</div><div class="topic">${esc(topic)}</div></div>
+  <div class="card"><div class="clock" id="clk">5</div><div class="lives" id="lv">${"❤️".repeat(5)}</div>${cfg.mode==="partner"?`<button class="hit" id="hit">🚨 ${t.hit}</button><p class="muted">${t.partnerTip}</p>`:`<div class="tx" id="tx"></div><p class="muted">${t.ear}</p>`}</div>`;
+ SH.mount();SH.onPause=()=>{try{G.rec&&G.rec.stop()}catch(e){}};SH.onResume=()=>{G.lastSpeech=performance.now();if(cfg.mode==="mic")rec()};
+ const h=$("#hit");if(h)h.onclick=()=>lose("👂");
+ let c=5;const cd=()=>{if(SH.state==="menu")return;if(SH.state!=="run"){setTimeout(cd,300);return}if(c>0){SFX.tick();$("#clk").textContent=c;c--;setTimeout(cd,700)}else{$("#clk").textContent=t.go;G.state="talk";G.lastSpeech=performance.now();G.last=performance.now();if(cfg.mode==="mic")rec();requestAnimationFrame(tick)}};cd()}
+function rec(){const r=new SH.SR();r.lang=SH.LOC[cfg.lang];r.continuous=true;r.interimResults=true;G.rec=r;let seen=0;
+ r.onresult=e=>{G.lastSpeech=performance.now();let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const res=e.results[i];if(res.isFinal){scan(res[0].transcript);G.finals+=" "+res[0].transcript}else interim+=res[0].transcript}
+  $("#tx").innerHTML=highlight((G.finals+" "+interim).split(/\s+/).slice(-40).join(" "))};
+ r.onend=()=>{if(SH.state==="run"&&G.state==="talk")try{r.start()}catch(e){}};r.onerror=e=>{if(e.error==="not-allowed"){$("#tx").textContent=t.noSR}};try{r.start()}catch(e){}}
+function scan(s){const low=" "+s.toLowerCase().replace(/[.,!?;:]/g," ").replace(/\s+/g," ")+" ";G.words+=s.trim().split(/\s+/).filter(Boolean).length;
+ for(const f of FILLERS[cfg.lang]){let i=low.indexOf(" "+f+" ");while(i>=0){lose(f);i=low.indexOf(" "+f+" ",i+f.length+1)}}}
+function highlight(s){let h=esc(s);for(const f of FILLERS[cfg.lang].slice().sort((a,b)=>b.length-a.length))h=h.replace(new RegExp("(^|\\s)("+f.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")(?=\\s|$)","gi"),'$1<span class="f">$2</span>');return h}
+function lose(why){if(G.state!=="talk"||SH.state!=="run")return;G.fillers.push(why);G.lives--;SFX.bad();SH.toast((why==="⏸"?t.silence:t.hit)+(why.length>2&&why!=="⏸"&&why!=="👂"?" « "+why+" »":""));
+ $("#lv").textContent="❤️".repeat(Math.max(0,G.lives))+"🖤".repeat(5-Math.max(0,G.lives));if(G.lives<=0)end(true)}
+function tick(now){if(!G||G.state!=="talk")return;requestAnimationFrame(tick);const dt=(now-G.last)/1000;G.last=now;if(SH.state!=="run")return;
+ G.left-=dt;$("#clk").textContent=Math.max(0,Math.ceil(G.left));if(G.left<=5&&Math.ceil(G.left)!==tick.s){tick.s=Math.ceil(G.left);SFX.tick()}
+ if(cfg.mode==="mic"&&now-G.lastSpeech>3500){G.lastSpeech=now;G.silences++;lose("⏸")}
+ if(G.left<=0)end(false)}
+function end(out){if(G.state!=="talk")return;G.state="done";SH.state="over";try{G.rec&&(G.rec.onend=null,G.rec.stop())}catch(e){}
+ const spoken=(cfg.time-Math.max(0,G.left))/60,fpm=spoken>0?(G.fillers.length/spoken):0,wpm=cfg.mode==="mic"&&spoken>0?Math.round(G.words/spoken):null;
+ const clean=!out&&G.fillers.length===0&&cfg.time>=60&&(cfg.mode==="partner"||G.words>=60);
+ out?SFX.over():SFX.win();
+ const xi=XP.add(20+G.lives*10+(clean?30:0),{lang:cfg.lang,stats:clean?{cleanMin:1}:{},metric:{fillersPerMin:+fpm.toFixed(1)}});
+ const counts={};G.fillers.forEach(f=>counts[f]=(counts[f]||0)+1);
+ $("#over").innerHTML=`<div class="box"><h1>${out?"💀 "+t.out:clean?"🧼 "+t.clean:"⏱ "+t.over}</h1>
+  <div class="stats"><div>${t.fillers}<b>${G.fillers.length}</b></div><div>${t.perMin}<b>${fpm.toFixed(1)}</b></div><div>${t.wpm}<b>${wpm??"–"}</b></div></div>
+  ${G.fillers.length?`<div class="lbl">${t.found}</div><div class="row">${Object.entries(counts).map(([k,v])=>`<span class="rv">${k==="⏸"?"⏸ "+t.silence:esc(k)} × ${v}</span>`).join("")}</div>`:""}
+  ${XP.strip(xi,SH.UI)}<div class="row"><button class="pri" id="ag">${SH.t.again}</button><button id="mn">${SH.t.change}</button><a href="../progress/">${SH.t.progress} →</a></div>
+  ${cfg.mode==="mic"&&G.finals?`<div class="card tx">${highlight(G.finals)}</div>`:""}</div>`;
+ $("#over").classList.add("on");$("#ag").onclick=start;$("#mn").onclick=menu}
+function menu(){SH.state="menu";if(G){G.state="menu";try{G.rec&&(G.rec.onend=null,G.rec.stop())}catch(e){}}t=L10[SH.UI];const o=(k,v,l)=>SH.opt(cfg,k,v,l);
+ $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font-weight:600">${SH.t.all}</a>${SH.langBar()}</div>
+  <h1>🎯 ${t.title}</h1><p>${t.lead}</p>
+  <div class="lbl">${t.lang}</div><div class="row">${["en","fr","de","pt"].map(l=>o("lang",l,FL[l]+" "+LN[l])).join("")}</div>
+  <div class="lbl">${t.mode}</div><div class="row">${SH.SR?o("mode","mic",t.mic):""}${o("mode","partner",t.partner)}</div>${SH.SR?"":`<div class="tip">${t.noSR}</div>`}
+  <div class="lbl">${t.time}</div><div class="row">${o("time",30,"30 s")}${o("time",60,"60 s")}${o("time",90,"90 s")}${o("time",120,"2 min")}</div>
+  <p class="muted">${esc(FILLERS[cfg.lang].slice(0,8).join(" · "))} …</p>
+  <div class="row" style="margin-top:8px"><button class="pri" id="go">🎯 ${t.start}</button></div></div>`;
+ $("#menu").classList.add("on");$("#over").classList.remove("on");SH.bindOpts($("#menu"),cfg,"fh-cfg",menu);SH.bindLang($("#menu"),menu);$("#go").onclick=start}
+SH.onMenu=menu;document.documentElement.lang=SH.UI;menu();
+</script>
+</body>
+</html>

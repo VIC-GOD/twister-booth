@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Shadow Boss · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="../live/shell.css">
+<style>
+:root{--c:#b388ff;--bg:#120d24}
+.stagebox{display:grid;place-items:center;gap:10px;padding:10px 0}
+.boss{font-size:84px;line-height:1;filter:drop-shadow(0 6px 20px #b388ff66)}
+.boss.talk{animation:talk .25s infinite alternate}@keyframes talk{to{transform:scale(1.06) rotate(-2deg)}}
+.wave{display:flex;gap:4px;align-items:center;height:60px}.wave i{width:7px;border-radius:4px;background:var(--c);height:10px;transition:height .1s}
+.live{min-height:3em;font-size:19px;color:#cfc4ff;text-align:center}
+.src{font-size:19px;line-height:1.7}.src .m{color:#7ff0b2}.src .x{color:#ff8fa8;text-decoration:underline dotted}
+.meter{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.meter div{background:#0005;border-radius:12px;padding:10px;text-align:center}.meter b{display:block;font-size:30px}
+.karaoke{font-size:21px;line-height:1.6;color:#8d84b3}.karaoke .on{color:#fff;background:#b388ff33;border-radius:4px}
+.tip{background:#ffd16622;border:1px solid #ffd16666;border-radius:12px;padding:10px 14px}
+</style>
+</head>
+<body>
+<div class="wrap" id="game"></div>
+<div class="ov on" id="menu"></div><div class="ov" id="over"></div>
+<script src="../live/sfx.js"></script>
+<script src="../live/xp.js"></script>
+<script src="../live/shell.js"></script>
+<script src="../live/speeches.js"></script>
+<script>
+"use strict";
+const {$,esc}=SH;
+const L10={
+ en:{title:"Shadow Boss",lead:"A speaker talks. You repeat every word a little behind, out loud, without stopping. The microphone checks how much you kept and how far behind you were. The speaker speeds up sentence by sentence. Beat the weekly boss for a badge.",
+  lang:"Language",speech:"Speech",random:"Surprise me",mode:"Speaker",normal:"Normal speaker",boss:"Boss of the week",show:"Show the text while shadowing (easier)",yes:"Yes",no:"No",
+  start:"Start shadowing",ear:"🎧 Use earphones, so the microphone hears only you.",noSR:"This browser cannot listen to you. You can still shadow, then rate yourself at the end.",
+  listening:"Listening to you…",kept:"Words kept",lag:"Average lag",speed:"Speaker speed",self:"How much did you keep?",all:"Almost everything",half:"About half",little:"I got lost",
+  over:"Speech over",won:"Boss defeated!",lost:"The boss wins this time. Aim for 65% of words kept.",friday:"It's Friday: the boss gives triple XP!",lv:["","Easy","Medium","Hard"]},
+ fr:{title:"Shadow Boss",lead:"Un orateur parle. Vous répétez chaque mot un peu en décalé, à voix haute, sans vous arrêter. Le micro mesure ce que vous gardez et votre décalage. L'orateur accélère à chaque phrase. Battez le boss de la semaine pour gagner un badge.",
+  lang:"Langue",speech:"Discours",random:"Au hasard",mode:"Orateur",normal:"Orateur normal",boss:"Boss de la semaine",show:"Afficher le texte pendant l'exercice (plus facile)",yes:"Oui",no:"Non",
+  start:"Commencer",ear:"🎧 Mettez des écouteurs pour que le micro n'entende que vous.",noSR:"Ce navigateur ne peut pas vous écouter. Faites l'exercice puis évaluez-vous à la fin.",
+  listening:"Je vous écoute…",kept:"Mots gardés",lag:"Décalage moyen",speed:"Débit de l'orateur",self:"Combien avez-vous gardé ?",all:"Presque tout",half:"À peu près la moitié",little:"J'ai décroché",
+  over:"Discours terminé",won:"Boss vaincu !",lost:"Le boss gagne cette fois. Visez 65 % de mots gardés.",friday:"C'est vendredi : le boss rapporte le triple d'XP !",lv:["","Facile","Moyen","Difficile"]},
+ de:{title:"Shadow Boss",lead:"Eine Person spricht. Sie sprechen jedes Wort kurz versetzt laut nach, ohne anzuhalten. Das Mikrofon misst, wie viel Sie behalten und wie weit Sie zurückliegen. Der Redner wird mit jedem Satz schneller. Schlagen Sie den Boss der Woche für ein Abzeichen.",
+  lang:"Sprache",speech:"Rede",random:"Überraschung",mode:"Redner",normal:"Normaler Redner",boss:"Boss der Woche",show:"Text beim Nachsprechen anzeigen (leichter)",yes:"Ja",no:"Nein",
+  start:"Nachsprechen starten",ear:"🎧 Kopfhörer benutzen, damit das Mikrofon nur Sie hört.",noSR:"Dieser Browser kann Ihnen nicht zuhören. Sprechen Sie trotzdem nach und bewerten Sie sich am Ende.",
+  listening:"Ich höre zu…",kept:"Behaltene Wörter",lag:"Mittlerer Abstand",speed:"Sprechtempo",self:"Wie viel haben Sie behalten?",all:"Fast alles",half:"Etwa die Hälfte",little:"Ich war raus",
+  over:"Rede vorbei",won:"Boss besiegt!",lost:"Diesmal gewinnt der Boss. Ziel: 65 % behaltene Wörter.",friday:"Es ist Freitag: Der Boss bringt dreifache XP!",lv:["","Leicht","Mittel","Schwer"]}};
+let t=L10[SH.UI];
+const FL={en:"🇬🇧",fr:"🇫🇷",de:"🇩🇪",pt:"🇵🇹"},LN={en:"English",fr:"Français",de:"Deutsch",pt:"Português"};
+let cfg=Object.assign({lang:SH.UI,sp:-1,mode:"normal",show:0},JSON.parse(localStorage.getItem("sb-cfg")||"{}"));
+let G=null;
+const normW=w=>w.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9ß]/g,"");
+function weekBoss(){const d=new Date(),w=Math.floor((d-new Date(d.getFullYear(),0,1))/6048e5);return BOSSES[w%BOSSES.length]}
+function start(){const list=SPEECHES[cfg.lang];const sp=cfg.sp>=0&&list[cfg.sp]?list[cfg.sp]:list[Math.floor(Math.random()*list.length)];
+ const boss=cfg.mode==="boss"?weekBoss():null;
+ const sentences=sp.text.match(/[^.!?;:]+[.!?;:]*/g).map(s=>s.trim()).filter(Boolean);
+ const src=[];sentences.forEach((s,si)=>s.split(/\s+/).forEach(w=>{const n=normW(w);if(n)src.push({w,n,si,t:null,m:false})}));
+ G={sp,boss,sentences,src,si:0,rate:boss?boss.rate:.95+sp.lv*.05,heard:[],t0:performance.now(),words:0,startSpeak:0,state:"run",srOn:!!SH.SR,j:0,lags:[]};
+ $("#menu").classList.remove("on");$("#over").classList.remove("on");SH.state="run";SH.music=null;SFX.stop();
+ $("#game").innerHTML=SH.header()+`<div class="card"><div class="stagebox"><div class="boss" id="bossf">${boss?["⚡","🗿","🎤"][BOSSES.indexOf(boss)]:"🧑‍💼"}</div><div class="mid">${esc(boss?(boss[SH.UI]||boss.en):sp.title)}</div><div class="wave" id="wave">${"<i></i>".repeat(16)}</div></div>
+  <div class="bar"><i id="pb" style="width:0%;background:var(--c)"></i></div>${cfg.show?`<div class="karaoke" id="kar">${sentences.map((s,i)=>`<span data-s="${i}">${esc(s)}</span>`).join(" ")}</div>`:""}
+  <div class="live" id="live">${G.srOn?t.listening:t.noSR}</div><div class="tip">${t.ear}</div></div>`;
+ SH.mount();SH.onPause=()=>{try{G.rec&&G.rec.stop()}catch(e){}};SH.onResume=()=>{startRec()};
+ if(G.srOn)startRec();setTimeout(speakNext,600);animate()}
+function startRec(){if(!G.srOn||SH.state!=="run")return;const r=new SH.SR();r.lang=SH.LOC[cfg.lang];r.continuous=true;r.interimResults=true;G.rec=r;
+ r.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const res=e.results[i];if(res.isFinal){const now=performance.now();res[0].transcript.split(/\s+/).forEach(w=>{const n=normW(w);if(n){G.heard.push({n,t:now});align(n,now)}})}else interim+=res[0].transcript}
+  $("#live").textContent=interim||G.heard.slice(-8).map(x=>x.n).join(" ")};
+ r.onend=()=>{if(SH.state==="run"&&G.state==="run")try{r.start()}catch(e){}};r.onerror=e=>{if(e.error==="not-allowed"){G.srOn=false;$("#live").textContent=t.noSR}};
+ try{r.start()}catch(e){}}
+function align(n,now){for(let k=G.j;k<Math.min(G.src.length,G.j+10);k++){const s=G.src[k];if(!s.m&&(s.n===n||(n.length>=5&&s.n.slice(0,5)===n.slice(0,5)))){s.m=true;if(s.t)G.lags.push((now-s.t)/1000);G.j=k+1;return}}}
+function speakNext(){if(SH.state==="pause"){setTimeout(speakNext,300);return}if(G.state!=="run")return;if(G.si>=G.sentences.length){setTimeout(finish,2500);return}
+ const s=G.sentences[G.si],si=G.si,words=G.src.filter(x=>x.si===si),start=performance.now();
+ document.querySelectorAll("#kar span").forEach(e=>e.classList.toggle("on",+e.dataset.s===si));
+ let wi=0;const u=SH.say(s,SH.LOC[cfg.lang],G.rate,()=>{const end=performance.now();// fill missing word times evenly
+   words.forEach((w,i)=>{if(!w.t)w.t=start+(end-start)*(i+.5)/words.length});G.words+=words.length;G.spoke=(G.spoke||0)+(end-start);G.si++;G.rate=Math.min(1.9,G.rate+.04);$("#pb").style.width=(G.si/G.sentences.length*100)+"%";speakNext()},
+  e=>{if(e.name==="word"&&words[wi]){words[wi].t=performance.now();wi++}});
+ if(u&&G.boss)u.pitch=G.boss.pitch;G.talking=true}
+function animate(){if(!G||G.state!=="run"){return}requestAnimationFrame(animate);const talking=window.speechSynthesis&&speechSynthesis.speaking&&SH.state==="run";
+ $("#bossf").classList.toggle("talk",talking);document.querySelectorAll("#wave i").forEach(i=>i.style.height=(talking?8+Math.random()*50:6)+"px")}
+function finish(){if(G.state!=="run")return;G.state="done";try{G.rec&&(G.rec.onend=null,G.rec.stop())}catch(e){}
+ if(!G.srOn||!G.heard.length){$("#game").insertAdjacentHTML("beforeend",`<div class="card"><b>${t.self}</b><div class="row"><button data-c=".9">${t.all}</button><button data-c=".5">${t.half}</button><button data-c=".2">${t.little}</button></div></div>`);
+  document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>end(+b.dataset.c,true));return}
+ end()}
+function end(selfCov,self){SH.state="over";const n=G.src.length,m=G.src.filter(x=>x.m).length,cov=self?selfCov:m/n;const lags=G.lags.slice().sort((a,b)=>a-b),lag=lags.length?lags[Math.floor(lags.length/2)]:null;
+ const wpm=G.spoke?Math.round(G.words/(G.spoke/60000)):0,win=G.boss&&cov>=.65,fri=new Date().getDay()===5;
+ win?SFX.win():cov>=.6?SFX.win():SFX.over();
+ const xp=(cov*60+(G.sp.lv*10))*(G.boss?(fri?3:1.5):1);const xi=XP.add(xp,{lang:cfg.lang,stats:win?{bossWin:1}:{},metric:Object.assign({shadowCov:Math.round(cov*100)},lag!=null?{lag:+lag.toFixed(2)}:{})});
+ if(!self)G.src.forEach(s=>{});
+ const missedTerms=G.src.filter(s=>!s.m&&s.n.length>=7).slice(0,6);if(!self)missedTerms.forEach(s=>BANK.add({game:"shadow",lang:cfg.lang,q:"🎧 "+G.sentences[s.si],a:s.w.replace(/[.,;:!?]/g,"")}));
+ $("#over").innerHTML=`<div class="box"><h1>${G.boss?(win?"🏆 "+t.won:"😈 "+t.lost):t.over}</h1>${G.boss&&fri?`<p>${t.friday}</p>`:""}
+  <div class="meter"><div>${t.kept}<b>${Math.round(cov*100)}%</b></div><div>${t.lag}<b>${lag!=null?lag.toFixed(1)+" s":"–"}</b></div><div>${t.speed}<b>${wpm||"–"}</b>wpm</div></div>
+  ${XP.strip(xi,SH.UI)}<div class="row"><button class="pri" id="ag">${SH.t.again}</button><button id="mn">${SH.t.change}</button><a href="../progress/">${SH.t.progress} →</a></div>
+  ${self?"":`<div class="card src">${G.src.map(s=>`<span class="${s.m?"m":"x"}">${esc(s.w)}</span>`).join(" ")}</div>`}</div>`;
+ $("#over").classList.add("on");$("#ag").onclick=start;$("#mn").onclick=menu}
+function menu(){SH.state="menu";try{speechSynthesis.cancel()}catch(e){}if(G){G.state="menu";try{G.rec&&(G.rec.onend=null,G.rec.stop())}catch(e){}}t=L10[SH.UI];const o=(k,v,l)=>SH.opt(cfg,k,v,l);
+ const list=SPEECHES[cfg.lang],b=weekBoss();
+ $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font-weight:600">${SH.t.all}</a>${SH.langBar()}</div>
+  <h1>🎧 ${t.title}</h1><p>${t.lead}</p>
+  <div class="lbl">${t.lang}</div><div class="row">${["en","fr","de","pt"].map(l=>o("lang",l,FL[l]+" "+LN[l])).join("")}</div>
+  <div class="lbl">${t.speech}</div><div class="row">${o("sp",-1,"🎲 "+t.random)}${list.map((s,i)=>o("sp",i,`${t.lv[s.lv]} · ${esc(s.title)}`)).join("")}</div>
+  <div class="lbl">${t.mode}</div><div class="row">${o("mode","normal",t.normal)}${o("mode","boss","😈 "+t.boss+": "+(b[SH.UI]||b.en))}</div>
+  <div class="lbl">${t.show}</div><div class="row">${o("show",0,t.no)}${o("show",1,t.yes)}</div>
+  <div class="tip">${SH.SR?t.ear:t.noSR}</div>
+  <div class="row" style="margin-top:8px"><button class="pri" id="go">🎧 ${t.start}</button></div></div>`;
+ $("#menu").classList.add("on");$("#over").classList.remove("on");
+ SH.bindOpts($("#menu"),cfg,"sb-cfg",()=>{if(!SPEECHES[cfg.lang][cfg.sp])cfg.sp=-1;menu()});SH.bindLang($("#menu"),menu);$("#go").onclick=start}
+SH.onMenu=menu;document.documentElement.lang=SH.UI;menu();
+</script>
+</body>
+</html>

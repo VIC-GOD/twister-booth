@@ -20,3 +20,11 @@ Play: https://vic-god.github.io/twister-booth/
 - `match/`: Match Rush, timed pair matching.
 - `live/sfx.js` (music, sounds, vibration), `live/xp.js` (XP, levels, day streaks), `live/teleprompter.js`, `live/vocab.js`.
 - `flags/`: country flag SVGs from flag-icons (MIT, see `flags/LICENSE-flag-icons.txt`).
+
+## Phase 1 of the design document
+- `numbers/` Number Avalanche (EN, FR/BE/CH, DE, PT/BR; `live/numwords.js` writes numbers in words), daily challenge.
+- `minefield/` False Friends Minefield (`live/falsefriends.js`).
+- `shadow/` Shadow Boss (`live/speeches.js`, speech synthesis + speech recognition).
+- `filler/` Filler Hunter (speech recognition or partner mode).
+- `fingerspell/` Fingerspelling Rush (ASL hand drawings in `asl/`, from handsign-multilingual, BSD-2).
+- `progress/` dashboard: career ranks, streak + weekly freeze, daily goal, badges, metrics, error bank reviews (1, 3, 7, 21 days). Logic in `live/xp.js`.

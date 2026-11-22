@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>False Friends Minefield · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="../live/shell.css">
+<style>
+:root{--c:#ff7b25;--bg:#1d1408}
+body{background:repeating-linear-gradient(45deg,#2a1d0c 0 22px,#241a0b 22px 44px)}
+.field{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mine{position:relative;min-height:110px;border-radius:18px;border:3px solid #5a4422;background:radial-gradient(circle at 30% 25%,#4a3a22,#2b2112);color:var(--ink);font:800 clamp(18px,4.6vw,26px)/1.2 "Familjen Grotesk",sans-serif;padding:14px;text-wrap:balance;box-shadow:0 6px 0 #140e05}
+.mine:before{content:"💣";position:absolute;top:6px;left:10px;font-size:18px;opacity:.6}
+.mine:active{transform:translateY(3px);box-shadow:0 3px 0 #140e05}
+.mine.ok{background:var(--ok);border-color:#7ff0b2}.mine.ok:before{content:"✅";opacity:1}
+.mine.boom{background:radial-gradient(circle,#ffd166,#ef476f 60%,#5a1020);border-color:#ffd166;animation:boom .5s}.mine.boom:before{content:"💥";opacity:1;font-size:28px}
+@keyframes boom{0%{transform:scale(1)}30%{transform:scale(1.15) rotate(-3deg)}60%{transform:scale(.95) rotate(2deg)}100%{transform:scale(1)}}
+.flash{position:fixed;inset:0;background:#ff5a2a;opacity:0;pointer-events:none;z-index:3;transition:opacity .4s}
+.word{font-weight:800;font-size:clamp(34px,9vw,58px);text-align:center;line-height:1.1}
+.pl{display:inline-flex;gap:6px;align-items:center;background:#0004;border-radius:999px;padding:4px 12px}.pl.on{outline:2px solid var(--c)}.pl.out{opacity:.4;text-decoration:line-through}
+input.nm{font-size:17px;min-height:42px;width:11em}
+</style>
+</head>
+<body>
+<div class="flash" id="flash"></div>
+<div class="wrap" id="game"></div>
+<div class="ov on" id="menu"></div><div class="ov" id="over"></div>
+<script src="../content/data.js"></script>
+<script src="../live/sfx.js"></script>
+<script src="../live/xp.js"></script>
+<script src="../live/shell.js"></script>
+<script src="../live/falsefriends.js"></script>
+<script>
+"use strict";
+const {$,esc}=SH;
+const L10={
+ en:{title:"False Friends Minefield",lead:"A tricky word appears. Four mines carry possible meanings and only one is safe. Tap the true meaning before the fuse burns out. A wrong tap explodes. Three explosions and you are out.",
+  pair:"Language pair",players:"Players (pass the phone)",p:"Player",start:"Enter the minefield",means:"means…",in:l=>"in "+l,out:"Out!",win:n=>n+" survives the minefield!",over:"Boom. Game over",
+  defused:"Mines defused",best:"Best streak",turn:n=>n+", your turn",L:{en:"English",fr:"French",de:"German",pt:"Portuguese"}},
+ fr:{title:"Faux amis : champ de mines",lead:"Un mot piège s'affiche. Quatre mines portent des sens possibles, une seule est sûre. Touchez le vrai sens avant la fin de la mèche. Une mauvaise réponse explose. Trois explosions et c'est fini.",
+  pair:"Paire de langues",players:"Joueurs (passez le téléphone)",p:"Joueur",start:"Entrer dans le champ de mines",means:"veut dire…",in:l=>"en "+l,out:"Éliminé !",win:n=>n+" survit au champ de mines !",over:"Boum. Partie terminée",
+  defused:"Mines désamorcées",best:"Meilleure série",turn:n=>n+", à vous",L:{en:"anglais",fr:"français",de:"allemand",pt:"portugais"}},
+ de:{title:"Falsche Freunde: Minenfeld",lead:"Ein tückisches Wort erscheint. Vier Minen tragen mögliche Bedeutungen, nur eine ist sicher. Tippen Sie die richtige, bevor die Lunte abbrennt. Ein falscher Tipp explodiert. Drei Explosionen und Sie sind raus.",
+  pair:"Sprachpaar",players:"Spieler (Handy weitergeben)",p:"Spieler",start:"Ins Minenfeld",means:"bedeutet…",in:l=>"auf "+l,out:"Raus!",win:n=>n+" überlebt das Minenfeld!",over:"Bumm. Spiel vorbei",
+  defused:"Entschärfte Minen",best:"Beste Serie",turn:n=>n+", Sie sind dran",L:{en:"Englisch",fr:"Französisch",de:"Deutsch",pt:"Portugiesisch"}}};
+let t=L10[SH.UI];
+const PAIRS=[["en","fr"],["en","de"],["en","pt"],["fr","pt"],["fr","de"]];
+const FL={en:"🇬🇧",fr:"🇫🇷",de:"🇩🇪",pt:"🇵🇹"};
+let cfg=Object.assign({pair:"en-fr",np:1,names:[]},JSON.parse(localStorage.getItem("ff-cfg")||"{}"));
+let G=null;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function deck(){const [a,b]=cfg.pair.split("-");return shuffle(FFDATA.filter(x=>(x.l===a&&x.t===b)||(x.l===b&&x.t===a)))}
+function start(){G={deck:deck(),di:0,players:[...Array(cfg.np)].map((_,i)=>({name:(cfg.names[i]||"").trim()||t.p+" "+(i+1),lives:3,score:0,streak:0,best:0,ok:0})),pi:0,miss:[],state:"",lv:0};
+ $("#menu").classList.remove("on");$("#over").classList.remove("on");SH.state="run";SH.music="quiz";SFX.music("quiz");
+ $("#game").innerHTML=SH.header()+`<div class="row" id="pls"></div><div class="bar"><i id="fuse"></i></div><div class="card"><div class="muted" style="text-align:center" id="lng"></div><div class="word" id="w"></div><div class="muted" style="text-align:center" id="mn"></div></div><div class="field" id="field"></div>`;
+ SH.mount();next();tick.last=performance.now();requestAnimationFrame(tick)}
+function alive(){return G.players.filter(p=>p.lives>0)}
+function next(){if(G.di>=G.deck.length){G.deck=G.deck.concat(deck());}
+ const f=G.deck[G.di++],opts=shuffle([f.ok,...f.bad.slice(0,3)]);G.f=f;G.opts=opts;G.state="ask";G.t0=performance.now();G.limit=Math.max(4,9-G.lv*.35);
+ const p=G.players[G.pi];
+ $("#lng").textContent=FL[f.l]+" → "+FL[f.t]+" "+t.in(t.L[f.t]);$("#w").textContent=f.w;$("#mn").textContent=G.players.length>1?t.turn(p.name):t.means;
+ $("#field").innerHTML=opts.map((o,i)=>`<button class="mine pop" data-i="${i}">${esc(o)}</button>`).join("");hud()}
+function hud(){$("#sh-st").innerHTML=G.players.length===1?`<span>${SH.t.score} ${G.players[0].score}</span><span style="color:#ef476f">${"♥".repeat(G.players[0].lives)}${"♡".repeat(3-G.players[0].lives)}</span>${G.players[0].streak>=5?`<span style="color:#ffd166">🔥${G.players[0].streak}</span>`:""}`:"";
+ $("#pls").innerHTML=G.players.length>1?G.players.map((p,i)=>`<span class="pl${i===G.pi?" on":""}${p.lives<=0?" out":""}">${esc(p.name)} · ${p.score} <span style="color:#ef476f">${"♥".repeat(Math.max(0,p.lives))}</span></span>`).join(""):""}
+function pickMine(i){if(G.state!=="ask"||SH.state!=="run")return;G.state="fb";const ok=G.opts[i]===G.f.ok,p=G.players[G.pi],els=[...document.querySelectorAll(".mine")];
+ const right=G.opts.indexOf(G.f.ok);
+ if(ok){p.ok++;p.streak++;p.best=Math.max(p.best,p.streak);const left=Math.max(0,G.limit-(performance.now()-G.t0)/1000);p.score+=Math.round(10+left*3)*(1+Math.floor(p.streak/5));els[i].classList.add("ok");p.streak%5===0?SFX.combo():SFX.ok();G.lv++}
+ else{boom(i>=0?els[i]:null);els[right].classList.add("ok");p.lives--;p.streak=0;G.miss.push({f:G.f,y:i>=0?G.opts[i]:"⏱"});BANK.add({game:"minefield",lang:G.f.l,q:"💣 "+G.f.w+" ("+G.f.l.toUpperCase()+"→"+G.f.t.toUpperCase()+")",a:G.f.ok,note:G.f.n});if(p.lives<=0)SH.toast(p.name+" · "+t.out)}
+ hud();setTimeout(()=>{if(SH.state!=="run"&&SH.state!=="pause")return;const al=alive();if(!al.length||(G.players.length>1&&al.length<=1))return end();
+  do{G.pi=(G.pi+1)%G.players.length}while(G.players[G.pi].lives<=0);next()},ok?650:1700)}
+function boom(el){if(el)el.classList.add("boom");SFX.bad();try{navigator.vibrate&&navigator.vibrate([120,60,220])}catch(e){}const f=$("#flash");f.style.opacity=.55;setTimeout(()=>f.style.opacity=0,180);document.querySelector(".wrap").classList.add("shake");setTimeout(()=>document.querySelector(".wrap").classList.remove("shake"),400)}
+function tick(now){if(!G||SH.state==="menu"||SH.state==="over")return;requestAnimationFrame(tick);if(SH.state!=="run"){G.t0+=now-tick.last;tick.last=now;return}tick.last=now;
+ if(G.state==="ask"){const left=G.limit-(now-G.t0)/1000;$("#fuse").style.width=Math.max(0,left/G.limit*100)+"%";if(left<=0)pickMine(-1)}}
+function end(){SH.state="over";SFX.stop();const P=G.players,solo=P.length===1,me=P[0];const al=alive();
+ const xi=XP.add(P.reduce((a,p)=>a+p.score,0)/8+P.reduce((a,p)=>a+p.ok,0)*2,{lang:cfg.pair.split("-")[1],max:{ffBest:Math.max(...P.map(p=>p.best))}});
+ solo?SFX.over():SFX.win();
+ const bk="ff-best-"+cfg.pair;let b=+(localStorage.getItem(bk)||0);if(solo&&me.score>b){localStorage.setItem(bk,me.score);b=me.score}
+ const head=solo?`<h1>💥 ${t.over}</h1><div class="row" style="gap:26px"><div><div class="lbl">${SH.t.score}</div><div class="big" style="color:var(--c);text-align:left">${me.score}</div></div><div><div class="lbl">${t.defused}</div><div class="big" style="text-align:left">${me.ok}</div></div><div><div class="lbl">${t.best}</div><div class="big" style="text-align:left">${me.best}</div></div></div><p>${SH.t.best}: ${b}</p>`
+  :`<h1>🏆 ${esc(t.win((al[0]||P.slice().sort((a,b)=>b.score-a.score)[0]).name))}</h1>${P.slice().sort((a,b)=>b.lives-a.lives||b.score-a.score).map((p,i)=>`<div class="rv"><b>${i+1}. ${esc(p.name)}</b> · ${p.score} · ${p.ok} ✅</div>`).join("")}`;
+ $("#over").innerHTML=`<div class="box">${head}${XP.strip(xi,SH.UI)}<div class="row"><button class="pri" id="ag">${SH.t.again}</button><button id="mn2">${SH.t.change}</button><a href="../progress/">${SH.t.progress} →</a></div>
+  <div class="lbl">${SH.t.review}</div>${G.miss.length?G.miss.map(m=>`<div class="rv">${FL[m.f.l]} <b>${esc(m.f.w)}</b> → <b class="ok">${esc(m.f.ok)}</b><div class="muted">✗ ${esc(m.y)}${m.f.n?" · "+esc(m.f.n):""}</div></div>`).join("")+`<p class="muted">${SH.t.bank}</p>`:`<p>${SH.t.none}</p>`}</div>`;
+ $("#over").classList.add("on");$("#ag").onclick=start;$("#mn2").onclick=menu}
+function menu(){SH.state="menu";SFX.stop();t=L10[SH.UI];const o=(k,v,l)=>SH.opt(cfg,k,v,l);
+ $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font-weight:600">${SH.t.all}</a>${SH.langBar()}</div>
+  <h1>💣 ${t.title}</h1><p>${t.lead}</p>
+  <div class="lbl">${t.pair}</div><div class="row">${PAIRS.map(p=>o("pair",p.join("-"),FL[p[0]]+" "+p[0].toUpperCase()+" ↔ "+FL[p[1]]+" "+p[1].toUpperCase())).join("")}</div>
+  <div class="lbl">${t.players}</div><div class="row">${[1,2,3,4,5,6].map(n=>o("np",n,n)).join("")}</div>
+  ${cfg.np>1?`<div class="row">${[...Array(cfg.np)].map((_,i)=>`<input class="nm" data-n="${i}" maxlength="16" placeholder="${t.p} ${i+1}" value="${esc(cfg.names[i]||"")}">`).join("")}</div>`:""}
+  <div class="row" style="margin-top:8px"><button class="pri" id="go">💣 ${t.start}</button><span class="muted">${SH.t.best}: ${+(localStorage.getItem("ff-best-"+cfg.pair)||0)}</span></div></div>`;
+ $("#menu").classList.add("on");$("#over").classList.remove("on");
+ SH.bindOpts($("#menu"),cfg,"ff-cfg",menu);SH.bindLang($("#menu"),menu);
+ document.querySelectorAll("#menu .nm").forEach(e=>e.oninput=()=>{cfg.names[+e.dataset.n]=e.value;try{localStorage.setItem("ff-cfg",JSON.stringify(cfg))}catch(x){}});
+ $("#go").onclick=start}
+document.addEventListener("click",e=>{const m=e.target.closest(".mine");if(m)pickMine(+m.dataset.i)});
+addEventListener("keydown",e=>{if(/^[1-4]$/.test(e.key)&&G&&G.state==="ask")pickMine(+e.key-1)});
+SH.onMenu=menu;document.documentElement.lang=SH.UI;menu();
+</script>
+</body>
+</html>

@@ -102,7 +102,7 @@ function tap(s,i){if(!G||G.state!=="run"||G.busy)return;SFX.move();
  const el=$(`#L [data-i="${li}"]`),er=$(`#Rr [data-i="${ri}"]`);
  if(l.id===r.id){G.ok++;G.streak++;const m=1+Math.floor(G.streak/5);G.score+=10*m;if(G.streak%5===0){G.tleft=Math.min(G.tmax,G.tleft+5);SFX.combo();$("#combo").textContent=t.combo(m)+" · +5 s";setTimeout(()=>$("#combo").textContent="",1200)}else SFX.ok();
   el.classList.add("ok");er.classList.add("ok");G.busy=true;setTimeout(()=>{G.busy=false;addPair(li,ri);render()},230)}
- else{G.streak=0;SFX.bad();G.tleft=Math.max(0,G.tleft-2);const pr=G.left.find(x=>x.id===l.id),rr=G.right.find(x=>x.id===l.id);G.miss.push([l.v,rr?rr.v:""]);
+ else{G.streak=0;SFX.bad();G.tleft=Math.max(0,G.tleft-2);const pr=G.left.find(x=>x.id===l.id),rr=G.right.find(x=>x.id===l.id);G.miss.push([l.v,rr?rr.v:""]);if(rr&&typeof rr.v==="string")BANK.add({game:"match",lang:cfg.lang,q:typeof l.v==="object"?"🏳":l.v,img:typeof l.v==="object"?l.v.img:null,a:rr.v});
   el.classList.add("bad");er.classList.add("bad");G.busy=true;setTimeout(()=>{G.busy=false;render()},350)}}
 function loop(now){if(!G||G.state!=="run")return;const dt=(now-G.last)/1000;G.last=now;G.tleft-=dt;$("#tm").style.width=Math.max(0,G.tleft/G.tmax*100)+"%";
  if(G.tleft<=5&&Math.ceil(G.tleft)!==loop.s){loop.s=Math.ceil(G.tleft);if(G.tleft>0)SFX.tick()}

@@ -196,7 +196,7 @@ function showQ(){const q=seq[G.qi%seq.length],n=q.lanes.length,long=q.long||Math
  $("#opts").innerHTML=q.lanes.map((s,i)=>`<button class="opt${long?" long":""}" style="--lc:${["#2b8cc4","#9b5de5","#e0568f","#2a9d8f"][i]}" data-i="${i}">${esc(s)}</button>`).join("");say(q)}
 function answer(i){if(!G||G.state!=="run"||G.lock)return;const q=seq[G.qi%seq.length],ok=i===q.right,me=G.me;G.lock=true;
  document.querySelectorAll(".opt").forEach((e,j)=>{e.disabled=true;if(j===q.right)e.classList.add("ok");else if(j===i)e.classList.add("bad")});
- if(ok){me.b++;SFX.ok();burst(me)}else{me.b=Math.max(0,me.b-1);SFX.bad();G.mist.push({k:q.k,q:q.q||q.note,img:q.img,a:q.ans,y:q.lanes[i],n:q.note});toast("✓ "+q.ans)}
+ if(ok){me.b++;SFX.ok();burst(me)}else{me.b=Math.max(0,me.b-1);SFX.bad();BANK.add({game:"climb",lang:q.sl||cfg.lang,q:q.k+": "+(q.q||""),img:q.img,a:q.ans,note:q.note});G.mist.push({k:q.k,q:q.q||q.note,img:q.img,a:q.ans,y:q.lanes[i],n:q.note});toast("✓ "+q.ans)}
  G.qi++;if(me.b>=cfg.n&&!me.fin){me.fin=performance.now()-G.t0;SFX.win();toast(ct.top,1)}
  sync();prog();G.wait=ok?.45:1.6}
 function burst(m){for(let i=0;i<18;i++)G.parts.push({x:monX(m),y:branchY(m.b),vx:(Math.random()-.5)*220,vy:-Math.random()*240-40,life:.8,col:["#ffbe0b","#8ac926","#fff"][i%3]})}

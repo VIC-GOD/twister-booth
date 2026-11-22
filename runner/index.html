@@ -230,7 +230,7 @@ function toast(s,ok){const e=$("#toast");e.textContent=s;e.className="toast"+(ok
 function resolve(){const q=G.q;G.res=true;G.qn++;let anyBad=false;
  G.P.forEach((p,i)=>{if(p.out)return;const ok=p.lane===q.right;p.res=ok?"ok":"bad";p.n++;const v=views()[i];
   if(ok){p.ok++;p.streak++;const m=1+Math.floor(p.streak/5);p.score+=10*m;p.streak%5===0?SFX.combo():SFX.ok();if(p.streak%5===0&&G.P.length===1)toast("×"+m+" !",1);burst(v,p.lane,"#2fa36b")}
-  else{anyBad=true;SFX.bad();p.lives--;p.streak=0;p.mist.push({k:q.k,q:q.q||q.note,img:q.img,a:q.ans,y:q.lanes[p.lane],n:q.note});burst(v,p.lane,"#d2493c");if(p.lives<=0)p.out=true}});
+  else{anyBad=true;SFX.bad();p.lives--;p.streak=0;BANK.add({game:"runner",lang:q.sl||cfg.lang,q:q.k+": "+(q.q||""),img:q.img,a:q.ans,note:q.note});p.mist.push({k:q.k,q:q.q||q.note,img:q.img,a:q.ans,y:q.lanes[p.lane],n:q.note});burst(v,p.lane,"#d2493c");if(p.lives<=0)p.out=true}});
  markOpts();if(anyBad){toast("✓ "+q.ans);G.flash=.45}
  hud();G.wait=anyBad?1.9:.6;if(G.P.every(p=>p.out)){G.wait=1.5;G.state="dying"}}
 function burst(v,l,col){const x=laneX(v,l,1);for(let i=0;i<22;i++)G.parts.push({x,y:Hh-60,vx:(Math.random()-.5)*260,vy:-Math.random()*300-60,life:.8,col})}
