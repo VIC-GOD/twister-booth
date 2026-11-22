@@ -33,25 +33,25 @@ body{background:radial-gradient(circle at 50% 0%,#4a2f16,#21150c 60%) fixed}
 "use strict";
 const {$,esc}=SH;
 const L10={
- en:{title:"Proverb Duel",lead:"A proverb appears. Find the one native speakers really use in the other language, not a word-for-word copy. African proverbs from Swahili, Igbo and Wolof meet their European cousins. Answer fast for bonus points; three mistakes and you are out.",
+ en:{title:"Proverb Duel",lead:"A proverb appears. Find the one native speakers really use in the other language, not a word-for-word copy. African proverbs from Cameroon (Medumba, Lamnso, Kenyang, Bakossi, Pidgin, Fulfulde), Swahili, Igbo and Wolof meet their European cousins. Answer fast for bonus points; three mistakes and you are out.",
   from:"Proverb in",to:"Find the equivalent in",start:"Start the duel",next:"Next proverb →",meaning:"Meaning",all:"In every language",
   time:"Time!",score:"Score",over:"Duel over",check:"⚠ To be checked by a speaker of this language.",tap:"Tap when ready",
-  L:{en:"English",fr:"French",de:"German",pt:"Portuguese",af:"African languages",mix:"Mix"},lit:"Literally"},
- fr:{title:"Duel de proverbes",lead:"Un proverbe s'affiche. Trouvez celui que les locuteurs natifs emploient vraiment dans l'autre langue, pas une traduction mot à mot. Des proverbes africains en swahili, igbo et wolof rencontrent leurs cousins européens. Répondez vite pour un bonus ; trois erreurs et vous êtes éliminé.",
+  L:{en:"English",fr:"French",de:"German",pt:"Portuguese",af:"African languages",cm:"Cameroon",mix:"Mix"},src:"Source",lit:"Literally"},
+ fr:{title:"Duel de proverbes",lead:"Un proverbe s'affiche. Trouvez celui que les locuteurs natifs emploient vraiment dans l'autre langue, pas une traduction mot à mot. Des proverbes africains du Cameroun (medumba, lamnso, kenyang, bakossi, pidgin, fulfulde), en swahili, igbo et wolof rencontrent leurs cousins européens. Répondez vite pour un bonus ; trois erreurs et vous êtes éliminé.",
   from:"Proverbe en",to:"Trouver l'équivalent en",start:"Lancer le duel",next:"Proverbe suivant →",meaning:"Sens",all:"Dans chaque langue",
   time:"Temps écoulé !",score:"Score",over:"Duel terminé",check:"⚠ À vérifier par un locuteur de cette langue.",tap:"Touchez quand vous êtes prêt",
-  L:{en:"anglais",fr:"français",de:"allemand",pt:"portugais",af:"langues africaines",mix:"mélange"},lit:"Littéralement"},
- de:{title:"Sprichwort-Duell",lead:"Ein Sprichwort erscheint. Finden Sie das, was Muttersprachler in der anderen Sprache wirklich sagen, keine Wort-für-Wort-Übersetzung. Afrikanische Sprichwörter auf Swahili, Igbo und Wolof treffen ihre europäischen Verwandten. Schnelle Antworten bringen Bonus; nach drei Fehlern sind Sie raus.",
+  L:{en:"anglais",fr:"français",de:"allemand",pt:"portugais",af:"langues africaines",cm:"Cameroun",mix:"mélange"},src:"Source",lit:"Littéralement"},
+ de:{title:"Sprichwort-Duell",lead:"Ein Sprichwort erscheint. Finden Sie das, was Muttersprachler in der anderen Sprache wirklich sagen, keine Wort-für-Wort-Übersetzung. Afrikanische Sprichwörter aus Kamerun (Medumba, Lamnso, Kenyang, Bakossi, Pidgin, Fulfulde), auf Swahili, Igbo und Wolof treffen ihre europäischen Verwandten. Schnelle Antworten bringen Bonus; nach drei Fehlern sind Sie raus.",
   from:"Sprichwort auf",to:"Entsprechung auf",start:"Duell starten",next:"Nächstes Sprichwort →",meaning:"Bedeutung",all:"In jeder Sprache",
   time:"Zeit!",score:"Punkte",over:"Duell vorbei",check:"⚠ Von einem Sprecher dieser Sprache zu prüfen.",tap:"Tippen, wenn bereit",
-  L:{en:"Englisch",fr:"Französisch",de:"Deutsch",pt:"Portugiesisch",af:"afrikanischen Sprachen",mix:"Mix"},lit:"Wörtlich"}};
+  L:{en:"Englisch",fr:"Französisch",de:"Deutsch",pt:"Portugiesisch",af:"afrikanischen Sprachen",cm:"Kamerun",mix:"Mix"},src:"Quelle",lit:"Wörtlich"}};
 let t=L10[SH.UI];
 const LS=["en","fr","de","pt"],FL={en:"EN",fr:"FR",de:"DE",pt:"PT"},TIME=15000;
 let cfg=Object.assign({from:"af",to:"fr",np:1,names:[]},JSON.parse(localStorage.getItem("pv-cfg")||"{}"));
 let G=null,raf=0;
 function items(r){const out=[];const froms=cfg.from==="mix"?LS.concat("af"):[cfg.from];
  for(const c of PROVERBS){if(!c[cfg.to])continue;
-  for(const f of froms){if(f==="af"){(c.af||[]).forEach((a,ai)=>out.push({c,f,ai}))}else if(f!==cfg.to&&c[f])out.push({c,f})}}
+  for(const f of froms){if(f==="af"||f==="cm"){(c.af||[]).forEach((a,ai)=>{if(f==="af"||a.cm)out.push({c,f:"af",ai})})}else if(f!==cfg.to&&c[f])out.push({c,f})}}
  return PARTY.shuffle(out,r)}
 function start(seed){seed=seed||PARTY.newSeed();const r=PARTY.mulberry(seed);const deck=items(r);
  deck.forEach(it=>{const others=PARTY.shuffle(PROVERBS.filter(x=>x!==it.c&&x[cfg.to]),r).slice(0,3);it.opts=PARTY.shuffle([it.c].concat(others),r)});
@@ -62,7 +62,7 @@ function hand(){if(G.players.length<2)return play();const p=G.players[G.pi];SH.s
  $("#game").innerHTML=SH.header()+PARTY.pills(G)+`<div class="card hand"><h2>${esc(PARTY.t().turn(p.name))}</h2><button class="pri" id="rdy">${t.tap} →</button></div>`;SH.mount();$("#rdy").onclick=()=>{SH.state="run";play()}}
 function srcHTML(it){if(it.f!=="af")return `<div class="org">${FL[it.f]}</div><div class="src">${esc(it.c[it.f])}</div>`;
  const a=it.c.af[it.ai],lit=SH.UI==="fr"?a.fr:a.en;
- return `<div class="org">🌍 ${esc(a.o[SH.UI]||a.o.en)}</div>${a.t?`<div class="src">${esc(a.t)}</div><div class="lit">${t.lit}: “${esc(lit)}”</div>`:`<div class="src">“${esc(lit)}”</div>`}${a.v?`<div class="flag" style="text-align:center">${t.check}</div>`:""}`}
+ return `<div class="org">${a.cm?"🇨🇲":"🌍"} ${esc(a.o[SH.UI]||a.o.en)}</div>${a.t?`<div class="src">${esc(a.t)}</div><div class="lit">${t.lit}: “${esc(lit)}”</div>`:`<div class="src">“${esc(lit)}”</div>`}${a.v?`<div class="flag" style="text-align:center">${t.check}</div>`:""}${a.s?`<div class="muted" style="text-align:center;font-size:13px">${t.src}: ${esc(a.s)}</div>`:""}`}
 function play(){if(G.i>=G.deck.length)G.i=0;const it=G.deck[G.i];G.cur={it,t0:performance.now(),done:false};
  $("#game").innerHTML=SH.header()+PARTY.pills(G)+`<div class="bar"><i id="fuse"></i></div><div class="card">${srcHTML(it)}</div>
   <div class="lbl">${t.to} ${t.L[cfg.to]}</div><div class="ans" id="ans">${it.opts.map((c,i)=>`<button class="an" data-i="${i}">${esc(c[cfg.to])}</button>`).join("")}</div><div id="why"></div>`;
@@ -76,7 +76,7 @@ function answer(i){const c=G.cur,it=c.it,p=G.players[G.pi];c.done=true;cancelAni
   const q=it.f==="af"?(it.c.af[it.ai].t||it.c.af[it.ai].en):it.c[it.f];G.miss.push({q,a:it.c[cfg.to],m:it.c.m[SH.UI]});if(window.BANK)BANK.add({game:"proverbs",lang:cfg.to,q,a:it.c[cfg.to],note:it.c.m.en})}
  st();const n=it.c.note;
  $("#why").innerHTML=`<div class="card"><div><b>${t.meaning}:</b> ${esc(it.c.m[SH.UI])}</div>${n?`<div class="flag">💡 ${esc(n[SH.UI]||n.en)}</div>`:""}
-  <div class="lbl">${t.all}</div><div class="all">${LS.filter(l=>it.c[l]).map(l=>`<div><b>${FL[l]}</b><span>${esc(it.c[l])}</span></div>`).join("")}${(it.c.af||[]).filter(a=>a.t).map(a=>`<div><b>🌍</b><span>${esc(a.t)} <span class="muted">(${esc((a.o[SH.UI]||a.o.en).split(/[,(;]/)[0].trim())})</span></span></div>`).join("")}</div>
+  <div class="lbl">${t.all}</div><div class="all">${LS.filter(l=>it.c[l]).map(l=>`<div><b>${FL[l]}</b><span>${esc(it.c[l])}</span></div>`).join("")}${(it.c.af||[]).map(a=>`<div><b>${a.cm?"🇨🇲":"🌍"}</b><span>${esc(a.t||"“"+(SH.UI==="fr"?a.fr:a.en)+"”")} <span class="muted">(${esc((a.o[SH.UI]||a.o.en).split(/[,(;]/)[0].trim())})</span></span></div>`).join("")}</div>
   <button class="pri" id="nx">${t.next}</button></div>`;$("#nx").onclick=next;$("#nx").focus()}
 function next(){G.i++;if(!G.players.some(p=>p.lives>0))return end();
  if(G.players.length>1){if(!PARTY.advance(G))return end()}else if(G.players[0].lives<=0)return end();hand()}
@@ -92,7 +92,7 @@ function menu(){SH.state="menu";cancelAnimationFrame(raf);SFX.stop();$("#over").
  const o=(k,v,l)=>SH.opt(cfg,k,v,l),hs=PARTY.hashSeed();
  $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font-weight:600">${SH.t.all}</a>${SH.langBar()}</div>
   <h1>🦁 ${t.title}</h1><p>${t.lead}</p>
-  <div class="lbl">${t.from}</div><div class="row">${["af"].concat(LS).filter(l=>l!==cfg.to).concat("mix").map(l=>o("from",l,(l==="af"?"🌍 ":"")+t.L[l])).join("")}</div>
+  <div class="lbl">${t.from}</div><div class="row">${["af","cm"].concat(LS).filter(l=>l!==cfg.to).concat("mix").map(l=>o("from",l,(l==="af"?"🌍 ":l==="cm"?"🇨🇲 ":"")+t.L[l])).join("")}</div>
   <div class="lbl">${t.to}</div><div class="row">${LS.filter(l=>l!==cfg.from).map(l=>o("to",l,t.L[l])).join("")}</div>
   ${PARTY.menu(cfg)}
   <div class="row"><button class="pri" id="go">${t.start} →</button>${hs?`<button id="ch">🎯 ${PARTY.t().ch}</button>`:""}</div></div>`;
