@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Match Rush · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&display=swap">
+<style>
+:root{--bg:#1b1036;--panel:#2a1b52;--ink:#f6f1ff;--muted:#b9aee0;--line:#45337a;--c:#ff5d8f;--ok:#2fbf71;--bad:#ef476f;--y:#ffd166}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;height:100%;background:radial-gradient(circle at 20% 0%,#3d2391,#1b1036 60%);color:var(--ink);font:17px/1.5 "Familjen Grotesk",Arial,sans-serif;overscroll-behavior:none}
+button{font:600 15px "Familjen Grotesk",sans-serif;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 14px;min-height:44px;cursor:pointer}
+button.pri{background:var(--c);border-color:var(--c);color:#fff;font-size:18px;padding:12px 24px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+a{color:var(--y)}
+.wrap{max-width:860px;margin:0 auto;padding:10px max(3vw,12px) 30px;display:grid;gap:12px}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.hud a{color:var(--ink);text-decoration:none;font-weight:600}
+.stat{display:flex;gap:14px;align-items:center;font-weight:700;font-size:20px}
+.time{height:12px;background:#ffffff1a;border-radius:99px;overflow:hidden}.time i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--y),var(--bad));transition:width .2s linear}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.col{display:grid;gap:10px;align-content:start}
+.tile{font:700 clamp(16px,3.8vw,22px)/1.2 "Familjen Grotesk",sans-serif;min-height:66px;border-radius:14px;border:3px solid #ffffff22;background:var(--panel);color:var(--ink);padding:8px 10px;transition:transform .12s,background .2s,opacity .3s;text-wrap:balance}
+.tile img{height:44px;border-radius:5px;box-shadow:0 2px 8px #0007;vertical-align:middle;background:#fff}
+.tile.sel{border-color:var(--y);transform:scale(1.03);background:#3b2a73}
+.tile.ok{background:var(--ok);border-color:var(--ok);opacity:.0;transform:scale(.9)}
+.tile.bad{background:var(--bad);border-color:var(--bad);animation:sh .3s}
+.tile.new{animation:pop .3s}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.combo{text-align:center;font-weight:800;font-size:22px;color:var(--y);min-height:30px}
+.ov{position:fixed;inset:0;background:#120a26f5;overflow:auto;display:none;padding:22px max(4vw,16px) 40px;z-index:5}.ov.on{display:block}
+.box{max-width:680px;margin:0 auto;display:grid;gap:12px}.box h1{font-size:clamp(30px,6vw,44px);margin:0}.box p{margin:0;color:#ddd3ff}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lbl{font-weight:700;font-size:13px;color:var(--muted);width:100%;margin-top:6px;text-transform:uppercase;letter-spacing:.05em}
+.big{font-weight:800;font-size:56px;line-height:1;color:var(--y)}
+.lang{display:flex;gap:6px}.lang button{min-height:34px;padding:5px 10px;font-size:13px;border-radius:999px}
+.pov{position:fixed;inset:0;background:#120a26cc;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:4}.pov.on{display:flex}.pov h2{margin:0;font-size:40px}.pov button{font-size:22px;padding:16px 34px}
+.muted{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="hud"><a href="../" id="back">← All games</a><div class="stat"><span id="sc">0</span><span id="cb" style="color:var(--y)"></span></div>
+  <div class="row" style="gap:6px"><button id="mu" style="min-height:36px;padding:4px 10px">🎵</button><button id="pz" style="min-height:40px;background:var(--y);color:#2a1b00;border-color:var(--y)">⏸ Pause</button></div></div>
+ <div class="time"><i id="tm" style="width:100%"></i></div>
+ <div class="combo" id="combo"></div>
+ <div class="board"><div class="col" id="L"></div><div class="col" id="Rr"></div></div>
+</div>
+<div class="pov" id="pov"><h2 id="povh">Paused</h2><button class="pri" id="pres">▶ Play</button><button id="pmenu">Menu</button></div>
+<div class="ov on" id="menu"></div><div class="ov" id="over"></div>
+<script src="../content/data.js"></script>
+<script src="../live/vocab.js"></script>
+<script src="../live/xp.js"></script>
+<script src="../live/sfx.js"></script>
+<script>
+"use strict";
+const C=window.CONTENT,$=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const S={
+ en:{title:"Match Rush",lead:"Tap a word on the left, then its match on the right. Clear pairs as fast as you can before the clock runs out. Every 5 in a row adds time and multiplies your points.",
+  pack:"What to match",lang:"Language",from:"From",to:"To",time:"Time",start:"Go",best:"Best",score:"Score",over:"Time's up!",again:"Play again",menu:"Change game",
+  P:{vocab:"Vocabulary",capitals:"Country ↔ capital",flags:"Flag ↔ country",acronyms:"Acronym ↔ full name",idioms:"Idiom ↔ equivalent",falsefr:"False friends ↔ right word"},
+  rev:"Pairs to review",pairs:"pairs",paused:"Paused",play:"Play",pause:"Pause",all:"← All games",xp:"XP",lvl:"Level",combo:n=>"Combo ×"+n},
+ fr:{title:"Match Rush",lead:"Touchez un mot à gauche, puis sa paire à droite. Videz les paires le plus vite possible avant la fin du chrono. Chaque série de 5 ajoute du temps et multiplie vos points.",
+  pack:"Quoi associer",lang:"Langue",from:"De",to:"Vers",time:"Durée",start:"Go",best:"Record",score:"Score",over:"Temps écoulé !",again:"Rejouer",menu:"Changer de jeu",
+  P:{vocab:"Vocabulaire",capitals:"Pays ↔ capitale",flags:"Drapeau ↔ pays",acronyms:"Sigle ↔ nom complet",idioms:"Expression ↔ équivalent",falsefr:"Faux amis ↔ bon mot"},
+  rev:"Paires à revoir",pairs:"paires",paused:"Pause",play:"Jouer",pause:"Pause",all:"← Tous les jeux",xp:"XP",lvl:"Niveau",combo:n=>"Combo ×"+n},
+ de:{title:"Match Rush",lead:"Tippen Sie links ein Wort an, dann rechts das passende. Räumen Sie so schnell wie möglich Paare ab, bevor die Zeit abläuft. Jede 5er-Serie bringt Zeit und mehr Punkte.",
+  pack:"Was zuordnen",lang:"Sprache",from:"Von",to:"Nach",time:"Zeit",start:"Los",best:"Rekord",score:"Punkte",over:"Zeit um!",again:"Nochmal",menu:"Spiel wechseln",
+  P:{vocab:"Wortschatz",capitals:"Land ↔ Hauptstadt",flags:"Flagge ↔ Land",acronyms:"Abkürzung ↔ Langform",idioms:"Redewendung ↔ Entsprechung",falsefr:"Falsche Freunde ↔ richtiges Wort"},
+  rev:"Paare zum Wiederholen",pairs:"Paare",paused:"Pause",play:"Weiter",pause:"Pause",all:"← Alle Spiele",xp:"XP",lvl:"Stufe",combo:n=>"Combo ×"+n}};
+let UI="en";try{UI=localStorage.getItem("twb-ui")||(navigator.language||"en").slice(0,2)}catch(e){}if(!S[UI])UI="en";let t=S[UI];
+let cfg=Object.assign({pack:"vocab",lang:UI,to:UI==="en"?"fr":"en",time:60},JSON.parse(localStorage.getItem("mr-cfg")||"{}"));
+const hp=(location.hash.match(/^#([a-z]+)/)||[])[1];if(hp&&S.en.P[hp])cfg.pack=hp;
+const LI={en:0,fr:1,de:2};
+function pool(){const L=cfg.lang,T=cfg.to===L?(L==="en"?"fr":"en"):cfg.to;
+ switch(cfg.pack){
+  case"vocab":return VOCAB.map(v=>[v[LI[L]],v[LI[T]]]);
+  case"capitals":return C.CP.COUNTRIES.map(c=>[c[L],c.cap[L]]);
+  case"flags":return C.CP.COUNTRIES.map(c=>[{img:"../flags/"+c.id.toLowerCase()+".svg",k:c.id},c[L]]);
+  case"acronyms":{const ix={en:[1,2],fr:[3,4],de:[5,6]}[L];return C.BG.ACRONYMS.map(a=>[a[ix[0]],a[ix[1]]])}
+  case"idioms":return C.ID.IDIOMS.map(i=>[i[L],i[T]]);
+  case"falsefr":return C.ID.FF_FE.concat(C.ID.FF_FD).map(f=>[f.w,f.ok]);}}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let G=null,raf=0;
+const key=x=>typeof x==="object"?x.k:x;
+function start(){const P=shuffle(pool()).filter((p,i,a)=>a.findIndex(q=>key(q[0])===key(p[0])||q[1]===p[1])===i);
+ G={P,pi:0,left:[],right:[],sel:null,score:0,streak:0,ok:0,miss:[],tleft:cfg.time,tmax:cfg.time,state:"run",last:performance.now(),busy:false};
+ for(let i=0;i<5;i++)addPair();render();$("#menu").classList.remove("on");$("#over").classList.remove("on");SFX.music("quiz");cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
+function addPair(slotL,slotR){const p=G.P[G.pi++%G.P.length],id=G.pi;const l={id,v:p[0],nw:1},r={id,v:p[1],nw:1};
+ if(slotL==null){G.left.push(l);G.right.push(r);G.right=shuffle(G.right)}else{G.left[slotL]=l;const free=G.right.findIndex(x=>!x);const pos=[slotR];G.right[slotR]=r;
+  // swap the new right tile with a random one so pairs are not aligned
+  const j=Math.floor(Math.random()*G.right.length);[G.right[slotR],G.right[j]]=[G.right[j],G.right[slotR]]}}
+function show(v){return typeof v==="object"?`<img src="${v.img}" alt="">`:esc(v)}
+function render(){$("#L").innerHTML=G.left.map((x,i)=>`<button class="tile${x.nw?" new":""}${G.sel&&G.sel.s==="L"&&G.sel.i===i?" sel":""}" data-s="L" data-i="${i}">${show(x.v)}</button>`).join("");
+ $("#Rr").innerHTML=G.right.map((x,i)=>`<button class="tile${x.nw?" new":""}${G.sel&&G.sel.s==="R"&&G.sel.i===i?" sel":""}" data-s="R" data-i="${i}">${show(x.v)}</button>`).join("");
+ G.left.forEach(x=>x.nw=0);G.right.forEach(x=>x.nw=0);$("#sc").textContent=t.score+" "+G.score;$("#cb").textContent=G.streak>=5?"×"+(1+Math.floor(G.streak/5)):""}
+function tap(s,i){if(!G||G.state!=="run"||G.busy)return;SFX.move();
+ if(!G.sel||G.sel.s===s){G.sel={s,i};render();return}
+ const li=s==="L"?i:G.sel.i,ri=s==="R"?i:G.sel.i,l=G.left[li],r=G.right[ri];G.sel=null;
+ const el=$(`#L [data-i="${li}"]`),er=$(`#Rr [data-i="${ri}"]`);
+ if(l.id===r.id){G.ok++;G.streak++;const m=1+Math.floor(G.streak/5);G.score+=10*m;if(G.streak%5===0){G.tleft=Math.min(G.tmax,G.tleft+5);SFX.combo();$("#combo").textContent=t.combo(m)+" · +5 s";setTimeout(()=>$("#combo").textContent="",1200)}else SFX.ok();
+  el.classList.add("ok");er.classList.add("ok");G.busy=true;setTimeout(()=>{G.busy=false;addPair(li,ri);render()},230)}
+ else{G.streak=0;SFX.bad();G.tleft=Math.max(0,G.tleft-2);const pr=G.left.find(x=>x.id===l.id),rr=G.right.find(x=>x.id===l.id);G.miss.push([l.v,rr?rr.v:""]);
+  el.classList.add("bad");er.classList.add("bad");G.busy=true;setTimeout(()=>{G.busy=false;render()},350)}}
+function loop(now){if(!G||G.state!=="run")return;const dt=(now-G.last)/1000;G.last=now;G.tleft-=dt;$("#tm").style.width=Math.max(0,G.tleft/G.tmax*100)+"%";
+ if(G.tleft<=5&&Math.ceil(G.tleft)!==loop.s){loop.s=Math.ceil(G.tleft);if(G.tleft>0)SFX.tick()}
+ if(G.tleft<=0)return end();raf=requestAnimationFrame(loop)}
+function end(){G.state="over";SFX.stop();const k="mr-best-"+cfg.pack+"-"+cfg.time;let b=+(localStorage.getItem(k)||0),rec=G.score>b;if(rec){localStorage.setItem(k,G.score);b=G.score}
+ rec&&G.score>0?SFX.win():SFX.over();const xi=XP.add(G.ok*3,"match");
+ $("#over").innerHTML=`<div class="box"><h1>${t.over}</h1><div class="row"><div><div class="lbl">${t.score}</div><div class="big">${G.score}</div></div><div style="margin-left:22px"><div class="lbl">${t.best}</div><div class="big" style="color:var(--ink)">${b}${rec?" ★":""}</div></div></div>
+  <p>${G.ok} ${t.pairs} ✓</p><p><b>+${xi.gained||0} ${t.xp}</b>${xi.up?" · "+t.lvl+" "+xi.level+" !":""} <span class="muted">${t.lvl} ${xi.level}${xi.streak?" · 🔥 "+xi.streak:""}</span></p>
+  <div class="row"><button class="pri" id="ag">${t.again}</button><button id="mn">${t.menu}</button></div>
+  ${G.miss.length?`<div class="lbl">${t.rev}</div>${G.miss.map(m=>`<p>${show(m[0])} → <b style="color:#7ff0b2">${show(m[1])}</b></p>`).join("")}`:""}</div>`;
+ $("#over").classList.add("on");$("#ag").onclick=start;$("#mn").onclick=menu}
+function menu(){SFX.stop();if(G)G.state="menu";$("#pov").classList.remove("on");const two=["vocab","idioms"].includes(cfg.pack);
+ const b=(k,v,l)=>`<button data-k="${k}" data-v="${v}" aria-pressed="${String(cfg[k])===String(v)}">${l}</button>`;const xi=XP.info();
+ $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font-weight:600">${t.all}</a><div class="lang">${["en","fr","de"].map(l=>`<button data-ui="${l}" aria-pressed="${l===UI}">${l.toUpperCase()}</button>`).join("")}</div></div>
+  <h1>⚡ ${t.title}</h1><p>${t.lead}</p><div class="muted" style="font-weight:600">${t.lvl} ${xi.level} · ${xi.xp} ${t.xp}${xi.streak?" · 🔥 "+xi.streak:""}</div>
+  <div class="lbl">${t.pack}</div><div class="row">${Object.keys(t.P).map(p=>b("pack",p,t.P[p])).join("")}</div>
+  ${cfg.pack==="falsefr"?"":`<div class="lbl">${two?t.from:t.lang}</div><div class="row">${["en","fr","de"].map(l=>b("lang",l,l.toUpperCase())).join("")}</div>`}
+  ${two?`<div class="lbl">${t.to}</div><div class="row">${["en","fr","de"].filter(l=>l!==cfg.lang).map(l=>b("to",l,l.toUpperCase())).join("")}</div>`:""}
+  <div class="lbl">${t.time}</div><div class="row">${b("time",45,"45 s")}${b("time",60,"60 s")}${b("time",90,"90 s")}</div>
+  <div class="row" style="margin-top:8px"><button class="pri" id="go">⚡ ${t.start}</button><span class="muted">${t.best}: ${+(localStorage.getItem("mr-best-"+cfg.pack+"-"+cfg.time)||0)}</span></div></div>`;
+ $("#menu").classList.add("on");$("#over").classList.remove("on");
+ document.querySelectorAll("#menu [data-k]").forEach(e=>e.onclick=()=>{const k=e.dataset.k;cfg[k]=k==="time"?+e.dataset.v:e.dataset.v;if(cfg.to===cfg.lang)cfg.to=cfg.lang==="en"?"fr":"en";try{localStorage.setItem("mr-cfg",JSON.stringify(cfg))}catch(x){}menu()});
+ document.querySelectorAll("#menu [data-ui]").forEach(e=>e.onclick=()=>{UI=e.dataset.ui;t=S[UI];try{localStorage.setItem("twb-ui",UI)}catch(x){}applyUI();menu()});
+ $("#go").onclick=start}
+function applyUI(){document.documentElement.lang=UI;$("#back").textContent=t.all;$("#pz").textContent="⏸ "+t.pause}
+document.querySelector(".board").addEventListener("click",e=>{const b=e.target.closest(".tile");if(b)tap(b.dataset.s,+b.dataset.i)});
+function togglePause(){if(!G)return;if(G.state==="run"){G.state="pause";SFX.stop();$("#povh").textContent=t.paused;$("#pres").textContent="▶ "+t.play;$("#pmenu").textContent=t.menu;$("#pov").classList.add("on");$("#pz").textContent="▶ "+t.play}
+ else if(G.state==="pause"){G.state="run";G.last=performance.now();SFX.music("quiz");$("#pov").classList.remove("on");$("#pz").textContent="⏸ "+t.pause;raf=requestAnimationFrame(loop)}}
+$("#pz").onclick=togglePause;$("#pres").onclick=togglePause;$("#pmenu").onclick=menu;
+$("#mu").onclick=()=>{const v=!SFX.get("music");SFX.set("music",v);$("#mu").setAttribute("aria-pressed",v);if(v&&G&&G.state==="run")SFX.music("quiz")};$("#mu").setAttribute("aria-pressed",SFX.get("music"));
+addEventListener("keydown",e=>{if(e.key===" "||e.key==="Escape"){if(G&&(G.state==="run"||G.state==="pause")){togglePause();e.preventDefault()}}});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&G&&G.state==="run")togglePause()});
+applyUI();menu();
+</script>
+</body>
+</html>

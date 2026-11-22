@@ -16,3 +16,7 @@ Play: https://vic-god.github.io/twister-booth/
 - `learn/`: study pages for every game (`#capitals`, `#idioms`, `#twister`, `#booth`, `#topics`).
 - `runner/`: Lane Runner. Switch to the lane with the right answer. Packs: capitals, idioms, false friends, acronyms, register, mix. Challenge links (`?seed=…&beat=…`) give friends the same questions.
 - `content/data.js`: shared content used by both.
+- `climb/`: Monkey Climb, a tree-climbing quiz race against computer monkeys or friends online. Built from `tools/climb-src.html` plus the shared question code in `runner/index.html` (`python3 tools/build-climb.py`).
+- `match/`: Match Rush, timed pair matching.
+- `live/sfx.js` (music, sounds, vibration), `live/xp.js` (XP, levels, day streaks), `live/teleprompter.js`, `live/vocab.js`.
+- `flags/`: country flag SVGs from flag-icons (MIT, see `flags/LICENSE-flag-icons.txt`).

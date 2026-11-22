@@ -7,57 +7,73 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
 <style>
-:root{--bg:#10151d;--panel:#1a212c;--ink:#eef2f7;--muted:#9aa6b4;--line:#2c3644;--c:#e0a526;--ok:#2fa36b;--bad:#d2493c}
+:root{--bg:#10151d;--panel:#1a212c;--ink:#eef2f7;--muted:#9aa6b4;--line:#2c3644;--c:#e0a526;--ok:#2fa36b;--bad:#d2493c;--l0:#2b8cc4;--l1:#9b5de5;--l2:#e0568f}
 *{box-sizing:border-box;min-width:0}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:17px/1.5 "Source Serif 4",Georgia,serif;overscroll-behavior:none}
-h1,h2,h3,button,select,.g{font-family:"Familjen Grotesk",Arial,sans-serif}
+h1,h2,h3,button,select,input,.g{font-family:"Familjen Grotesk",Arial,sans-serif}
 button,select{font-weight:600;font-size:15px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 14px;min-height:44px;cursor:pointer}
+input{font-size:17px;color:var(--ink);background:#0b0f15;border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-height:44px}
 button.pri{background:var(--c);color:#1a1300;border-color:var(--c);font-size:17px;padding:12px 22px}
 button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 a{color:var(--c)}
 #app{position:fixed;inset:0;display:flex;flex-direction:column}
-.hud{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px max(3vw,12px) 6px;font:600 15px "Familjen Grotesk",sans-serif}
+.hud{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px max(3vw,12px) 6px;font:600 16px "Familjen Grotesk",sans-serif;flex-wrap:wrap}
 .hud a{color:var(--ink);text-decoration:none}
-.hud .st{display:flex;gap:14px;align-items:center}
-.hearts{color:var(--bad);letter-spacing:2px;font-size:18px}
-.qbox{margin:0 max(3vw,12px);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px 12px;text-align:center}
-.qk{font:600 12.5px "Familjen Grotesk",sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.qt{font:700 clamp(20px,4.4vw,30px)/1.2 "Familjen Grotesk",sans-serif;margin-top:2px;text-wrap:balance}
-.opts{display:grid;gap:8px;margin-top:8px}
-.opt{font:600 clamp(14px,2.8vw,17px)/1.25 "Familjen Grotesk",sans-serif;background:#0f141b;border:1px solid var(--line);border-radius:10px;padding:7px 9px;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px}
-.opt.on{border-color:var(--c);box-shadow:0 0 0 2px var(--c) inset}
-.opt.ok{background:var(--ok);border-color:var(--ok);color:#fff}.opt.bad{background:var(--bad);border-color:var(--bad);color:#fff}
-.stage{position:relative;flex:1;touch-action:none}
+.hud .st{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.pl{display:inline-flex;gap:6px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.pl i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.pl.out{opacity:.45}
+.hearts{color:var(--bad);letter-spacing:1px}
+.stage{position:relative;flex:1;touch-action:none;min-height:160px}
 canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.ctrl{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));left:0;right:0;display:flex;justify-content:space-between;padding:0 max(3vw,12px);pointer-events:none}
-.ctrl button{pointer-events:auto;width:64px;height:64px;border-radius:50%;font-size:26px;background:#ffffff14;border-color:#ffffff30}
-.toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--bad);color:#fff;font:700 18px "Familjen Grotesk",sans-serif;padding:10px 16px;border-radius:12px;max-width:90%;text-align:center;display:none}
+.dock{padding:8px max(3vw,10px) max(10px,env(safe-area-inset-bottom));background:#0b0f15;border-top:1px solid var(--line)}
+.dock .in{max-width:1000px;margin:0 auto}
+.qk{font:700 13px "Familjen Grotesk",sans-serif;color:var(--c);text-transform:uppercase;letter-spacing:.06em;text-align:center}
+.qt{font:700 clamp(26px,6.4vw,44px)/1.15 "Familjen Grotesk",sans-serif;text-align:center;text-wrap:balance;margin:2px 0 8px}
+.qt .flag{height:clamp(70px,15vh,130px);border-radius:8px;box-shadow:0 4px 18px #0008;display:block;margin:4px auto 0;background:#fff}
+.qt.long{font-size:clamp(21px,4.8vw,32px)}
+.opts{display:grid;gap:8px}
+.opt{position:relative;font:700 clamp(19px,4.6vw,30px)/1.2 "Familjen Grotesk",sans-serif;background:var(--panel);border:3px solid var(--lc);border-radius:14px;padding:12px 10px;display:flex;align-items:center;justify-content:center;text-align:center;min-height:72px;cursor:pointer;text-wrap:balance}
+.opt.long{font-size:clamp(15px,3.4vw,21px)}
+.opt.on{background:color-mix(in srgb,var(--lc) 35%,var(--panel));box-shadow:0 0 0 3px #fff inset}
+.opt.ok{background:var(--ok);border-color:var(--ok);color:#fff}.opt.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.opt .who{position:absolute;top:-10px;display:flex;gap:4px}.opt .who b{font:700 12px "Familjen Grotesk",sans-serif;border-radius:999px;padding:2px 7px;color:#10151d}
+.toast{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:var(--bad);color:#fff;font:700 clamp(20px,4.5vw,28px) "Familjen Grotesk",sans-serif;padding:10px 18px;border-radius:12px;max-width:92%;text-align:center;display:none;z-index:2}
+.pzb{min-height:40px;padding:6px 14px;background:var(--c);color:#1a1300;border-color:var(--c);font-size:16px}
+.pov{position:absolute;inset:0;background:#0b0f15cc;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:4}.pov.on{display:flex}.pov h2{margin:0;font:700 40px "Familjen Grotesk",sans-serif}.pov button{font-size:22px;padding:16px 34px;min-height:64px}
 .toast.ok{background:var(--ok)}
-.ov{position:absolute;inset:0;background:#0b0f15f2;overflow:auto;display:none;padding:22px max(4vw,16px) 40px}
+.cd{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font:800 140px "Familjen Grotesk",sans-serif;color:var(--c);z-index:3;pointer-events:none}
+.ov{position:fixed;inset:0;background:#0b0f15f5;overflow:auto;display:none;padding:22px max(4vw,16px) 40px;z-index:5}
 .ov.on{display:block}
-.box{max-width:680px;margin:0 auto;display:grid;gap:14px}
-.box h1{font-size:clamp(28px,6vw,40px);margin:0;line-height:1.1}.box h2{font-size:20px;margin:6px 0 0}
+.box{max-width:700px;margin:0 auto;display:grid;gap:12px}
+.box h1{font-size:clamp(30px,6vw,42px);margin:0;line-height:1.1}.box h2{font-size:21px;margin:8px 0 0}
 .box p{margin:0;color:#cfd7e1}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.lbl{font:600 13px "Familjen Grotesk",sans-serif;color:var(--muted);width:100%;margin-top:4px}
+.lbl{font:700 13px "Familjen Grotesk",sans-serif;color:var(--muted);width:100%;margin-top:6px;text-transform:uppercase;letter-spacing:.05em}
 .big{font:700 54px/1 "Familjen Grotesk",sans-serif;color:var(--c)}
-.rv{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:16px}
-.rv b{font-family:"Familjen Grotesk",sans-serif}.rv .m{color:var(--muted);font-size:14.5px}
-.chal{background:#e0a52622;border:1px solid var(--c);border-radius:12px;padding:10px 12px}
+.rv{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:17px}
+.rv b{font-family:"Familjen Grotesk",sans-serif}.rv .m{color:var(--muted);font-size:15px}
+.chal,.race{background:#e0a52618;border:1px solid var(--c);border-radius:12px;padding:12px 14px;display:grid;gap:8px}
+.code{font:800 38px "Familjen Grotesk",sans-serif;letter-spacing:.18em;color:var(--c)}
+.rank{display:grid;gap:6px}.rank div{display:flex;justify-content:space-between;background:var(--panel);border-radius:10px;padding:8px 12px;font:600 17px "Familjen Grotesk",sans-serif}
 .lang{display:flex;gap:6px}.lang button{min-height:34px;padding:5px 10px;font-size:13px;border-radius:999px}
-@media (min-width:700px){.qbox{max-width:900px;margin-left:auto;margin-right:auto;width:calc(100% - 24px)}}
+.muted{color:var(--muted)}
 </style>
 </head>
 <body>
 <div id="app">
  <div class="hud"><a href="../" id="back">← All games</a>
-  <div class="st"><span id="hs">0</span><span id="hk" class="muted"></span><span class="hearts" id="hl">♥♥♥</span><button id="pz" aria-label="Pause" style="min-height:34px;padding:4px 10px">II</button></div></div>
- <div class="qbox"><div class="qk" id="qk"></div><div class="qt" id="qt"></div><div class="opts" id="opts"></div></div>
- <div class="stage" id="stage"><canvas id="cv"></canvas><div class="toast" id="toast"></div>
-  <div class="ctrl"><button id="bl" aria-label="Left">◀</button><button id="br" aria-label="Right">▶</button></div>
-  <div class="ov on" id="menu"></div><div class="ov" id="over"></div></div>
+  <div class="st" id="hst" style="flex:1;justify-content:center"></div><div class="row" style="gap:6px;flex-wrap:nowrap"><button id="mu" aria-label="Music" style="min-height:36px;padding:4px 10px">🎵</button><button id="vc" aria-label="Voice" style="min-height:36px;padding:4px 10px">🔊</button><button id="pz" aria-label="Pause" class="pzb">⏸ Pause</button></div></div>
+ <div class="stage" id="stage"><canvas id="cv"></canvas><div class="toast" id="toast"></div><div class="cd" id="cd"></div><div class="pov" id="pov"><h2 id="povh">Paused</h2><button class="pri" id="pres">▶ Play</button><button id="pmenu">Menu</button></div></div>
+ <div class="dock"><div class="in"><div class="qk" id="qk"></div><div class="qt" id="qt"></div><div class="opts" id="opts"></div></div></div>
 </div>
+<div class="ov on" id="menu"></div><div class="ov" id="over"></div>
 <script src="../content/data.js"></script>
+<script src="../live/vocab.js"></script>
+<script src="../live/peerjs.min.js"></script>
+<script src="../live/p2p.js"></script>
+<script src="../live/xp.js"></script>
+<script src="../live/sfx.js"></script>
 <script>
 "use strict";
 const C=window.CONTENT;
@@ -67,24 +83,24 @@ en:{all:"← All games",title:"Lane Runner",lead:"A question appears, the answer
  keys:"Keys ← → or A D. On a phone: swipe, or tap the left or right side.",best:"Best",score:"Score",streak:"Streak",over:"Run over",again:"Run again",menu:"Change game",learn:"Learn this first",
  rev:"Review your mistakes",none:"No mistakes. Clean run.",you:"you chose",share:"Challenge a friend",copied:"Link copied. Your friend gets the same questions.",
  chal:(n,s)=>`${n||"A friend"} challenges you: beat ${s} points on the same questions.`,beat:"You beat the challenge!",lost:"Challenge not beaten yet.",name:"Your name (for the challenge)",paused:"Paused",resume:"Resume",
- P:{capitals:"Country → capital",capitals_rev:"Capital → country",idioms:"Idiom equivalents",meaning:"Idiom meanings",falsefr:"False friends",acronyms:"Acronyms",register:"Register",mix:"Mix of everything"},
- Q:{capitals:"Capital of",capitals_rev:"Which country has this capital?",idioms:l=>"Equivalent in "+l,meaning:"What does it mean?",falsefr:"Correct translation",acronyms:l=>"Full name in "+l,register:(r)=>"Most "+r+" way to say",},
+ P:{capitals:"Country → capital",capitals_rev:"Capital → country",vocab:"Vocabulary",flags:"Flag → country",flags_cap:"Flag → capital",idioms:"Idiom equivalents",meaning:"Idiom meanings",falsefr:"False friends",acronyms:"Acronyms",register:"Register",mix:"Mix of everything"},
+ Q:{vocab:l=>"In "+l,flags:"Which country is this flag?",flags_cap:"Capital of the country with this flag?",capitals:"Capital of",capitals_rev:"Which country has this capital?",idioms:l=>"Equivalent in "+l,meaning:"What does it mean?",falsefr:"Correct translation",acronyms:l=>"Full name in "+l,register:(r)=>"Most "+r+" way to say",},
  R:["casual","neutral","formal"],L:{en:"English",fr:"French",de:"German"},cont:"Continent",world:"Whole world"},
 fr:{all:"← Tous les jeux",title:"Lane Runner",lead:"Une question s'affiche, les réponses arrivent sur la route. Changez de couloir pour prendre la bonne. Trois erreurs et la course s'arrête.",
  pack:"Que voulez-vous travailler ?",lang:"Langue",from:"De",to:"Vers",lanes:"Couloirs",speed:"Vitesse",slow:"Tranquille",norm:"Normale",fast:"Rapide",start:"Courir",
  keys:"Touches ← → ou A D. Sur téléphone : glissez, ou touchez le côté gauche ou droit.",best:"Record",score:"Score",streak:"Série",over:"Course terminée",again:"Recommencer",menu:"Changer de jeu",learn:"Apprendre d'abord",
  rev:"Revoir vos erreurs",none:"Aucune erreur. Course parfaite.",you:"votre choix",share:"Défier un ami",copied:"Lien copié. Votre ami aura les mêmes questions.",
  chal:(n,s)=>`${n||"Un ami"} vous défie : battez ${s} points sur les mêmes questions.`,beat:"Défi relevé !",lost:"Défi pas encore relevé.",name:"Votre nom (pour le défi)",paused:"Pause",resume:"Reprendre",
- P:{capitals:"Pays → capitale",capitals_rev:"Capitale → pays",idioms:"Équivalents d'expressions",meaning:"Sens des expressions",falsefr:"Faux amis",acronyms:"Sigles",register:"Registre",mix:"Un peu de tout"},
- Q:{capitals:"Capitale de",capitals_rev:"Quel pays a cette capitale ?",idioms:l=>"Équivalent en "+l,meaning:"Que veut dire",falsefr:"Bonne traduction",acronyms:l=>"Nom complet en "+l,register:r=>"Façon la plus "+r+" de dire"},
+ P:{capitals:"Pays → capitale",capitals_rev:"Capitale → pays",vocab:"Vocabulaire",flags:"Drapeau → pays",flags_cap:"Drapeau → capitale",idioms:"Équivalents d'expressions",meaning:"Sens des expressions",falsefr:"Faux amis",acronyms:"Sigles",register:"Registre",mix:"Un peu de tout"},
+ Q:{vocab:l=>"En "+l,flags:"Quel pays a ce drapeau ?",flags_cap:"Capitale du pays de ce drapeau ?",capitals:"Capitale de",capitals_rev:"Quel pays a cette capitale ?",idioms:l=>"Équivalent en "+l,meaning:"Que veut dire",falsefr:"Bonne traduction",acronyms:l=>"Nom complet en "+l,register:r=>"Façon la plus "+r+" de dire"},
  R:["familière","neutre","soutenue"],L:{en:"anglais",fr:"français",de:"allemand"},cont:"Continent",world:"Monde entier"},
 de:{all:"← Alle Spiele",title:"Lane Runner",lead:"Eine Frage erscheint, die Antworten kommen auf der Straße auf Sie zu. Wechseln Sie rechtzeitig auf die richtige Spur. Drei Fehler und der Lauf ist vorbei.",
  pack:"Was möchten Sie trainieren?",lang:"Sprache",from:"Von",to:"Nach",lanes:"Spuren",speed:"Tempo",slow:"Gemütlich",norm:"Normal",fast:"Schnell",start:"Los",
  keys:"Tasten ← → oder A D. Am Handy: wischen oder links bzw. rechts tippen.",best:"Rekord",score:"Punkte",streak:"Serie",over:"Lauf beendet",again:"Nochmal",menu:"Spiel wechseln",learn:"Erst lernen",
  rev:"Ihre Fehler",none:"Keine Fehler. Perfekter Lauf.",you:"Ihre Wahl",share:"Freund herausfordern",copied:"Link kopiert. Ihr Freund bekommt dieselben Fragen.",
  chal:(n,s)=>`${n||"Ein Freund"} fordert Sie heraus: schlagen Sie ${s} Punkte mit denselben Fragen.`,beat:"Herausforderung gewonnen!",lost:"Herausforderung noch nicht geschafft.",name:"Ihr Name (für die Herausforderung)",paused:"Pause",resume:"Weiter",
- P:{capitals:"Land → Hauptstadt",capitals_rev:"Hauptstadt → Land",idioms:"Redewendungen: Entsprechungen",meaning:"Redewendungen: Bedeutung",falsefr:"Falsche Freunde",acronyms:"Abkürzungen",register:"Register",mix:"Alles gemischt"},
- Q:{capitals:"Hauptstadt von",capitals_rev:"Welches Land hat diese Hauptstadt?",idioms:l=>"Entsprechung auf "+l,meaning:"Was bedeutet",falsefr:"Richtige Übersetzung",acronyms:l=>"Vollständiger Name auf "+l,register:r=>"Am meisten "+r+" gesagt"},
+ P:{capitals:"Land → Hauptstadt",capitals_rev:"Hauptstadt → Land",vocab:"Wortschatz",flags:"Flagge → Land",flags_cap:"Flagge → Hauptstadt",idioms:"Redewendungen: Entsprechungen",meaning:"Redewendungen: Bedeutung",falsefr:"Falsche Freunde",acronyms:"Abkürzungen",register:"Register",mix:"Alles gemischt"},
+ Q:{vocab:l=>"Auf "+l,flags:"Welches Land hat diese Flagge?",flags_cap:"Hauptstadt des Landes mit dieser Flagge?",capitals:"Hauptstadt von",capitals_rev:"Welches Land hat diese Hauptstadt?",idioms:l=>"Entsprechung auf "+l,meaning:"Was bedeutet",falsefr:"Richtige Übersetzung",acronyms:l=>"Vollständiger Name auf "+l,register:r=>"Am meisten "+r+" gesagt"},
  R:["salopp","neutral","gehoben"],L:{en:"Englisch",fr:"Französisch",de:"Deutsch"},cont:"Kontinent",world:"Ganze Welt"}};
 // Well-known cities people mistake for the capital: used as the wrong lane first.
 const TRAP={CM:"Douala",MA:"Casablanca",NG:"Lagos",TZ:"Dar es Salaam",CI:"Abidjan",BJ:"Cotonou",TR:"Istanbul",MM:["Yangon","Rangoun","Rangun"],AU:"Sydney",CA:["Toronto","Montréal","Toronto"],
@@ -95,7 +111,7 @@ const TRAP={CM:"Douala",MA:"Casablanca",NG:"Lagos",TZ:"Dar es Salaam",CI:"Abidja
  CL:"Valparaíso",AR:"Córdoba",VE:"Maracaibo",NL:["The Hague","La Haye","Den Haag"],ID:"Surabaya",GH:"Kumasi",SN:"Saint-Louis",MR:"Nouadhibou",TN:"Sfax",LY:["Benghazi","Benghazi","Bengasi"],
  MZ:"Beira",BY:"Hrodna",UA:["Odesa","Odessa","Odessa"],GB:["Manchester","Manchester","Manchester"],SC:"Praslin",CG:"Pointe-Noire",TG:"Kara",ML:"Tombouctou"};
 const LI={en:0,fr:1,de:2};
-const HUB={capitals:"capitals",capitals_rev:"capitals",idioms:"idioms",meaning:"idioms",falsefr:"idioms",acronyms:"booth",register:"booth",mix:"capitals"};
+const HUB={vocab:"idioms",flags:"capitals",flags_cap:"capitals",capitals:"capitals",capitals_rev:"capitals",idioms:"idioms",meaning:"idioms",falsefr:"idioms",acronyms:"booth",register:"booth",mix:"capitals"};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let UI="en";try{UI=localStorage.getItem("twb-ui")||(navigator.language||"en").slice(0,2)}catch(e){}if(!S[UI])UI="en";
@@ -105,7 +121,7 @@ let cfg={pack:"capitals",lang:UI,to:UI==="en"?"fr":"en",lanes:2,speed:1,cont:""}
 try{Object.assign(cfg,JSON.parse(localStorage.getItem("lr-cfg")||"{}"))}catch(e){}
 const H=new URLSearchParams(location.hash.slice(1).replace(/^[a-z_]+\??&?/,""));
 const hp=(location.hash.match(/^#([a-z_]+)/)||[])[1];
-const HASHPACK={capitals:"capitals",idioms:"idioms",booth:"acronyms",twister:"register",topics:"register"};
+const HASHPACK={daily:"mix",capitals:"capitals",idioms:"idioms",booth:"acronyms",twister:"register",topics:"register"};
 if(hp)cfg.pack=S.en.P[hp]?hp:(HASHPACK[hp]||cfg.pack);
 let challenge=null;
 if(H.get("seed")){challenge={seed:+H.get("seed")>>>0,beat:+H.get("beat")||0,by:(H.get("by")||"").slice(0,30)};
@@ -127,87 +143,156 @@ const M={
   const same=C.CP.COUNTRIES.filter(x=>x.region===c.region&&x.id!==c.id).map(x=>x[L]);
   return{k:t.Q.capitals_rev,q:c.cap[L],ans,wrong:distinct(ans,same.length>2?same:C.CP.COUNTRIES.map(x=>x[L]),3),note:c.note}},
  idioms(){let F=cfg.lang,T=cfg.to;if(F===T)T=F==="en"?"fr":"en";const I=C.ID.IDIOMS,i=pick(I);
-  const same=I.filter(x=>x.c===i.c&&x!==i).map(x=>x[T]);return{k:t.Q.idioms(t.L[T]),q:i[F],ans:i[T],wrong:distinct(i[T],same,3),note:i.m}},
+  const same=I.filter(x=>x.c===i.c&&x!==i).map(x=>x[T]);return{sl:F,k:t.Q.idioms(t.L[T]),q:i[F],ans:i[T],wrong:distinct(i[T],same,3),note:i.m}},
  meaning(){const I=C.ID.IDIOMS,i=pick(I),L=cfg.lang;const same=I.filter(x=>x!==i).map(x=>x.m);
   return{k:t.Q.meaning,q:"“"+i[L]+"”",ans:i.m,wrong:distinct(i.m,same,3),note:i.n,long:1}},
- falsefr(){const all=C.ID.FF_FE.concat(C.ID.FF_FD),f=pick(all);return{k:t.Q.falsefr+" ("+f.l.toUpperCase()+")",q:f.w,ans:f.ok,wrong:shuffle(f.bad).slice(0,3),note:f.n}},
+ falsefr(){const all=C.ID.FF_FE.concat(C.ID.FF_FD),f=pick(all);return{sl:f.l,k:t.Q.falsefr+" ("+f.l.toUpperCase()+")",q:f.w,ans:f.ok,wrong:shuffle(f.bad).slice(0,3),note:f.n}},
  acronyms(){const L=cfg.lang,A=C.BG.ACRONYMS,a=pick(A),ix={en:[1,2],fr:[3,4],de:[5,6]}[L];const ans=a[ix[1]];
   const same=A.filter(x=>x!==a&&x[7]===a[7]).map(x=>x[ix[1]]);return{k:t.Q.acronyms(t.L[L]),q:a[ix[0]],ans,wrong:distinct(ans,same.length>2?same:A.map(x=>x[ix[1]]),3)}},
  register(){const want=cfg.lang.toUpperCase();let P=C.BG.LADDERS.filter(x=>x[0]===want);if(!P.length)P=C.BG.LADDERS;const l=pick(P),r=rnd()<.5?2:0;
   return{k:t.Q.register(t.R[r]),q:"“"+l[1]+"”",ans:l[2][r],wrong:[l[2][2-r],l[2][1]].filter(x=>x!==l[2][r])}},
- mix(){return M[pick(["capitals","capitals_rev","idioms","falsefr","acronyms","register"])]()}};
+ vocab(){let F=cfg.lang,T=cfg.to;if(F===T)T=F==="en"?"fr":"en";const V=window.VOCAB,f=LI[F],o=LI[T],w=pick(V);
+  const same=V.filter(x=>x[3]===w[3]&&x!==w).map(x=>x[o]);return{k:t.Q.vocab(t.L[T]),q:w[f],sl:F,ans:w[o],wrong:distinct(w[o],same,3)}},
+ flags(){const L=cfg.lang,pool=CO(),c=pick(pool),ans=c[L];const same=C.CP.COUNTRIES.filter(x=>x.region===c.region&&x.id!==c.id).map(x=>x[L]);
+  return{k:t.Q.flags,q:"",img:"../flags/"+c.id.toLowerCase()+".svg",ans,wrong:distinct(ans,same.length>2?same:C.CP.COUNTRIES.map(x=>x[L]),3),note:c[L]+" · "+c.cap[L]}},
+ flags_cap(){const L=cfg.lang,pool=CO(),c=pick(pool),ans=c.cap[L];const same=C.CP.COUNTRIES.filter(x=>x.region===c.region&&x.id!==c.id).map(x=>x.cap[L]);
+  return{k:t.Q.flags_cap,q:"",img:"../flags/"+c.id.toLowerCase()+".svg",ans,wrong:distinct(ans,same.length>2?same:C.CP.COUNTRIES.map(x=>x.cap[L]),3),note:c[L]}},
+ mix(){return M[pick(["vocab","flags","capitals","capitals_rev","idioms","falsefr","acronyms","register"])]()}};
 let lastQ=[];
-function nextQ(){let q,n=0;do{q=M[cfg.pack]();n++}while(n<12&&(lastQ.includes(q.q)||!q.wrong.length));lastQ.push(q.q);if(lastQ.length>25)lastQ.shift();
+function nextQ(){let q,n=0;do{q=M[cfg.pack]();n++}while(n<12&&(lastQ.includes(q.q||q.img)||!q.wrong.length));lastQ.push(q.q||q.img);if(lastQ.length>25)lastQ.shift();
  const k=Math.min(cfg.lanes-1,q.wrong.length),lanes=shuffle([q.ans,...q.wrong.slice(0,k)]);return Object.assign(q,{lanes,right:lanes.indexOf(q.ans)})}
-// ---------- game state ----------
+// ---------- extra strings ----------
+Object.assign(S.en,{play:"Play",pause:"Pause",mode:"How do you want to play?",solo:"Solo",duo:"2 players, one screen",race:"Online race",daily:"Daily run",
+ dailyT:"Today's daily run: the same questions for everyone today. Mixed pack, 2 lanes.",dailyBest:"Today's best",
+ duoKeys:"Player 1: A / D or tap the left road. Player 2: ← / → or tap the right road.",p:"Player",win:n=>n+" wins!",tie:"It's a tie!",
+ yname:"Your name",create:"Create a race",join:"Join",code:"Race code",share2:"Friends open this same page, choose Online race and type the code.",
+ waiting:"Players in the race",go:"Start the race",hostwait:"Waiting for the host to start…",leave:"Leave the race",again2:"Race again",
+ conn:"Connecting…",fail:"Could not connect. Check the code and that the host's page is still open.",rank:"Race results",running:"still running",
+ xp:"XP",lvl:"Level",streakD:d=>d+"-day streak",lvup:l=>"Level "+l+"!",goal:"Daily goal"});
+Object.assign(S.fr,{play:"Jouer",pause:"Pause",mode:"Comment voulez-vous jouer ?",solo:"Solo",duo:"2 joueurs, un écran",race:"Course en ligne",daily:"Course du jour",
+ dailyT:"La course du jour : les mêmes questions pour tout le monde aujourd'hui. Pack mélangé, 2 couloirs.",dailyBest:"Record du jour",
+ duoKeys:"Joueur 1 : A / D ou touchez la route de gauche. Joueur 2 : ← / → ou touchez la route de droite.",p:"Joueur",win:n=>n+" gagne !",tie:"Égalité !",
+ yname:"Votre nom",create:"Créer une course",join:"Rejoindre",code:"Code de la course",share2:"Vos amis ouvrent cette page, choisissent Course en ligne et tapent le code.",
+ waiting:"Joueurs dans la course",go:"Lancer la course",hostwait:"En attente de l'hôte…",leave:"Quitter la course",again2:"Nouvelle course",
+ conn:"Connexion…",fail:"Connexion impossible. Vérifiez le code et que la page de l'hôte est ouverte.",rank:"Résultats",running:"court encore",
+ xp:"XP",lvl:"Niveau",streakD:d=>d+" jours d'affilée",lvup:l=>"Niveau "+l+" !",goal:"Objectif du jour"});
+Object.assign(S.de,{play:"Weiter",pause:"Pause",mode:"Wie möchten Sie spielen?",solo:"Allein",duo:"2 Spieler, ein Bildschirm",race:"Online-Rennen",daily:"Tageslauf",
+ dailyT:"Der Tageslauf: heute für alle dieselben Fragen. Gemischt, 2 Spuren.",dailyBest:"Bester heute",
+ duoKeys:"Spieler 1: A / D oder linke Straße antippen. Spieler 2: ← / → oder rechte Straße antippen.",p:"Spieler",win:n=>n+" gewinnt!",tie:"Unentschieden!",
+ yname:"Ihr Name",create:"Rennen eröffnen",join:"Beitreten",code:"Renn-Code",share2:"Freunde öffnen diese Seite, wählen Online-Rennen und geben den Code ein.",
+ waiting:"Spieler im Rennen",go:"Rennen starten",hostwait:"Warten auf den Gastgeber…",leave:"Rennen verlassen",again2:"Nochmal rennen",
+ conn:"Verbinde…",fail:"Keine Verbindung. Code prüfen und ob die Seite des Gastgebers noch offen ist.",rank:"Ergebnis",running:"läuft noch",
+ xp:"XP",lvl:"Stufe",streakD:d=>d+" Tage in Folge",lvup:l=>"Stufe "+l+"!",goal:"Tagesziel"});
+let mode=challenge?"solo":(localStorage.getItem("lr-mode")||"solo");if(hp==="daily")mode="daily";
+let myName="";try{myName=localStorage.getItem("lr-name")||""}catch(e){}
+const PCOL=["#4cc9f0","#ffb703"],LCOL=["#2b8cc4","#9b5de5","#e0568f"];
+// ---------- voice ----------
+let voiceOn=true;try{voiceOn=localStorage.getItem("lr-voice")!=="0"}catch(e){}
+const VL={en:"en",fr:"fr",de:"de"};
+function say(q){if(!voiceOn||!("speechSynthesis" in window))return;try{speechSynthesis.cancel();const lang=VL[q.sl]||(q.k===t.Q.meaning||q.k.startsWith(t.Q.falsefr)?UI:cfg.lang);
+ const parts=[[q.k.replace(/\s*\(.*\)$/,""),UI],[q.q.replace(/[“”?]/g,"").trim(),lang]].filter(x=>x[0]);
+ for(const [txt,l] of parts){const u=new SpeechSynthesisUtterance(txt);const vs=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().startsWith(l));if(vs.length)u.voice=vs.find(v=>/natural|google|premium|enhanced/i.test(v.name))||vs[0];u.lang={en:"en-GB",fr:"fr-FR",de:"de-DE"}[l]||l;u.rate=1.02;speechSynthesis.speak(u)}}catch(e){}}
+function setVoiceBtn(){$("#vc").textContent=voiceOn?"🔊":"🔇";$("#vc").setAttribute("aria-pressed",voiceOn)}
+// ---------- canvas ----------
 const cv=$("#cv"),cx=cv.getContext("2d");let W=0,Hh=0,DPR=1;
 function size(){const r=$("#stage").getBoundingClientRect();DPR=Math.min(2,devicePixelRatio||1);W=r.width;Hh=r.height;cv.width=W*DPR;cv.height=Hh*DPR;cx.setTransform(DPR,0,0,DPR,0,0)}
 addEventListener("resize",size);
 let G=null;
-function bestKey(){return"lr-best-"+cfg.pack}
+function bestKey(){return mode==="daily"?"lr-daily-"+XP.day():"lr-best-"+cfg.pack}
 function best(){return+(localStorage.getItem(bestKey())||0)}
-function newRun(){seed=challenge?challenge.seed:(Math.random()*1e9)>>>0;rnd=mulberry(seed);lastQ=[];
- G={score:0,streak:0,lives:3,lane:Math.floor(cfg.lanes/2)-(cfg.lanes===2?0:0),px:0,z:0,q:null,state:"run",t:0,mist:[],n:0,ok:0,dur:0,wait:0,flash:0,parts:[],res:null};
- G.lane=cfg.lanes===3?1:0;G.px=G.lane;spawn();$("#menu").classList.remove("on");$("#over").classList.remove("on");hud();last=performance.now();if(!raf)raf=requestAnimationFrame(loop)}
-function spawn(){G.q=nextQ();G.z=0;G.res=null;G.lane=Math.min(G.lane,G.q.lanes.length-1);
- const base=(G.q.long?8.5:6.2)/cfg.speed,len=Math.max(...G.q.lanes.map(s=>s.length));
- G.dur=Math.max(G.q.long?4.2:2.4,(base+Math.min(3,len/25))*Math.pow(.965,G.ok));renderQ()}
-function renderQ(){$("#qk").textContent=G.q.k;$("#qt").textContent=G.q.q;const o=$("#opts");o.style.gridTemplateColumns=`repeat(${cfg.lanes===3&&G.q.lanes.length===3?3:G.q.lanes.length},1fr)`;
- o.innerHTML=G.q.lanes.map((s,i)=>`<div class="opt${i===G.lane?" on":""}" data-i="${i}">${i===0?"◀ ":""}${esc(s)}${i===G.q.lanes.length-1?" ▶":""}</div>`).join("")}
-function markOpts(){document.querySelectorAll(".opt").forEach((e,i)=>{e.classList.toggle("on",i===G.lane&&!G.res);if(G.res){e.classList.toggle("ok",i===G.q.right);e.classList.toggle("bad",i===G.lane&&i!==G.q.right)}})}
-function move(d){if(!G||G.state!=="run")return;const n=G.q.lanes.length;G.lane=Math.max(0,Math.min(n-1,G.lane+d));if(!G.res)markOpts()}
-function hud(){$("#hs").textContent=t.score+" "+G.score;$("#hk").textContent=G.streak>1?"×"+(1+Math.floor(G.streak/5))+" · "+t.streak+" "+G.streak:"";$("#hl").textContent="♥".repeat(G.lives)+"♡".repeat(3-G.lives)}
-function toast(s,ok){const e=$("#toast");e.textContent=s;e.className="toast"+(ok?" ok":"");e.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display="none",ok?700:1900)}
-function resolve(){const q=G.q,ok=G.lane===q.right;G.res=ok?"ok":"bad";G.n++;markOpts();
- if(ok){G.ok++;G.streak++;const m=1+Math.floor(G.streak/5);G.score+=10*m;if(G.streak%5===0)toast("×"+(m)+" !",1);burst(G.lane,"#2fa36b")}
- else{G.lives--;G.streak=0;G.mist.push({k:q.k,q:q.q,a:q.ans,y:q.lanes[G.lane],n:q.note});toast("✓ "+q.ans);burst(G.lane,"#d2493c");G.flash=.5}
- hud();G.wait=ok?.55:1.9;if(G.lives<=0){G.wait=1.6;G.state="dying"}}
-function burst(l,col){const p=laneX(l,1);for(let i=0;i<22;i++)G.parts.push({x:p,y:Hh-95,vx:(Math.random()-.5)*260,vy:-Math.random()*300-60,life:.8,col})}
+function dailySeed(){return +XP.day().replace(/-/g,"")*7919>>>0}
+function runCfg(){return mode==="daily"?Object.assign({},cfg,{pack:"mix",lanes:2,speed:1,cont:""}):cfg}
+let saved=null;
+function newRun(fixedSeed){if(mode==="daily"){saved=cfg;cfg=runCfg()}
+ seed=fixedSeed!=null?fixedSeed:mode==="daily"?dailySeed():challenge?challenge.seed:(Math.random()*1e9)>>>0;rnd=mulberry(seed);lastQ=[];
+ const np=mode==="duo"?2:1;
+ G={P:[...Array(np)].map((_,i)=>({name:mode==="duo"?t.p+" "+(i+1):(myName||t.p),col:PCOL[i],lane:cfg.lanes===3?1:0,px:cfg.lanes===3?1:0,score:0,streak:0,lives:3,ok:0,n:0,mist:[],res:null,out:false})),
+  z:0,q:null,state:"run",t:0,qn:0,dur:0,wait:0,flash:0,parts:[],res:false};
+ $("#menu").classList.remove("on");$("#over").classList.remove("on");$("#pz").style.display=mode==="race"?"none":"";$("#pz").textContent="⏸ "+t.pause;size();SFX.music("run");spawn();hud();last=performance.now();if(!raf)raf=requestAnimationFrame(loop)}
+function views(){if(!G||G.P.length===1)return[{ox:0,w:W,p:G?G.P[0]:null}];return G.P.map((p,i)=>({ox:i*W/2,w:W/2,p}))}
+function spawn(){G.q=nextQ();G.z=0;G.res=false;G.P.forEach(p=>{p.res=null;p.lane=Math.min(p.lane,G.q.lanes.length-1)});
+ const base=(G.q.long?9:6.5)/cfg.speed,len=Math.max(...G.q.lanes.map(s=>s.length));
+ G.dur=Math.max(G.q.long?4.5:2.6,(base+Math.min(3,len/25))*Math.pow(.97,G.qn));renderQ()}
+function renderQ(){const q=G.q,n=q.lanes.length,long=q.long||Math.max(...q.lanes.map(s=>s.length))>34;
+ $("#qk").textContent=q.k;$("#qt").innerHTML=q.img?`<img class="flag" src="${q.img}" alt="">`:esc(q.q);$("#qt").classList.toggle("long",q.q.length>40);if(q.img)G.flagImg=Object.assign(new Image(),{src:q.img});else G.flagImg=null;say(q);
+ const o=$("#opts");o.style.gridTemplateColumns=`repeat(${n},1fr)`;
+ o.innerHTML=q.lanes.map((s,i)=>`<div class="opt${long?" long":""}" style="--lc:${LCOL[i]}" data-i="${i}"><span class="who"></span>${esc(s)}</div>`).join("");markOpts()}
+function markOpts(){const duo=G.P.length>1;document.querySelectorAll(".opt").forEach((e,i)=>{
+ e.classList.toggle("on",!duo&&i===G.P[0].lane&&!G.res);
+ e.querySelector(".who").innerHTML=duo?G.P.filter(p=>!p.out&&p.lane===i).map(p=>`<b style="background:${p.col}">${esc(p.name)}</b>`).join(""):"";
+ if(G.res){e.classList.toggle("ok",i===G.q.right);e.classList.toggle("bad",i!==G.q.right&&G.P.some(p=>!p.out&&p.lane===i))}})}
+function move(pi,d,abs){if(!G||G.state!=="run"||G.res)return;const p=G.P[pi];if(!p||p.out)return;const n=G.q.lanes.length,was=p.lane;p.lane=abs!=null?abs:Math.max(0,Math.min(n-1,p.lane+d));if(p.lane!==was)SFX.move();markOpts()}
+function hearts(n){return"♥".repeat(Math.max(0,n))+"♡".repeat(Math.max(0,3-n))}
+function hud(){if(!G)return;let h=G.P.map(p=>`<span class="pl${p.out?" out":""}"><i style="background:${p.col}"></i>${G.P.length>1||mode==="race"?esc(p.name)+" · ":""}${p.score}${p.streak>4?` <span class="muted">×${1+Math.floor(p.streak/5)}</span>`:""} <span class="hearts">${hearts(p.lives)}</span></span>`).join("");
+ if(mode==="race"&&R.room)h+=R.others().map(o=>`<span class="pl${o.d?" out":""}"><i style="background:#888"></i>${esc(o.n)} · ${o.s||0} <span class="hearts">${hearts(o.l??3)}</span></span>`).join("");
+ $("#hst").innerHTML=h;if(mode==="race"&&R.room){const p=G.P[0],pr={s:p.score,l:p.lives,d:G.state==="over"?1:0,go:R.go},js=JSON.stringify(pr);if(js!==R.sent){R.sent=js;R.room.presence(pr)}}}
+function toast(s,ok){const e=$("#toast");e.textContent=s;e.className="toast"+(ok?" ok":"");e.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display="none",ok?800:1900)}
+function resolve(){const q=G.q;G.res=true;G.qn++;let anyBad=false;
+ G.P.forEach((p,i)=>{if(p.out)return;const ok=p.lane===q.right;p.res=ok?"ok":"bad";p.n++;const v=views()[i];
+  if(ok){p.ok++;p.streak++;const m=1+Math.floor(p.streak/5);p.score+=10*m;p.streak%5===0?SFX.combo():SFX.ok();if(p.streak%5===0&&G.P.length===1)toast("×"+m+" !",1);burst(v,p.lane,"#2fa36b")}
+  else{anyBad=true;SFX.bad();p.lives--;p.streak=0;p.mist.push({k:q.k,q:q.q||q.note,img:q.img,a:q.ans,y:q.lanes[p.lane],n:q.note});burst(v,p.lane,"#d2493c");if(p.lives<=0)p.out=true}});
+ markOpts();if(anyBad){toast("✓ "+q.ans);G.flash=.45}
+ hud();G.wait=anyBad?1.9:.6;if(G.P.every(p=>p.out)){G.wait=1.5;G.state="dying"}}
+function burst(v,l,col){const x=laneX(v,l,1);for(let i=0;i<22;i++)G.parts.push({x,y:Hh-60,vx:(Math.random()-.5)*260,vy:-Math.random()*300-60,life:.8,col})}
 // ---------- drawing ----------
-const HOR=()=>Hh*.12;
-function sc(z){return .22+.78*z}
-function yAt(z){return HOR()+(Hh-60-HOR())*z}
-function roadHalf(){return Math.min(W*.47,cfg.lanes===3?440:360)}
-function laneX(l,z,n){n=n||(G&&G.q?G.q.lanes.length:cfg.lanes);const hw=roadHalf()*sc(z),lw=2*hw/n;return W/2-hw+lw*(l+.5)}
+const HOR=()=>Hh*.24;
+function sc(z){return .2+.8*z}
+function yAt(z){return HOR()+(Hh-34-HOR())*z}
+function roadHalf(v){return Math.min(v.w*.47,cfg.lanes===3?460:380)}
+function laneX(v,l,z){const n=G&&G.q?G.q.lanes.length:cfg.lanes,hw=roadHalf(v)*sc(z),lw=2*hw/n;return v.ox+v.w/2-hw+lw*(l+.5)}
 function wrap(s,maxw,fs){cx.font=`700 ${fs}px "Familjen Grotesk",Arial,sans-serif`;const w=s.split(" "),lines=[];let cur="";for(const x of w){const tt=cur?cur+" "+x:x;if(cx.measureText(tt).width>maxw&&cur){lines.push(cur);cur=x}else cur=tt}if(cur)lines.push(cur);return lines}
 let road=0;
-function draw(dt){cx.clearRect(0,0,W,Hh);const g=cx.createLinearGradient(0,0,0,Hh);g.addColorStop(0,"#1b2533");g.addColorStop(1,"#0d1117");cx.fillStyle=g;cx.fillRect(0,0,W,Hh);
- const n=G&&G.q?G.q.lanes.length:cfg.lanes,h0=HOR(),hw0=roadHalf()*sc(0),hw1=roadHalf()*sc(1.1),y1=yAt(1.1);
- // road
- cx.fillStyle="#232c38";cx.beginPath();cx.moveTo(W/2-hw0,h0);cx.lineTo(W/2+hw0,h0);cx.lineTo(W/2+hw1,y1);cx.lineTo(W/2-hw1,y1);cx.fill();
- cx.strokeStyle="#e0a526";cx.lineWidth=3;cx.beginPath();cx.moveTo(W/2-hw0,h0);cx.lineTo(W/2-hw1,y1);cx.moveTo(W/2+hw0,h0);cx.lineTo(W/2+hw1,y1);cx.stroke();
- // dashes
- road=(road+dt*(G&&G.state==="run"?1/Math.max(1.2,G.dur)*1.6:.15))%1;cx.fillStyle="#ffffff55";
- for(let l=1;l<n;l++)for(let k=0;k<8;k++){const z0=((k/8)+road)%1.1,z1=z0+.045;const xa=W/2-roadHalf()*sc(z0)+2*roadHalf()*sc(z0)*l/n,xb=W/2-roadHalf()*sc(z1)+2*roadHalf()*sc(z1)*l/n,wa=2*sc(z0),wb=2*sc(z1);
+let clouds=null;
+function sky(dt){const h=HOR(),g=cx.createLinearGradient(0,0,0,h);g.addColorStop(0,"#3a86ff");g.addColorStop(.7,"#8ecae6");g.addColorStop(1,"#ffd6a5");cx.fillStyle=g;cx.fillRect(0,0,W,h+1);
+ cx.fillStyle="#ffbe0b";cx.beginPath();cx.arc(W*.78,h-8,Math.max(18,h*.32),Math.PI,0);cx.fill();cx.fillStyle="#ffbe0b55";cx.beginPath();cx.arc(W*.78,h-8,Math.max(26,h*.48),Math.PI,0);cx.fill();
+ if(!clouds)clouds=[...Array(6)].map((_,i)=>({x:Math.random(),y:.15+Math.random()*.45,s:.6+Math.random()*.8,v:.004+Math.random()*.01}));
+ cx.fillStyle="#ffffffd9";for(const c of clouds){c.x=(c.x+c.v*dt)%1.2;const x=c.x*W*1.2-W*.1,y=c.y*h,r=14*c.s;cx.beginPath();cx.arc(x,y,r,0,7);cx.arc(x+r*1.1,y-r*.4,r*1.2,0,7);cx.arc(x+r*2.3,y,r*.95,0,7);cx.fill()}
+ // hills
+ cx.fillStyle="#7b6cc4";cx.beginPath();cx.moveTo(0,h);for(let i=0;i<=24;i++){const x=i/24*W;cx.lineTo(x,h-(Math.sin(i*1.7)*.5+.6)*h*.38-(i%3)*4)}cx.lineTo(W,h);cx.fill();
+ cx.fillStyle="#4d9e6a";cx.beginPath();cx.moveTo(0,h);for(let i=0;i<=30;i++){const x=i/30*W;cx.lineTo(x,h-(Math.sin(i*1.1+2)*.5+.5)*h*.2)}cx.lineTo(W,h);cx.fill()}
+function draw(dt){cx.clearRect(0,0,W,Hh);sky(dt);
+ road=(road+dt*(G&&G.state==="run"?1.6/Math.max(1.2,G.dur||3):.15))%1;
+ for(const v of views())drawView(v,dt);
+ if(G){for(const p of G.parts){p.life-=dt;p.vy+=600*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;cx.globalAlpha=Math.max(0,p.life/.8);cx.fillStyle=p.col;cx.fillRect(p.x-3,p.y-3,6,6)}cx.globalAlpha=1;G.parts=G.parts.filter(p=>p.life>0);
+  if(G.flash>0){cx.fillStyle=`rgba(210,73,60,${G.flash*.5})`;cx.fillRect(0,0,W,Hh);G.flash-=dt}}}
+function drawView(v,dt){const n=G&&G.q?G.q.lanes.length:cfg.lanes,h0=HOR(),hw0=roadHalf(v)*sc(0),hw1=roadHalf(v)*sc(1.06),y1=yAt(1.06),c=v.ox+v.w/2;
+ const N=14;for(let i=-1;i<N;i++){const z0=Math.max(0,(i+road)/N),z1=Math.min(1.06,(i+1+road)/N);if(z1<=z0)continue;const ya=yAt(z0),yb=yAt(z1);
+  cx.fillStyle=i%2?"#5cc46f":"#4caf62";cx.fillRect(v.ox,ya,v.w,yb-ya+1);
+  const ra=roadHalf(v)*sc(z0),rb=roadHalf(v)*sc(z1),ka=ra*.07,kb=rb*.07;cx.fillStyle=i%2?"#ffffff":"#e63946";
+  cx.beginPath();cx.moveTo(c-ra-ka,ya);cx.lineTo(c+ra+ka,ya);cx.lineTo(c+rb+kb,yb);cx.lineTo(c-rb-kb,yb);cx.fill();
+  cx.fillStyle=i%2?"#3d4654":"#394250";cx.beginPath();cx.moveTo(c-ra,ya);cx.lineTo(c+ra,ya);cx.lineTo(c+rb,yb);cx.lineTo(c-rb,yb);cx.fill()}
+ const props=[];for(let k=0;k<7;k++){const z=((k/7)+road)%1.06;props.push(z)}props.sort((a,b)=>a-b);
+ for(const z of props){const s_=sc(z),y=yAt(z),off=roadHalf(v)*s_*1.12+26*s_;for(const side of[-1,1]){const x=c+side*off,kind=(Math.round(z*7+side*3)%3+3)%3;
+  if(kind===2){cx.fillStyle="#555";cx.fillRect(x-1.5*s_,y-70*s_,3*s_,70*s_);cx.fillStyle="#ffd166";cx.beginPath();cx.arc(x,y-72*s_,5*s_,0,7);cx.fill()}
+  else{cx.fillStyle="#7f5539";cx.fillRect(x-3*s_,y-26*s_,6*s_,26*s_);cx.fillStyle=kind?"#2d6a4f":"#40916c";cx.beginPath();cx.arc(x,y-38*s_,18*s_,0,7);cx.arc(x-10*s_,y-28*s_,13*s_,0,7);cx.arc(x+10*s_,y-28*s_,13*s_,0,7);cx.fill()}}}
+ // lane tints
+ for(let l=0;l<n;l++){const a0=c-hw0+2*hw0*l/n,a1=c-hw0+2*hw0*(l+1)/n,b0=c-hw1+2*hw1*l/n,b1=c-hw1+2*hw1*(l+1)/n;cx.fillStyle=LCOL[l]+"1c";cx.beginPath();cx.moveTo(a0,h0);cx.lineTo(a1,h0);cx.lineTo(b1,y1);cx.lineTo(b0,y1);cx.fill()}
+ 
+ cx.fillStyle="#ffffff55";const rh=z=>roadHalf(v)*sc(z);
+ for(let l=1;l<n;l++)for(let k=0;k<8;k++){const z0=((k/8)+road)%1.06,z1=z0+.045;const xa=c-rh(z0)+2*rh(z0)*l/n,xb=c-rh(z1)+2*rh(z1)*l/n,wa=2*sc(z0),wb=2*sc(z1);
   cx.beginPath();cx.moveTo(xa-wa,yAt(z0));cx.lineTo(xa+wa,yAt(z0));cx.lineTo(xb+wb,yAt(z1));cx.lineTo(xb-wb,yAt(z1));cx.fill()}
- if(!G||!G.q)return;
- // gates
- const z=Math.min(G.z,1),s=sc(z),lw=2*roadHalf()*s/n,gy=yAt(z);
- for(let i=0;i<n;i++){const x=laneX(i,z),bw=lw*.92,fs=Math.max(9,Math.round((G.q.long?15:21)*s*(n===3?.85:1)));let lines=wrap(G.q.lanes[i],bw-14*s,fs);
-  let f=fs;while(lines.length>4&&f>8){f--;lines=wrap(G.q.lanes[i],bw-14*s,f)}
-  const lh=f*1.18,bh=Math.max(46*s,lines.length*lh+18*s),top=gy-bh-12*s;
-  let col="#f4efe3",tc="#16202c";if(G.res){if(i===G.q.right){col="#2fa36b";tc="#fff"}else if(i===G.lane){col="#d2493c";tc="#fff"}else{col="#59606b";tc="#d5d9de"}}
-  cx.fillStyle="#00000055";cx.fillRect(x-bw/2+4*s,top+5*s,bw,bh);
-  cx.fillStyle="#6b4a12";cx.fillRect(x-bw/2+6*s,top+bh,5*s,14*s);cx.fillRect(x+bw/2-11*s,top+bh,5*s,14*s);
-  cx.fillStyle=col;roundRect(x-bw/2,top,bw,bh,8*s);cx.fill();cx.lineWidth=3*s;cx.strokeStyle=i===G.lane&&!G.res?"#e0a526":"#00000033";cx.stroke();
+ if(!G||!G.q||!v.p)return;const p=v.p;
+ const z=Math.min(G.z,1),s=sc(z),lw=2*roadHalf(v)*s/n,gy=yAt(z)-46*s;
+ for(let i=0;i<n;i++){const x=laneX(v,i,z),bw=lw*.9,fs=Math.max(9,Math.round((G.q.long?14:20)*s*(v.w<500?.8:1)));let f=fs,lines=wrap(G.q.lanes[i],bw-12*s,f);
+  while(lines.length>3&&f>8){f--;lines=wrap(G.q.lanes[i],bw-12*s,f)}
+  const lh=f*1.15,bh=Math.max(40*s,lines.length*lh+14*s),top=gy-bh;
+  let col=LCOL[i],tc="#fff";if(G.res){if(i===G.q.right)col="#2fa36b";else if(i===p.lane&&!p.out)col="#d2493c";else{col="#59606b";tc="#d5d9de"}}
+  cx.fillStyle="#00000066";cx.fillRect(x-bw/2+4*s,top+5*s,bw,bh);
+  cx.fillStyle="#6b4a12";cx.fillRect(x-bw/2+6*s,top+bh,5*s,12*s);cx.fillRect(x+bw/2-11*s,top+bh,5*s,12*s);
+  cx.fillStyle=col;roundRect(x-bw/2,top,bw,bh,8*s);cx.fill();cx.lineWidth=3*s;cx.strokeStyle=i===p.lane&&!G.res?"#fff":"#00000033";cx.stroke();
   cx.fillStyle=tc;cx.textAlign="center";cx.textBaseline="middle";cx.font=`700 ${f}px "Familjen Grotesk",Arial,sans-serif`;
   lines.forEach((ln,j)=>cx.fillText(ln,x,top+bh/2+(j-(lines.length-1)/2)*lh))}
- // runner
- G.px+=(G.lane-G.px)*Math.min(1,dt*14);drawRunner(laneX(G.px,1,n),Hh-58,G.t);
- // particles
- for(const p of G.parts){p.life-=dt;p.vy+=600*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;cx.globalAlpha=Math.max(0,p.life/.8);cx.fillStyle=p.col;cx.fillRect(p.x-3,p.y-3,6,6)}cx.globalAlpha=1;G.parts=G.parts.filter(p=>p.life>0);
- if(G.flash>0){cx.fillStyle=`rgba(210,73,60,${G.flash*.5})`;cx.fillRect(0,0,W,Hh);G.flash-=dt}}
+ p.px+=(p.lane-p.px)*Math.min(1,dt*14);if(!p.out)drawRunner(laneX(v,p.px,1),Hh-62,G.t,p.col);else{cx.fillStyle="#ffffff88";cx.font='700 20px "Familjen Grotesk",sans-serif';cx.textAlign="center";cx.fillText("✕ "+p.name,c,Hh-50)}}
 function roundRect(x,y,w,h,r){cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath()}
-function drawRunner(x,y,tm){const k=G.state==="run"||G.state==="dying"?Math.sin(tm*13):0,u=1;cx.save();cx.translate(x,y);cx.lineCap="round";
+function drawRunner(x,y,tm,jacket){const k=G.state==="run"||G.state==="dying"?Math.sin(tm*13):0;cx.save();cx.translate(x,y);cx.lineCap="round";
  cx.fillStyle="#00000055";cx.beginPath();cx.ellipse(0,40,22,6,0,0,7);cx.fill();
- cx.strokeStyle="#1d3f63";cx.lineWidth=7;// legs
- cx.beginPath();cx.moveTo(0,8);cx.lineTo(10*k,24);cx.lineTo(8*k+4,38);cx.moveTo(0,8);cx.lineTo(-10*k,24);cx.lineTo(-8*k-4,38);cx.stroke();
- cx.strokeStyle="#e0a526";cx.lineWidth=12;cx.beginPath();cx.moveTo(0,-18);cx.lineTo(0,8);cx.stroke();// torso (jacket)
- cx.strokeStyle="#c98d18";cx.lineWidth=5;cx.beginPath();cx.moveTo(0,-14);cx.lineTo(-12*k,-2);cx.lineTo(-14*k-4,8);cx.moveTo(0,-14);cx.lineTo(12*k,-2);cx.lineTo(14*k+4,8);cx.stroke();
- cx.fillStyle="#8a5a3c";cx.beginPath();cx.arc(0,-30,10,0,7);cx.fill();// head
- cx.strokeStyle="#eef2f7";cx.lineWidth=3;cx.beginPath();cx.arc(0,-31,12.5,Math.PI*1.05,Math.PI*1.95);cx.stroke();// headset band
+ cx.strokeStyle="#1d3f63";cx.lineWidth=7;cx.beginPath();cx.moveTo(0,8);cx.lineTo(10*k,24);cx.lineTo(8*k+4,38);cx.moveTo(0,8);cx.lineTo(-10*k,24);cx.lineTo(-8*k-4,38);cx.stroke();
+ cx.strokeStyle=jacket;cx.lineWidth=12;cx.beginPath();cx.moveTo(0,-18);cx.lineTo(0,8);cx.stroke();
+ cx.lineWidth=5;cx.beginPath();cx.moveTo(0,-14);cx.lineTo(-12*k,-2);cx.lineTo(-14*k-4,8);cx.moveTo(0,-14);cx.lineTo(12*k,-2);cx.lineTo(14*k+4,8);cx.stroke();
+ cx.fillStyle="#8a5a3c";cx.beginPath();cx.arc(0,-30,10,0,7);cx.fill();
+ cx.strokeStyle="#eef2f7";cx.lineWidth=3;cx.beginPath();cx.arc(0,-31,12.5,Math.PI*1.05,Math.PI*1.95);cx.stroke();
  cx.fillStyle="#eef2f7";cx.fillRect(-15,-34,5,9);cx.fillRect(10,-34,5,9);
- cx.strokeStyle="#eef2f7";cx.lineWidth=2;cx.beginPath();cx.moveTo(12,-26);cx.quadraticCurveTo(12,-18,4,-20);cx.stroke();cx.fillStyle="#e0a526";cx.beginPath();cx.arc(4,-20,2.5,0,7);cx.fill();
+ cx.lineWidth=2;cx.beginPath();cx.moveTo(12,-26);cx.quadraticCurveTo(12,-18,4,-20);cx.stroke();cx.fillStyle="#e0a526";cx.beginPath();cx.arc(4,-20,2.5,0,7);cx.fill();
  cx.restore()}
 // ---------- loop ----------
 let raf=0,last=0;
@@ -216,52 +301,111 @@ function loop(now){raf=requestAnimationFrame(loop);const dt=Math.min(.05,(now-la
   if(!G.res){G.z+=dt/G.dur;if(G.z>=1){G.z=1;resolve()}}
   else{G.wait-=dt;if(G.wait<=0){if(G.state==="dying")return endRun();spawn()}}}
  draw(G&&G.state==="pause"?0:dt)}
-function endRun(){G.state="over";cancelAnimationFrame(raf);raf=0;let b=best(),rec=false;if(G.score>b){localStorage.setItem(bestKey(),G.score);b=G.score;rec=true}
- const ch=challenge?`<div class="chal">${esc(t.chal(challenge.by,challenge.beat))}<br><b>${G.score>challenge.beat?t.beat:t.lost}</b></div>`:"";
- $("#over").innerHTML=`<div class="box"><h1>${t.over}</h1><div class="row"><div><div class="lbl">${t.score}</div><div class="big">${G.score}</div></div><div style="margin-left:18px"><div class="lbl">${t.best}</div><div class="big" style="color:var(--ink)">${b}${rec?" ★":""}</div></div></div>
- <p>${G.ok} / ${G.n} ✓</p>${ch}
- <div class="row"><button class="pri" id="ag">${t.again}</button><button id="mn">${t.menu}</button><button id="sh">${t.share}</button><a href="../learn/#${HUB[cfg.pack]}">${t.learn}</a></div>
- <h2>${t.rev}</h2>${G.mist.length?G.mist.map(m=>`<div class="rv"><div class="m">${esc(m.k)}</div><b>${esc(m.q)}</b> → <b style="color:#5fd39a">${esc(m.a)}</b><div class="m">${t.you}: <s>${esc(m.y)}</s>${m.n?" · "+esc(m.n):""}</div></div>`).join(""):`<p>${t.none}</p>`}</div>`;
- $("#over").classList.add("on");$("#ag").onclick=newRun;$("#mn").onclick=()=>{challenge=null;showMenu()};
- $("#sh").onclick=async()=>{let nm="";try{nm=localStorage.getItem("lr-name")||""}catch(e){}nm=prompt(t.name,nm)??nm;try{localStorage.setItem("lr-name",nm)}catch(e){}
-  const u=location.origin+location.pathname+"#"+cfg.pack+"?seed="+seed+"&beat="+G.score+"&by="+encodeURIComponent(nm)+"&lang="+cfg.lang+"&to="+cfg.to+"&lanes="+cfg.lanes+"&sp="+cfg.speed+(cfg.cont?"&cont="+cfg.cont:"");
-  try{if(navigator.share){await navigator.share({title:"Lane Runner",text:t.chal(nm,G.score),url:u});return}}catch(e){}
-  try{await navigator.clipboard.writeText(u);toast(t.copied,1)}catch(e){prompt("",u)}}}
+function endRun(){G.state="over";cancelAnimationFrame(raf);raf=0;SFX.stop();
+ const P=G.P,me=P[0],tot=P.reduce((a,p)=>a+p.score,0);const xi=XP.add(tot/2+P.reduce((a,p)=>a+p.ok,0)*2,"runner");
+ let b=best(),rec=false;const top=Math.max(...P.map(p=>p.score));(top>b&&top>0)||P.length>1||xi.up?SFX.win():SFX.over();if(top>b){try{localStorage.setItem(bestKey(),top)}catch(e){}b=top;rec=true}
+ if(saved){cfg=saved;saved=null}
+ hud();
+ let head;if(P.length>1){const w=P[0].score===P[1].score?t.tie:t.win(P[0].score>P[1].score?P[0].name:P[1].name);
+  head=`<h1>${w}</h1><div class="row">${P.map(p=>`<div style="margin-right:22px"><div class="lbl" style="color:${p.col}">${esc(p.name)}</div><div class="big" style="color:${p.col}">${p.score}</div><div class="muted">${p.ok} / ${p.n} ✓</div></div>`).join("")}</div>`}
+ else head=`<h1>${t.over}</h1><div class="row"><div><div class="lbl">${t.score}</div><div class="big">${me.score}</div></div><div style="margin-left:22px"><div class="lbl">${mode==="daily"?t.dailyBest:t.best}</div><div class="big" style="color:var(--ink)">${b}${rec?" ★":""}</div></div></div><p>${me.ok} / ${me.n} ✓</p>`;
+ const xpb=`<div class="chal"><b>+${xi.gained||0} ${t.xp}${xi.up?" · "+t.lvup(xi.level):""}</b><span class="muted">${t.lvl} ${xi.level} · ${t.goal} ${Math.min(xi.today,xi.goal)}/${xi.goal}${xi.streak?" · 🔥 "+t.streakD(xi.streak):""}</span></div>`;
+ const ch=challenge&&mode==="solo"?`<div class="chal">${esc(t.chal(challenge.by,challenge.beat))}<br><b>${me.score>challenge.beat?t.beat:t.lost}</b></div>`:"";
+ const race=mode==="race"&&R.room?`<div class="race"><b>${t.rank}</b><div class="rank" id="rank"></div>${R.host?`<button class="pri" id="rag">${t.again2}</button>`:`<span class="muted">${t.hostwait}</span>`}</div>`:"";
+ const btns=mode==="race"?`<div class="row"><button id="mn">${t.leave}</button></div>`:`<div class="row"><button class="pri" id="ag">${t.again}</button><button id="mn">${t.menu}</button>${mode!=="duo"?`<button id="sh">${t.share}</button>`:""}<a href="../learn/#${HUB[cfg.pack]}">${t.learn}</a></div>`;
+ const mist=P.flatMap(p=>p.mist.map(m=>Object.assign({who:P.length>1?p.name:""},m)));
+ $("#over").innerHTML=`<div class="box">${head}${race}${ch}${xpb}${btns}
+ <h2>${t.rev}</h2>${mist.length?mist.map(m=>`<div class="rv"><div class="m">${m.who?esc(m.who)+" · ":""}${esc(m.k)}</div>${m.img?`<img src="${m.img}" alt="" style="height:28px;vertical-align:middle;margin-right:6px;border-radius:3px">`:""}<b>${esc(m.q)}</b> → <b style="color:#5fd39a">${esc(m.a)}</b><div class="m">${t.you}: <s>${esc(m.y)}</s>${m.n?" · "+esc(m.n):""}</div></div>`).join(""):`<p>${t.none}</p>`}</div>`;
+ $("#over").classList.add("on");
+ const ag=$("#ag");if(ag)ag.onclick=()=>newRun();const rag=$("#rag");if(rag)rag.onclick=()=>R.start();
+ $("#mn").onclick=()=>{challenge=null;if(mode==="race")R.leave();showMenu()};
+ const sh=$("#sh");if(sh)sh.onclick=async()=>{let nm=myName;nm=prompt(t.name,nm)??nm;myName=nm;try{localStorage.setItem("lr-name",nm)}catch(e){}
+  const u=location.origin+location.pathname+"#"+(mode==="daily"?"mix":cfg.pack)+"?seed="+seed+"&beat="+me.score+"&by="+encodeURIComponent(nm)+"&lang="+cfg.lang+"&to="+cfg.to+"&lanes="+(mode==="daily"?2:cfg.lanes)+"&sp="+(mode==="daily"?1:cfg.speed)+(cfg.cont&&mode!=="daily"?"&cont="+cfg.cont:"");
+  try{if(navigator.share){await navigator.share({title:"Lane Runner",text:t.chal(nm,me.score),url:u});return}}catch(e){}
+  try{await navigator.clipboard.writeText(u);toast(t.copied,1)}catch(e){prompt("",u)}};
+ R.rank()}
+// ---------- online race ----------
+const R={room:null,host:false,code:"",go:0,list:[],status:"",
+ others(){return this.list.filter(x=>!x.isMe).map(x=>x.presence).filter(p=>p&&p.n)},
+ hostP(){const h=this.list.find(x=>x.presence&&x.presence.h);return h?h.presence:null},
+ async open(asHost,code){if(!myName){toast(t.yname,0);return}try{localStorage.setItem("lr-name",myName)}catch(e){}
+  this.host=asHost;this.code=asHost?[...Array(4)].map(()=>"ABCDEFGHJKLMNPQRSTUVWXYZ"[Math.floor(Math.random()*24)]).join(""):code.toUpperCase().replace(/[^A-Z]/g,"");
+  if(!this.code)return;this.status=t.conn;showMenu();
+  try{this.room=await TWROOM.join("lr-"+this.code.toLowerCase(),asHost)}catch(e){this.room=null;this.status=t.fail;showMenu();return}
+  this.status="";const p={n:myName.slice(0,24),s:0,l:3,d:0,go:0};if(asHost)Object.assign(p,{h:1,cfg,seed:0});await this.room.presence(p);
+  this.room.onPeers(ch=>{this.list=ch.peers;this.sync()});showMenu()},
+ sync(){const h=this.hostP();
+  if(!this.host&&h&&h.go&&h.go!==this.go){this.go=h.go;Object.assign(cfg,h.cfg);this.countdown(h.seed);return}
+  if(G&&(G.state==="run"||G.state==="pause"||G.state==="dying"))hud();else if(G&&G.state==="over")this.rank();else if($("#menu").classList.contains("on"))this.lobby()},
+ start(){if(!this.host)return;this.go=(this.go||0)+1;const sd=(Math.random()*1e9)>>>0;this.room.presence({cfg,seed:sd,go:this.go,s:0,l:3,d:0});this.countdown(sd)},
+ countdown(sd){$("#menu").classList.remove("on");$("#over").classList.remove("on");const cd=$("#cd");cd.style.display="flex";let n=3;
+  const tick=()=>{if(n>0){SFX.tick();cd.textContent=n;n--;setTimeout(tick,800)}else{cd.style.display="none";newRun(sd)}};tick()},
+ rank(){const e=$("#rank");if(!e||mode!=="race")return;const me=G?G.P[0]:null;const all=this.others().filter(o=>o.go===this.go).concat(me?[{n:myName,s:me.score,l:me.lives,d:1,me:1}]:[]);
+  all.sort((a,b)=>(b.s||0)-(a.s||0));e.innerHTML=all.map((o,i)=>`<div><span>${i+1}. ${esc(o.n)}${o.me?" ★":""}</span><span>${o.s||0}${o.d?"":" · "+t.running}</span></div>`).join("")},
+ lobby(){const e=$("#lobby");if(!e)return;const ps=this.list.map(x=>x.presence).filter(p=>p&&p.n);e.innerHTML=ps.map(p=>`<div><span>${esc(p.n)}${p.h?" ★":""}</span></div>`).join("")},
+ leave(){try{this.room&&this.room.leave()}catch(e){}this.room=null;this.list=[];this.go=0;this.code=""}};
 // ---------- menu ----------
-function showMenu(){if(G)G.state="menu";const P=Object.keys(t.P),needTo=cfg.pack==="idioms"||cfg.pack==="mix",cap=cfg.pack.startsWith("capitals")||cfg.pack==="mix";
+function showMenu(){SFX.stop();$("#pov").classList.remove("on");if(G&&G.state!=="over")G.state="menu";if(saved){cfg=saved;saved=null}
+ const P=Object.keys(t.P),needTo=cfg.pack==="idioms"||cfg.pack==="vocab"||cfg.pack==="mix",cap=/^(capitals|flags)/.test(cfg.pack)||cfg.pack==="mix";
  const b=(k,v,lab)=>`<button data-k="${k}" data-v="${v}" aria-pressed="${String(cfg[k])===String(v)}">${lab}</button>`;
- const ch=challenge?`<div class="chal">${esc(t.chal(challenge.by,challenge.beat))}</div>`:"";
- $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:flex-end"><div class="lang">${["en","fr","de"].map(l=>`<button data-ui="${l}" aria-pressed="${l===UI}">${l.toUpperCase()}</button>`).join("")}</div></div>
- <h1>${t.title}</h1><p>${t.lead}</p>${ch}
- <div class="lbl">${t.pack}</div><div class="row">${P.map(p=>b("pack",p,t.P[p])).join("")}</div>
+ const mb=(v,lab)=>`<button data-m="${v}" aria-pressed="${mode===v}">${lab}</button>`;
+ const xi=XP.info();
+ const ch=challenge&&mode==="solo"?`<div class="chal">${esc(t.chal(challenge.by,challenge.beat))}</div>`:"";
+ const guestInRace=mode==="race"&&R.room&&!R.host;
+ const settings=mode==="daily"?`<div class="chal">${t.dailyT}<span class="muted">${t.dailyBest}: ${best()}</span></div><div class="lbl">${t.lang}</div><div class="row">${["en","fr","de"].map(l=>b("lang",l,l.toUpperCase())).join("")}</div>`:
+  guestInRace?"":`<div class="lbl">${t.pack}</div><div class="row">${P.map(p=>b("pack",p,t.P[p])).join("")}</div>
  <div class="lbl">${needTo?t.from:t.lang}</div><div class="row">${["en","fr","de"].map(l=>b("lang",l,l.toUpperCase())).join("")}</div>
  ${needTo?`<div class="lbl">${t.to}</div><div class="row">${["en","fr","de"].filter(l=>l!==cfg.lang).map(l=>b("to",l,l.toUpperCase())).join("")}</div>`:""}
  ${cap?`<div class="lbl">${t.cont}</div><div class="row">${b("cont","",t.world)}${Object.keys(C.CP.CONTINENTS).map(c=>b("cont",c,C.CP.CONTINENTS[c][UI])).join("")}</div>`:""}
  <div class="lbl">${t.lanes}</div><div class="row">${b("lanes",2,"2")}${b("lanes",3,"3")}</div>
- <div class="lbl">${t.speed}</div><div class="row">${b("speed",.75,t.slow)}${b("speed",1,t.norm)}${b("speed",1.35,t.fast)}</div>
- <div class="row" style="margin-top:8px"><button class="pri" id="go">${t.start} →</button><span class="muted" style="color:var(--muted)">${t.best}: ${best()}</span></div>
- <p style="color:var(--muted);font-size:15px">${t.keys}</p></div>`;
+ <div class="lbl">${t.speed}</div><div class="row">${b("speed",.75,t.slow)}${b("speed",1,t.norm)}${b("speed",1.35,t.fast)}</div>`;
+ let action;
+ if(mode==="race"){action=!R.room?`<div class="race"><div class="lbl">${t.yname}</div><input id="nm" maxlength="24" value="${esc(myName)}" autocomplete="nickname">
+   <div class="row"><button class="pri" id="rc">${t.create}</button></div><div class="lbl">${t.code}</div><div class="row"><input id="rcode" maxlength="4" style="width:9em;text-transform:uppercase;letter-spacing:.15em" placeholder="ABCD"><button id="rj">${t.join}</button></div>
+   ${R.status?`<p>${esc(R.status)}</p>`:""}<p class="muted">${t.share2}</p></div>`
+  :`<div class="race"><div class="lbl">${t.code}</div><div class="code">${R.code}</div><p class="muted">${t.share2}</p><div class="lbl">${t.waiting}</div><div class="rank" id="lobby"></div>
+   <div class="row">${R.host?`<button class="pri" id="rs">${t.go} →</button>`:`<span class="muted">${t.hostwait}</span>`}<button id="rl">${t.leave}</button></div></div>`}
+ else action=`<div class="row" style="margin-top:8px"><button class="pri" id="go">${t.start} →</button><span class="muted">${mode==="daily"?t.dailyBest:t.best}: ${best()}</span></div>
+  <p class="muted" style="font-size:15px">${mode==="duo"?t.duoKeys:t.keys}</p>`;
+ $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font:600 15px 'Familjen Grotesk',sans-serif">${t.all}</a><div class="lang">${["en","fr","de"].map(l=>`<button data-ui="${l}" aria-pressed="${l===UI}">${l.toUpperCase()}</button>`).join("")}</div></div>
+ <h1>${t.title}</h1><p>${t.lead}</p>
+ <div class="row muted" style="font:600 15px 'Familjen Grotesk',sans-serif">${t.lvl} ${xi.level} · ${xi.xp} ${t.xp} · ${t.goal} ${Math.min(xi.today,xi.goal)}/${xi.goal}${xi.streak?" · 🔥 "+t.streakD(xi.streak):""}</div>${ch}
+ <div class="lbl">${t.mode}</div><div class="row">${mb("solo",t.solo)}${mb("daily","📅 "+t.daily)}${mb("duo",t.duo)}${mb("race",t.race)}</div>
+ ${settings}${action}</div>`;
  $("#menu").classList.add("on");$("#over").classList.remove("on");
- $("#menu").querySelectorAll("[data-k]").forEach(e=>e.onclick=()=>{const k=e.dataset.k;let v=e.dataset.v;if(k==="lanes"||k==="speed")v=+v;cfg[k]=v;if(cfg.to===cfg.lang)cfg.to=cfg.lang==="en"?"fr":"en";
-  challenge=null;try{localStorage.setItem("lr-cfg",JSON.stringify(cfg))}catch(x){}history.replaceState(null,"","#"+cfg.pack);showMenu()});
- $("#menu").querySelectorAll("[data-ui]").forEach(e=>e.onclick=()=>{UI=e.dataset.ui;t=S[UI];try{localStorage.setItem("twb-ui",UI)}catch(x){}applyUI();showMenu()});
- $("#go").onclick=newRun;
+ const M_=$("#menu");
+ M_.querySelectorAll("[data-k]").forEach(e=>e.onclick=()=>{const k=e.dataset.k;let v=e.dataset.v;if(k==="lanes"||k==="speed")v=+v;cfg[k]=v;if(cfg.to===cfg.lang)cfg.to=cfg.lang==="en"?"fr":"en";
+  challenge=null;try{localStorage.setItem("lr-cfg",JSON.stringify(cfg))}catch(x){}history.replaceState(null,"","#"+cfg.pack);if(R.room&&R.host)R.room.presence({cfg});showMenu()});
+ M_.querySelectorAll("[data-m]").forEach(e=>e.onclick=()=>{if(mode==="race"&&e.dataset.m!=="race")R.leave();mode=e.dataset.m;challenge=null;try{localStorage.setItem("lr-mode",mode==="daily"?"solo":mode)}catch(x){}showMenu()});
+ M_.querySelectorAll("[data-ui]").forEach(e=>e.onclick=()=>{UI=e.dataset.ui;t=S[UI];try{localStorage.setItem("twb-ui",UI)}catch(x){}applyUI();showMenu()});
+ const go=$("#go");if(go)go.onclick=()=>newRun();
+ const nm=$("#nm");if(nm)nm.oninput=()=>{myName=nm.value.trim()};
+ const rc=$("#rc");if(rc)rc.onclick=()=>R.open(true);const rj=$("#rj");if(rj)rj.onclick=()=>R.open(false,$("#rcode").value);
+ const rs=$("#rs");if(rs)rs.onclick=()=>R.start();const rl=$("#rl");if(rl)rl.onclick=()=>{R.leave();showMenu()};
+ R.lobby();
  if(!raf){last=performance.now();raf=requestAnimationFrame(loop)}}
-function applyUI(){document.documentElement.lang=UI;$("#back").textContent=t.all}
+function applyUI(){document.documentElement.lang=UI;$("#back").textContent=t.all;$("#pz").textContent="⏸ "+t.pause}
 // ---------- input ----------
-addEventListener("keydown",e=>{if(e.key==="ArrowLeft"||e.key==="a"||e.key==="A"){move(-1);e.preventDefault()}else if(e.key==="ArrowRight"||e.key==="d"||e.key==="D"){move(1);e.preventDefault()}
- else if(e.key===" "||e.key==="Escape"){if(G&&(G.state==="run"||G.state==="pause")){togglePause();e.preventDefault()}}
- else if(e.key==="Enter"&&$("#menu").classList.contains("on"))newRun()});
-$("#bl").onclick=()=>move(-1);$("#br").onclick=()=>move(1);
-let sx=null;const st=$("#stage");
-st.addEventListener("pointerdown",e=>{if(e.target.closest("button,.ov"))return;sx=e.clientX});
-st.addEventListener("pointerup",e=>{if(sx===null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>30)move(dx>0?1:-1);else{const r=st.getBoundingClientRect();if(G&&G.q&&G.q.lanes.length===3){const f=(e.clientX-r.left)/r.width;move(f<.33?-1:f>.67?1:0)}else move(e.clientX-r.left<r.width/2?-1:1)}});
-$("#opts").addEventListener("click",e=>{const o=e.target.closest(".opt");if(o&&G&&G.state==="run"&&!G.res){G.lane=+o.dataset.i;markOpts()}});
-function togglePause(){if(G.state==="run"){G.state="pause";$("#pz").textContent="▶";toast(t.paused,1)}else if(G.state==="pause"){G.state="run";$("#pz").textContent="II";last=performance.now()}}
-$("#pz").onclick=()=>{if(G&&(G.state==="run"||G.state==="pause"))togglePause()};
-document.addEventListener("visibilitychange",()=>{if(document.hidden&&G&&G.state==="run")togglePause()});
+addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;const duo=G&&G.P.length>1,k=e.key;
+ if(k==="a"||k==="A"){move(0,-1);e.preventDefault()}else if(k==="d"||k==="D"){move(0,1);e.preventDefault()}
+ else if(k==="ArrowLeft"){move(duo?1:0,-1);e.preventDefault()}else if(k==="ArrowRight"){move(duo?1:0,1);e.preventDefault()}
+ else if(k===" "||k==="Escape"){if(G&&(G.state==="run"||G.state==="pause")&&mode!=="race"){togglePause();e.preventDefault()}}
+ else if(k==="Enter"&&$("#menu").classList.contains("on")&&mode!=="race")newRun()});
+const st=$("#stage");const downs=new Map();
+st.addEventListener("pointerdown",e=>{downs.set(e.pointerId,e.clientX)});
+st.addEventListener("pointerup",e=>{if(!downs.has(e.pointerId)||!G||!G.q)return;const sx=downs.get(e.pointerId);downs.delete(e.pointerId);const r=st.getBoundingClientRect(),x=e.clientX-r.left;
+ const vs=views(),vi=vs.length>1?(x<W/2?0:1):0,v=vs[vi],dx=e.clientX-sx;
+ if(Math.abs(dx)>30)return move(vi,dx>0?1:-1);const n=G.q.lanes.length;let best_=0,bd=1e9;for(let l=0;l<n;l++){const d=Math.abs(laneX(v,l,1)-x);if(d<bd){bd=d;best_=l}}move(vi,0,best_)});
+$("#opts").addEventListener("click",e=>{const o=e.target.closest(".opt");if(o&&G&&G.P.length===1)move(0,0,+o.dataset.i)});
+function togglePause(){if(G.state==="run"){G.state="pause";SFX.stop();if(window.speechSynthesis)speechSynthesis.pause();$("#pz").textContent="▶ "+t.play;$("#povh").textContent=t.paused;$("#pres").textContent="▶ "+t.play;$("#pmenu").textContent=t.menu;$("#pov").classList.add("on")}else if(G.state==="pause"){G.state="run";SFX.music("run");if(window.speechSynthesis)speechSynthesis.resume();$("#pz").textContent="⏸ "+t.pause;$("#pov").classList.remove("on");last=performance.now()}}
+$("#pres").onclick=()=>{if(G&&G.state==="pause")togglePause()};$("#pmenu").onclick=()=>{$("#pov").classList.remove("on");G.state="menu";showMenu()};
+$("#mu").onclick=()=>{const v=!SFX.get("music");SFX.set("music",v);setMuBtn();if(v&&G&&G.state==="run")SFX.music("run")};
+function setMuBtn(){$("#mu").textContent=SFX.get("music")?"🎵":"🎵";$("#mu").setAttribute("aria-pressed",SFX.get("music"))}
+$("#vc").onclick=()=>{voiceOn=!voiceOn;try{localStorage.setItem("lr-voice",voiceOn?"1":"0")}catch(e){}setVoiceBtn();if(!voiceOn&&window.speechSynthesis)speechSynthesis.cancel();else if(G&&G.q)say(G.q)};
+$("#pz").onclick=()=>{if(G&&(G.state==="run"||G.state==="pause")&&mode!=="race")togglePause()};
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&G&&G.state==="run"&&mode!=="race")togglePause()});
 addEventListener("hashchange",()=>location.reload());
-applyUI();size();showMenu();
+applyUI();size();setVoiceBtn();setMuBtn();showMenu();
 </script>
 </body>
 </html>
