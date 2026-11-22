@@ -33,20 +33,20 @@
 "use strict";
 const {$,esc}=SH;
 const L10={
- en:{title:"Number Avalanche",lead:"Figures, years, percentages and millions fire at you. Hear (or read) each one and type the digits before the next one lands. The game speeds up while you stay near 80% right.",
-  lang:"Language you hear",mode:"Mode",listen:"🔊 Listen and type",read:"📖 Read the words, type the digits",say:"🎤 See digits, say them",time:"Round",daily:"📅 Daily challenge",dailyT:d=>`Today: 20 numbers in ${d}. Same numbers for everyone.`,
+ en:{title:"Number Avalanche",lead:"Figures, years, percentages and millions fire at you. Hear (or read) each one and type the digits before the next one lands, or see the digits and write them out in words. The game speeds up while you stay near 80% right.",
+  lang:"Language you hear",mode:"Mode",listen:"🔊 Listen and type",read:"📖 Read the words, type the digits",say:"🎤 See digits, say them",write:"✍️ See digits, write the words",typeW:"Write the number in words, then Enter",acc2:"Right, but watch the accents:",time:"Round",daily:"📅 Daily challenge",dailyT:d=>`Today: 20 numbers in ${d}. Same numbers for everyone.`,
   done:"Daily challenge done",type:"Type the digits, then Enter",check:"Check",skip:"Skip",replay:"🔁 Hear again",said:"I said it right",missed:"I missed it",
   over:"Round over",acc:"Accuracy",avg:"Average time",correct:"Numbers right",copy:"Copy my result",copied:"Copied. Paste it in your group chat.",
   noSR:"Speech recognition is not available in this browser. Say it aloud, then check yourself.",lv:"Level",
   V:{en:"English",fr:"French (France)",frbe:"French (Belgium)",frch:"French (Switzerland)",de:"German",pt:"Portuguese (Portugal)",ptbr:"Portuguese (Brazil)"}},
- fr:{title:"Number Avalanche",lead:"Chiffres, années, pourcentages et millions vous tombent dessus. Écoutez (ou lisez) chacun et tapez les chiffres avant le suivant. Le jeu accélère tant que vous restez vers 80 % de réussite.",
-  lang:"Langue entendue",mode:"Mode",listen:"🔊 Écouter et taper",read:"📖 Lire les mots, taper les chiffres",say:"🎤 Voir les chiffres, les dire",time:"Manche",daily:"📅 Défi du jour",dailyT:d=>`Aujourd'hui : 20 nombres en ${d}. Les mêmes pour tout le monde.`,
+ fr:{title:"Number Avalanche",lead:"Chiffres, années, pourcentages et millions vous tombent dessus. Écoutez (ou lisez) chacun et tapez les chiffres avant le suivant, ou voyez les chiffres et écrivez-les en lettres. Le jeu accélère tant que vous restez vers 80 % de réussite.",
+  lang:"Langue entendue",mode:"Mode",listen:"🔊 Écouter et taper",read:"📖 Lire les mots, taper les chiffres",say:"🎤 Voir les chiffres, les dire",write:"✍️ Voir les chiffres, écrire en lettres",typeW:"Écrivez le nombre en lettres, puis Entrée",acc2:"Juste, mais attention aux accents :",time:"Manche",daily:"📅 Défi du jour",dailyT:d=>`Aujourd'hui : 20 nombres en ${d}. Les mêmes pour tout le monde.`,
   done:"Défi du jour terminé",type:"Tapez les chiffres puis Entrée",check:"Vérifier",skip:"Passer",replay:"🔁 Réécouter",said:"Je l'ai bien dit",missed:"Raté",
   over:"Manche terminée",acc:"Précision",avg:"Temps moyen",correct:"Nombres justes",copy:"Copier mon résultat",copied:"Copié. Collez-le dans votre groupe.",
   noSR:"La reconnaissance vocale n'existe pas dans ce navigateur. Dites-le à voix haute puis vérifiez-vous.",lv:"Niveau",
   V:{en:"anglais",fr:"français (France)",frbe:"français (Belgique)",frch:"français (Suisse)",de:"allemand",pt:"portugais (Portugal)",ptbr:"portugais (Brésil)"}},
- de:{title:"Number Avalanche",lead:"Zahlen, Jahreszahlen, Prozente und Millionen prasseln auf Sie ein. Hören (oder lesen) Sie jede und tippen Sie die Ziffern, bevor die nächste kommt. Das Spiel wird schneller, solange Sie bei etwa 80 % bleiben.",
-  lang:"Gehörte Sprache",mode:"Modus",listen:"🔊 Hören und tippen",read:"📖 Wörter lesen, Ziffern tippen",say:"🎤 Ziffern sehen, aussprechen",time:"Runde",daily:"📅 Tages-Challenge",dailyT:d=>`Heute: 20 Zahlen auf ${d}. Für alle dieselben.`,
+ de:{title:"Number Avalanche",lead:"Zahlen, Jahreszahlen, Prozente und Millionen prasseln auf Sie ein. Hören (oder lesen) Sie jede und tippen Sie die Ziffern, bevor die nächste kommt, oder sehen Sie die Ziffern und schreiben Sie sie in Worten. Das Spiel wird schneller, solange Sie bei etwa 80 % bleiben.",
+  lang:"Gehörte Sprache",mode:"Modus",listen:"🔊 Hören und tippen",read:"📖 Wörter lesen, Ziffern tippen",say:"🎤 Ziffern sehen, aussprechen",write:"✍️ Ziffern sehen, in Worten schreiben",typeW:"Zahl in Worten schreiben, dann Enter",acc2:"Richtig, aber achten Sie auf die Akzente:",time:"Runde",daily:"📅 Tages-Challenge",dailyT:d=>`Heute: 20 Zahlen auf ${d}. Für alle dieselben.`,
   done:"Tages-Challenge geschafft",type:"Ziffern tippen, dann Enter",check:"Prüfen",skip:"Weiter",replay:"🔁 Nochmal hören",said:"Richtig gesagt",missed:"Daneben",
   over:"Runde vorbei",acc:"Genauigkeit",avg:"Mittlere Zeit",correct:"Richtige Zahlen",copy:"Ergebnis kopieren",copied:"Kopiert. In die Gruppe einfügen.",
   noSR:"Spracherkennung gibt es in diesem Browser nicht. Laut sagen und selbst prüfen.",lv:"Stufe",
@@ -68,7 +68,7 @@ function item(lv,L){const fr=L.startsWith("fr"),de=L==="de";let k=rnd(),n,kind="
  else{if(k<.3){kind="pct";dig=(R(1,99)+R(1,9)/10).toFixed(1)}else if(k<.5){kind="year";n=R(1100,2050)}else n=R(1,99)*(rnd()<.5?1e6:1e5)+(rnd()<.5?trap()*1000:R(0,999999))}
  if(dig==null)dig=String(n);
  const words=kind==="year"?NUMW.year(n,L):kind==="pct"?NUMW.pct(dig,L):kind==="dec"?NUMW.dec(dig,L):NUMW.int(n,L);
- return{kind,dig,words,show:kind==="pct"?fmt(dig,L)+" %":fmt(dig,L,kind==="year")}}
+ return{kind,dig,words,alts:kind==="year"?[words,NUMW.int(n,L)]:[words],show:kind==="pct"?fmt(dig,L)+" %":fmt(dig,L,kind==="year")}}
 function fmt(d,L,year){const [a,b]=String(d).split(".");const sep=L==="en"?",":L.startsWith("fr")?" ":".";const ip=year?a:a.replace(/\B(?=(\d{3})+(?!\d))/g,sep);return b?ip+(L==="en"?".":",")+b:ip}
 function norm(s){s=String(s).trim().replace(/[\s  ']/g,"").replace(/%|percent|pourcent|prozent|porcento/gi,"");
  const m=s.match(/^(\d+(?:[.,]\d{3})*)(?:[.,](\d{1,2}))?$/);if(!m)return s.replace(/[^\d]/g,"");return m[1].replace(/[.,]/g,"")+(m[2]?"."+m[2]:"")}
@@ -76,12 +76,12 @@ function same(a,b){a=norm(a);b=norm(b);if(a===b)return true;return parseFloat(a)
 // ---------- play ----------
 function start(daily){if(daily){const d=XP.day(),sd=+d.replace(/-/g,"");rnd=mulberry(sd*31);const rot=["de","fr","en","pt","frbe","de","ptbr","fr","frch"];G={daily:true,lang:rot[sd%rot.length],mode:"listen",total:20}}
  else{rnd=Math.random;G={daily:false,lang:cfg.lang,mode:cfg.mode,total:0}}
- Object.assign(G,{lv:G.daily?1:2,hist:[],score:0,streak:0,n:0,ok:0,miss:[],times:[],t0:performance.now(),tleft:cfg.time,item:null,state:"",grid:[]});
+ Object.assign(G,{lv:G.daily||G.mode==="write"?1:2,hist:[],score:0,streak:0,n:0,ok:0,miss:[],times:[],t0:performance.now(),tleft:cfg.time,item:null,state:"",grid:[]});
  $("#menu").classList.remove("on");$("#over").classList.remove("on");SH.state="run";SH.music="calm";SFX.music("calm");
  $("#game").innerHTML=SH.header()+`<div class="bar"><i id="tb"></i></div><div class="card" id="card"></div><div class="row muted" id="info"></div>`;
  SH.mount();next();tick.last=performance.now();requestAnimationFrame(tick)}
 function next(){if(G.daily&&G.n>=G.total)return end();
- if(G.daily)G.lv=1+Math.floor(G.n/4);G.item=item(G.lv,G.lang);G.it0=performance.now();G.limit=Math.max(4,(G.mode==="say"?11:10)-G.lv*.7)+(G.item.words.length/18);G.state="ask";draw();
+ if(G.daily)G.lv=1+Math.floor(G.n/4);G.item=item(G.lv,G.lang);G.it0=performance.now();G.limit=G.mode==="write"?Math.max(9,15-G.lv*.6)+G.item.words.length/5:Math.max(4,(G.mode==="say"?11:10)-G.lv*.7)+(G.item.words.length/18);G.state="ask";draw();
  if(G.mode==="listen")speak()}
 function rate(){return Math.min(1.5,.92+G.lv*.06)}
 function speak(){try{speechSynthesis.cancel()}catch(e){}SH.say(G.item.words,SH.LOC[G.lang],rate())}
@@ -89,6 +89,7 @@ function draw(){const it=G.item;$("#sh-st").innerHTML=`<span>${t.lv} ${G.lv}</sp
  const c=$("#card");
  if(G.mode==="listen")c.innerHTML=`<div class="mid">🔊</div><input id="ans" inputmode="decimal" autocomplete="off" placeholder="…"><div class="row" style="justify-content:center"><button class="pri" id="ck">${t.check}</button><button id="rp">${t.replay}</button><button id="sk">${t.skip}</button></div><div class="muted" style="text-align:center">${t.type}</div>`;
  else if(G.mode==="read")c.innerHTML=`<div class="words pop" style="font-size:clamp(22px,5vw,32px);font-weight:700">${esc(it.words)}</div><input id="ans" inputmode="decimal" autocomplete="off" placeholder="…"><div class="row" style="justify-content:center"><button class="pri" id="ck">${t.check}</button><button id="sk">${t.skip}</button></div>`;
+ else if(G.mode==="write")c.innerHTML=`<div class="num pop">${esc(it.show)}</div><input id="ans" inputmode="text" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="…" style="font-size:20px"><div class="row" style="justify-content:center"><button class="pri" id="ck">${t.check}</button><button id="sk">${t.skip}</button></div><div class="muted" style="text-align:center">${t.typeW}</div>`;
  else c.innerHTML=`<div class="num pop">${esc(it.show)}</div><div class="row" style="justify-content:center">${SH.SR?`<button class="mic" id="mic">🎤</button>`:`<span class="muted">${t.noSR}</span>`}</div><div class="row" style="justify-content:center"><button id="sd" class="pri">${t.said}</button><button id="ms">${t.missed}</button></div><div id="heard" class="muted" style="text-align:center"></div>`;
  const a=$("#ans");if(a){a.focus();a.onkeydown=e=>{if(e.key==="Enter")check(a.value)};$("#ck").onclick=()=>check(a.value)}
  const rp=$("#rp");if(rp)rp.onclick=speak;const sk=$("#sk");if(sk)sk.onclick=()=>check("");
@@ -97,10 +98,13 @@ function draw(){const it=G.item;$("#sh-st").innerHTML=`<span>${t.lv} ${G.lv}</sp
 function listen(){const r=new SH.SR();r.lang=SH.LOC[G.lang];r.interimResults=false;r.maxAlternatives=5;const mic=$("#mic");mic.classList.add("on");
  r.onresult=e=>{const alts=[...e.results[0]].map(x=>x.transcript);$("#heard").textContent="“"+alts[0]+"”";const ok=alts.some(a=>same(a,G.item.dig)||norm(a)===norm(G.item.dig));result(ok,alts[0])};
  r.onerror=()=>mic.classList.remove("on");r.onend=()=>mic.classList.remove("on");try{r.start()}catch(e){}}
-function check(v){if(G.state!=="ask")return;result(same(v,G.item.dig),v)}
+const wnorm=(s,loose)=>{s=String(s).toLowerCase().replace(/ß/g,"ss").replace(/[\s\-‐–'’,.]/g,"");return loose?s.normalize("NFD").replace(/[\u0300-\u036f]/g,""):s};
+function check(v){if(G.state!=="ask")return;if(G.mode!=="write")return result(same(v,G.item.dig),v);
+ if(!String(v).trim())return result(false,"");const al=G.item.alts;if(al.some(a=>wnorm(a)===wnorm(v)))return result(true,v);
+ if(al.some(a=>wnorm(a,1)===wnorm(v,1))){result(true,v);SH.toast(t.acc2+" "+G.item.words,1);G.fbUntil+=1600;return}result(false,v)}
 function result(ok,given){if(G.state!=="ask")return;G.state="fb";const it=G.item,dt=(performance.now()-G.it0)/1000;G.n++;G.times.push(dt);G.hist.push(ok?1:0);
  if(ok){G.ok++;G.streak++;const m=1+Math.floor(G.streak/5);G.score+=Math.round((10+Math.max(0,G.limit-dt)*2)*m);G.streak%5===0?SFX.combo():SFX.ok()}
- else{G.streak=0;SFX.bad();G.miss.push({it,given});BANK.add({game:"numbers",lang:G.lang,q:"🔢 "+it.words,a:it.show})}
+ else{G.streak=0;SFX.bad();G.miss.push({it,given});BANK.add(G.mode==="write"?{game:"numbers",lang:G.lang,q:"✍️ "+it.show,a:it.words}:{game:"numbers",lang:G.lang,q:"🔢 "+it.words,a:it.show})}
  // adaptive: keep success near 80%
  if(!G.daily&&G.hist.length>=4){const last=G.hist.slice(-5),acc=last.reduce((a,b)=>a+b,0)/last.length;if(acc>=.8&&G.lv<8){G.lv++;G.hist=[]}else if(acc<=.4&&G.lv>1){G.lv--;G.hist=[]}}
  G.grid.push(ok?"🟩":"🟥");
@@ -132,7 +136,7 @@ function menu(){SH.state="menu";SFX.stop();t=L10[SH.UI];const d=XP.day(),rot=["d
   <h1>🔢 ${t.title}</h1><p>${t.lead}</p>
   <div class="card"><b>${t.daily}</b><span>${FLAG[dl]} ${t.dailyT(t.V[dl])}</span>${done?`<span class="ok">✅ ${JSON.parse(done).ok}/20</span>`:""}<div><button class="pri" id="dly">${t.daily} →</button></div></div>
   <div class="lbl">${t.lang}</div><div class="row">${LANGS.map(l=>o("lang",l,FLAG[l]+" "+t.V[l])).join("")}</div>
-  <div class="lbl">${t.mode}</div><div class="row">${o("mode","listen",t.listen)}${o("mode","read",t.read)}${o("mode","say",t.say)}</div>
+  <div class="lbl">${t.mode}</div><div class="row">${o("mode","listen",t.listen)}${o("mode","read",t.read)}${o("mode","say",t.say)}${o("mode","write",t.write)}</div>
   <div class="lbl">${t.time}</div><div class="row">${o("time",60,"1 min")}${o("time",120,"2 min")}${o("time",180,"3 min")}</div>
   <div class="row" style="margin-top:8px"><button class="pri" id="go">▶ ${SH.t.start}</button></div></div>`;
  $("#menu").classList.add("on");$("#over").classList.remove("on");
