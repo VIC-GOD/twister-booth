@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>My Voice · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="../live/shell.css">
+<style>
+:root{--c:#ff7b54;--bg:#1d1420}
+h1{margin:6px 0 0;font-size:clamp(28px,6vw,40px)}
+.lead{color:var(--muted);margin:0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.box{background:#0004;border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:12px}
+.word{font-weight:800;font-size:clamp(30px,8vw,54px);text-align:center;line-height:1.15;min-height:1.2em;word-break:break-word}
+.meta{text-align:center;color:var(--muted);font-weight:600}
+.rec{font-size:22px;padding:18px 30px;border-radius:99px;background:var(--bad);border-color:var(--bad);color:#fff}
+.rec.on{animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 14px #ef476f33}}
+.ctr{justify-content:center}
+.prog{height:10px;background:#ffffff1a;border-radius:99px;overflow:hidden}.prog i{display:block;height:100%;background:var(--c)}
+.small{font-size:14px;color:var(--muted)}
+.ok{color:var(--ok);font-weight:700}
+label.sw{display:flex;gap:10px;align-items:center;font-weight:600}
+label.sw input{min-height:auto;width:22px;height:22px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="../content/data.js"></script><script src="../live/vocab.js"></script><script src="../content/pt.js"></script>
+<script src="../live/voicepack.js"></script>
+<script>
+"use strict";
+const $=s=>document.querySelector(s),esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const T={
+ en:{all:"← All games",title:"My Voice",lead:"Record the questions in your own voice. Lane Runner and Monkey Climb then read every question you recorded in your voice instead of the computer voice. It is free and stays on this device. Export the pack to share it with your students.",
+  lang:"Language",set:"What to record",rec:"● Record",stop:"■ Stop",listen:"▶ Listen",redo:"Redo",next:"Next →",prev:"← Back",skip:"Skip",done:"recorded",use:"Games use my voice",
+  exp:"Export my pack",imp:"Import a pack",clear:"Delete all my recordings",sure:"Delete all recordings on this device?",nomic:"The microphone is not available. Allow it in the browser, or open this page in Chrome or Safari.",
+  tip:"Tip: wait half a second after pressing Record, say the words clearly once, then press Stop. Use a quiet room.",
+  S:{countries:"Countries",capitals:"Capitals",idioms:"Idioms",vocab:"Vocabulary",acronyms:"Acronyms (full names)"},imported:n=>n+" clips imported.",all2:"Everything in this set is recorded!"},
+ fr:{all:"← Tous les jeux",title:"Ma voix",lead:"Enregistrez les questions avec votre propre voix. Lane Runner et Monkey Climb liront alors chaque question enregistrée avec votre voix au lieu de la voix de l'ordinateur. C'est gratuit et reste sur cet appareil. Exportez le pack pour le partager avec vos élèves.",
+  lang:"Langue",set:"Quoi enregistrer",rec:"● Enregistrer",stop:"■ Stop",listen:"▶ Écouter",redo:"Refaire",next:"Suivant →",prev:"← Retour",skip:"Passer",done:"enregistrés",use:"Les jeux utilisent ma voix",
+  exp:"Exporter mon pack",imp:"Importer un pack",clear:"Supprimer tous mes enregistrements",sure:"Supprimer tous les enregistrements de cet appareil ?",nomic:"Le micro n'est pas disponible. Autorisez-le dans le navigateur, ou ouvrez cette page dans Chrome ou Safari.",
+  tip:"Astuce : attendez une demi-seconde après Enregistrer, dites les mots clairement une fois, puis Stop. Choisissez une pièce calme.",
+  S:{countries:"Pays",capitals:"Capitales",idioms:"Expressions",vocab:"Vocabulaire",acronyms:"Sigles (noms complets)"},imported:n=>n+" extraits importés.",all2:"Tout ce groupe est enregistré !"},
+ de:{all:"← Alle Spiele",title:"Meine Stimme",lead:"Nehmen Sie die Fragen mit Ihrer eigenen Stimme auf. Lane Runner und Monkey Climb lesen dann jede aufgenommene Frage mit Ihrer Stimme statt der Computerstimme. Kostenlos, und alles bleibt auf diesem Gerät. Exportieren Sie das Paket, um es mit Ihren Lernenden zu teilen.",
+  lang:"Sprache",set:"Was aufnehmen",rec:"● Aufnehmen",stop:"■ Stopp",listen:"▶ Anhören",redo:"Neu",next:"Weiter →",prev:"← Zurück",skip:"Überspringen",done:"aufgenommen",use:"Spiele nutzen meine Stimme",
+  exp:"Mein Paket exportieren",imp:"Paket importieren",clear:"Alle Aufnahmen löschen",sure:"Alle Aufnahmen auf diesem Gerät löschen?",nomic:"Das Mikrofon ist nicht verfügbar. Im Browser erlauben oder die Seite in Chrome oder Safari öffnen.",
+  tip:"Tipp: Nach „Aufnehmen“ eine halbe Sekunde warten, die Wörter einmal deutlich sagen, dann Stopp. Ein ruhiger Raum hilft.",
+  S:{countries:"Länder",capitals:"Hauptstädte",idioms:"Redewendungen",vocab:"Wortschatz",acronyms:"Abkürzungen (Langform)"},imported:n=>n+" Aufnahmen importiert.",all2:"Alles in dieser Gruppe ist aufgenommen!"}};
+let UI="en";try{UI=localStorage.getItem("twb-ui")||(navigator.language||"en").slice(0,2)}catch(e){}if(!T[UI])UI="en";const t=T[UI];document.documentElement.lang=UI;
+const C=window.CONTENT,LI={en:0,fr:1,de:2,pt:4},AX={en:2,fr:4,de:6,pt:9};
+let cfg={lang:UI,set:"countries"};try{Object.assign(cfg,JSON.parse(localStorage.getItem("mv-cfg")||"{}"))}catch(e){}
+function list(){const L=cfg.lang,o=[];const add=x=>{x=String(x||"").trim();if(x&&x!=="—"&&!o.includes(x))o.push(x)};
+ ({countries:()=>C.CP.COUNTRIES.forEach(c=>add(c[L])),capitals:()=>C.CP.COUNTRIES.forEach(c=>add(c.cap[L])),idioms:()=>C.ID.IDIOMS.forEach(i=>add(i[L])),
+   vocab:()=>window.VOCAB.forEach(v=>add(v[LI[L]])),acronyms:()=>C.BG.ACRONYMS.forEach(a=>add(a[AX[L]]))})[cfg.set]();return o}
+let items=[],i=0,rec=null,chunks=[],stream=null;
+const key=x=>VP.key(x,cfg.lang),has=x=>VP.local.has(key(x));
+function firstTodo(){const j=items.findIndex(x=>!has(x));return j<0?0:j}
+function save(){try{localStorage.setItem("mv-cfg",JSON.stringify(cfg))}catch(e){}}
+function render(){items=list();if(i>=items.length)i=0;const n=items.filter(has).length,w=items[i]||"";
+ const b=(k,v,l)=>`<button data-k="${k}" data-v="${v}" aria-pressed="${cfg[k]===v}">${l}</button>`;
+ $("#app").innerHTML=`<div class="hud"><a href="../">${t.all}</a></div>
+ <h1>🎙️ ${t.title}</h1><p class="lead">${t.lead}</p>
+ <div class="row"><b>${t.lang}</b>${["en","fr","de","pt"].map(l=>b("lang",l,l.toUpperCase())).join("")}</div>
+ <div class="row"><b>${t.set}</b>${Object.keys(t.S).map(s=>b("set",s,t.S[s])).join("")}</div>
+ <div class="box"><div class="meta">${i+1} / ${items.length} · <span class="${has(w)?"ok":""}">${has(w)?"✓ ":""}</span>${n} ${t.done}</div>
+  <div class="prog"><i style="width:${items.length?100*n/items.length:0}%"></i></div>
+  <div class="word" lang="${cfg.lang}">${esc(w)}</div>
+  <div class="row ctr"><button class="rec${rec?" on":""}" id="rec">${rec?t.stop:t.rec}</button></div>
+  <div class="row ctr"><button id="prev">${t.prev}</button><button id="play" ${has(w)?"":"disabled"}>${t.listen}</button><button id="next">${has(w)?t.next:t.skip}</button></div>
+  ${n===items.length&&items.length?`<p class="ok" style="text-align:center;margin:0">${t.all2}</p>`:""}
+  <p class="small" style="margin:0">${t.tip}</p><p class="small" id="msg" style="margin:0"></p></div>
+ <label class="sw"><input type="checkbox" id="use" ${VP.on?"checked":""}> ${t.use}</label>
+ <div class="row"><button id="exp">⬇ ${t.exp}</button><label class="row" style="cursor:pointer"><button id="impb">⬆ ${t.imp}</button><input type="file" id="imp" accept=".json,application/json" hidden></label><button id="clr">${t.clear}</button></div>`;
+ document.querySelectorAll("[data-k]").forEach(e=>e.onclick=()=>{cfg[e.dataset.k]=e.dataset.v;save();items=list();i=firstTodo();render()});
+ $("#rec").onclick=toggleRec;$("#prev").onclick=()=>{i=(i-1+items.length)%items.length;render()};$("#next").onclick=()=>{i=(i+1)%items.length;render()};
+ $("#play").onclick=()=>VP.speak([[w,cfg.lang]]);$("#use").onchange=e=>VP.set(e.target.checked);
+ $("#exp").onclick=exportPack;$("#impb").onclick=()=>$("#imp").click();$("#imp").onchange=e=>importPack(e.target.files[0]);
+ $("#clr").onclick=()=>{if(confirm(t.sure))VP.clear().then(render)}}
+async function toggleRec(){if(rec){rec.stop();return}
+ try{stream=stream||await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}catch(e){$("#msg").textContent=t.nomic;return}
+ const w=items[i];chunks=[];const mt=["audio/webm;codecs=opus","audio/mp4","audio/ogg"].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))||"";
+ rec=new MediaRecorder(stream,mt?{mimeType:mt}:undefined);rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+ rec.onstop=async()=>{const blob=new Blob(chunks,{type:rec.mimeType||"audio/webm"});rec=null;if(blob.size>800){await VP.put(key(w),blob);VP.speak([[w,cfg.lang]]);if(i<items.length-1)i++}render()};
+ rec.start();render();if(navigator.vibrate)navigator.vibrate(30)}
+addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;if(e.code==="Space"){e.preventDefault();toggleRec()}else if(e.key==="ArrowRight")$("#next").click();else if(e.key==="ArrowLeft")$("#prev").click()});
+const b64=blob=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(blob)});
+async function exportPack(){const ks=await VP.keys(),clips={};for(const k of ks)clips[k]=await b64(await VP.get(k));
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({app:"twister-booth-voice",v:1,clips})],{type:"application/json"}));a.download="my-voice-pack.json";a.click()}
+async function importPack(f){if(!f)return;try{const j=JSON.parse(await f.text());let n=0;for(const [k,d] of Object.entries(j.clips||{})){if(!/^(en|fr|de|pt)\|/.test(k)||!/^data:audio\//.test(d))continue;await VP.put(k,await (await fetch(d)).blob());n++}
+ render();$("#msg").textContent=t.imported(n)}catch(e){$("#msg").textContent="⚠ "+e.message}}
+VP.load.then(()=>{items=list();i=firstTodo();render()});
+</script>
+</body>
+</html>
