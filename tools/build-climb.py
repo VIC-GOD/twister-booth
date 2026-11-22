@@ -8,3 +8,8 @@ shared=r[a:b]+'let cfg={};const hp=(location.hash.match(/^#([a-z_]+)/)||[])[1];\
 src=open(os.path.join(root,'tools/climb-src.html')).read().replace('/*SHARED*/',shared)
 open(os.path.join(root,'climb/index.html'),'w').write(src)
 print('built',len(src))
+# Live Duel uses the same shared bank.
+src=open(os.path.join(root,'tools/duel-src.html')).read().replace('/*SHARED*/',shared)
+os.makedirs(os.path.join(root,'duel'),exist_ok=True)
+open(os.path.join(root,'duel/index.html'),'w').write(src)
+print('built duel',len(src))

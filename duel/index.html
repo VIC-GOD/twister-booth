@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Live Duel · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<script src="../content/data.js"></script>
+<script src="../live/vocab.js"></script><script src="../content/pt.js"></script>
+<script src="../live/peerjs.min.js"></script>
+<script src="../live/p2p.js"></script>
+<script src="../live/xp.js"></script>
+<script src="../live/sfx.js"></script><script src="../live/voicepack.js"></script>
+<style>
+:root{--bg:#1a1030;--panel:#2a1d48;--ink:#f6f2ff;--muted:#b9aed6;--line:#43346b;--c:#ff5d8f;--c2:#3ec5ff;--ok:#2fbf71;--bad:#ef476f}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:17px/1.5 "Familjen Grotesk",Arial,sans-serif;overscroll-behavior:none}
+button,input{font:600 15px "Familjen Grotesk",sans-serif;color:var(--ink)}
+button{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 14px;min-height:44px;cursor:pointer}
+input{background:#120a22;border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-height:44px;font-size:17px}
+button.pri{background:var(--c);color:#fff;border-color:var(--c);font-size:18px;padding:12px 24px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+a{color:var(--c2)}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+.hud{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px max(3vw,12px);font-weight:700}
+.hud a{color:var(--ink);text-decoration:none}
+.sc{display:flex;gap:8px;align-items:center;font-size:16px}.sc span{max-width:24vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hud a{white-space:nowrap;font-size:15px}.sc b{font-size:26px}.sc .p1{color:var(--c)}.sc .p2{color:var(--c2)}
+.arena{flex:1;display:flex;flex-direction:column;min-height:0}
+.half{flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:12px max(3vw,12px);min-height:0;position:relative}
+.half.p2{transform:rotate(180deg);border-bottom:3px dashed var(--line)}
+.half .who{font-weight:800;text-align:center;font-size:15px;text-transform:uppercase;letter-spacing:.08em}
+.half.p1 .who{color:var(--c)}.half.p2 .who{color:var(--c2)}
+.qk{font-weight:700;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:center}
+.qt{font-weight:800;font-size:clamp(24px,6vw,40px);line-height:1.15;text-align:center;text-wrap:balance}
+.qt.long{font-size:clamp(18px,4.4vw,28px)}
+.qt img{height:clamp(56px,12vh,110px);border-radius:8px;background:#fff;box-shadow:0 4px 18px #0008}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:820px;width:100%;margin:0 auto}
+.opt{font-weight:700;font-size:clamp(16px,4vw,24px);line-height:1.2;border-radius:14px;padding:10px;min-height:60px;border:3px solid #ffffff22;text-wrap:balance}
+.opt.long{font-size:clamp(13px,3.2vw,18px)}
+.opt.ok{background:var(--ok);border-color:var(--ok)}.opt.bad{background:var(--bad);border-color:var(--bad)}.opt.them{outline:4px solid var(--c2);outline-offset:2px}
+.opt:disabled{opacity:.9;cursor:default}
+.bar{height:8px;background:#ffffff1a;border-radius:99px;overflow:hidden;max-width:820px;width:100%;margin:0 auto}.bar i{display:block;height:100%;background:var(--c);transition:width .1s linear}
+.flash{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-weight:800;font-size:clamp(28px,8vw,56px);text-align:center;pointer-events:none;text-shadow:0 4px 20px #000}
+.opp{display:flex;justify-content:center;gap:10px;align-items:center;color:var(--muted);font-weight:700;font-size:15px}
+.dot{width:12px;height:12px;border-radius:99px;background:var(--line);display:inline-block}.dot.on{background:var(--c2)}
+.cd{position:fixed;inset:0;display:none;align-items:center;justify-content:center;font-weight:800;font-size:140px;color:var(--c);z-index:6;pointer-events:none;text-shadow:0 4px 20px #000}
+.ov{position:fixed;inset:0;background:#120a22f5;overflow:auto;display:none;padding:22px max(4vw,16px) 40px;z-index:5}.ov.on{display:block}
+.box{max-width:720px;margin:0 auto;display:grid;gap:12px}
+.box h1{font-size:clamp(30px,6vw,44px);margin:0;line-height:1.1}.box h2{font-size:21px;margin:8px 0 0}.box p{margin:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lbl{font-weight:700;font-size:13px;color:var(--muted);width:100%;margin-top:6px;text-transform:uppercase;letter-spacing:.05em}
+.card{background:#ff5d8f14;border:1px solid var(--c);border-radius:12px;padding:12px 14px;display:grid;gap:8px}
+.code{font-weight:800;font-size:38px;letter-spacing:.18em;color:var(--c)}
+.rank div{display:flex;justify-content:space-between;background:var(--panel);border-radius:10px;padding:8px 12px;margin-top:6px}
+.rv{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.rv .m{color:var(--muted);font-size:15px}
+.big{font-size:clamp(40px,10vw,72px);font-weight:800;text-align:center;line-height:1}
+.muted{color:var(--muted)}
+.lang{display:flex;gap:6px}.lang button{min-height:34px;padding:5px 10px;font-size:13px;border-radius:999px}
+</style>
+</head>
+<body>
+<div id="app">
+ <div class="hud"><a href="../" id="back">← All games</a><div class="sc"><span class="p1" id="n1"></span><b class="p1" id="s1">0</b><span>:</span><b class="p2" id="s2">0</b><span class="p2" id="n2"></span></div>
+  <div class="row" style="gap:6px"><button id="mu" aria-label="Music" style="min-height:36px;padding:4px 10px">🎵</button><button id="vc" aria-label="Voice" style="min-height:36px;padding:4px 10px">🔊</button></div></div>
+ <div class="arena" id="arena"></div>
+</div>
+<div class="cd" id="cd"></div>
+<div class="ov on" id="menu"></div><div class="ov" id="over"></div>
+<script>"use strict";const C=window.CONTENT;
+const S={
+en:{all:"← All games",title:"Lane Runner",lead:"A question appears, the answers come at you on the road. Switch to the right lane before you reach them. Three mistakes and the run is over.",
+ pack:"What do you want to train?",lang:"Language",from:"From",to:"To",lanes:"Lanes",speed:"Speed",slow:"Relaxed",norm:"Normal",fast:"Fast",start:"Run",
+ keys:"Keys ← → or A D. On a phone: swipe, or tap the left or right side.",best:"Best",score:"Score",streak:"Streak",over:"Run over",again:"Run again",menu:"Change game",learn:"Learn this first",
+ rev:"Review your mistakes",none:"No mistakes. Clean run.",you:"you chose",share:"Challenge a friend",copied:"Link copied. Your friend gets the same questions.",
+ chal:(n,s)=>`${n||"A friend"} challenges you: beat ${s} points on the same questions.`,beat:"You beat the challenge!",lost:"Challenge not beaten yet.",name:"Your name (for the challenge)",paused:"Paused",resume:"Resume",
+ P:{capitals:"Country → capital",capitals_rev:"Capital → country",vocab:"Vocabulary",flags:"Flag → country",flags_cap:"Flag → capital",idioms:"Idiom equivalents",meaning:"Idiom meanings",falsefr:"False friends",acronyms:"Acronyms",register:"Register",mix:"Mix of everything"},
+ Q:{vocab:l=>"In "+l,flags:"Which country is this flag?",flags_cap:"Capital of the country with this flag?",capitals:"Capital of",capitals_rev:"Which country has this capital?",idioms:l=>"Equivalent in "+l,meaning:"What does it mean?",falsefr:"Correct translation",acronyms:l=>"Full name in "+l,register:(r)=>"Most "+r+" way to say",},
+ R:["casual","neutral","formal"],L:{en:"English",fr:"French",de:"German",pt:"Portuguese"},cont:"Continent",world:"Whole world"},
+fr:{all:"← Tous les jeux",title:"Lane Runner",lead:"Une question s'affiche, les réponses arrivent sur la route. Changez de couloir pour prendre la bonne. Trois erreurs et la course s'arrête.",
+ pack:"Que voulez-vous travailler ?",lang:"Langue",from:"De",to:"Vers",lanes:"Couloirs",speed:"Vitesse",slow:"Tranquille",norm:"Normale",fast:"Rapide",start:"Courir",
+ keys:"Touches ← → ou A D. Sur téléphone : glissez, ou touchez le côté gauche ou droit.",best:"Record",score:"Score",streak:"Série",over:"Course terminée",again:"Recommencer",menu:"Changer de jeu",learn:"Apprendre d'abord",
+ rev:"Revoir vos erreurs",none:"Aucune erreur. Course parfaite.",you:"votre choix",share:"Défier un ami",copied:"Lien copié. Votre ami aura les mêmes questions.",
+ chal:(n,s)=>`${n||"Un ami"} vous défie : battez ${s} points sur les mêmes questions.`,beat:"Défi relevé !",lost:"Défi pas encore relevé.",name:"Votre nom (pour le défi)",paused:"Pause",resume:"Reprendre",
+ P:{capitals:"Pays → capitale",capitals_rev:"Capitale → pays",vocab:"Vocabulaire",flags:"Drapeau → pays",flags_cap:"Drapeau → capitale",idioms:"Équivalents d'expressions",meaning:"Sens des expressions",falsefr:"Faux amis",acronyms:"Sigles",register:"Registre",mix:"Un peu de tout"},
+ Q:{vocab:l=>"En "+l,flags:"Quel pays a ce drapeau ?",flags_cap:"Capitale du pays de ce drapeau ?",capitals:"Capitale de",capitals_rev:"Quel pays a cette capitale ?",idioms:l=>"Équivalent en "+l,meaning:"Que veut dire",falsefr:"Bonne traduction",acronyms:l=>"Nom complet en "+l,register:r=>"Façon la plus "+r+" de dire"},
+ R:["familière","neutre","soutenue"],L:{en:"anglais",fr:"français",de:"allemand",pt:"portugais"},cont:"Continent",world:"Monde entier"},
+de:{all:"← Alle Spiele",title:"Lane Runner",lead:"Eine Frage erscheint, die Antworten kommen auf der Straße auf Sie zu. Wechseln Sie rechtzeitig auf die richtige Spur. Drei Fehler und der Lauf ist vorbei.",
+ pack:"Was möchten Sie trainieren?",lang:"Sprache",from:"Von",to:"Nach",lanes:"Spuren",speed:"Tempo",slow:"Gemütlich",norm:"Normal",fast:"Schnell",start:"Los",
+ keys:"Tasten ← → oder A D. Am Handy: wischen oder links bzw. rechts tippen.",best:"Rekord",score:"Punkte",streak:"Serie",over:"Lauf beendet",again:"Nochmal",menu:"Spiel wechseln",learn:"Erst lernen",
+ rev:"Ihre Fehler",none:"Keine Fehler. Perfekter Lauf.",you:"Ihre Wahl",share:"Freund herausfordern",copied:"Link kopiert. Ihr Freund bekommt dieselben Fragen.",
+ chal:(n,s)=>`${n||"Ein Freund"} fordert Sie heraus: schlagen Sie ${s} Punkte mit denselben Fragen.`,beat:"Herausforderung gewonnen!",lost:"Herausforderung noch nicht geschafft.",name:"Ihr Name (für die Herausforderung)",paused:"Pause",resume:"Weiter",
+ P:{capitals:"Land → Hauptstadt",capitals_rev:"Hauptstadt → Land",vocab:"Wortschatz",flags:"Flagge → Land",flags_cap:"Flagge → Hauptstadt",idioms:"Redewendungen: Entsprechungen",meaning:"Redewendungen: Bedeutung",falsefr:"Falsche Freunde",acronyms:"Abkürzungen",register:"Register",mix:"Alles gemischt"},
+ Q:{vocab:l=>"Auf "+l,flags:"Welches Land hat diese Flagge?",flags_cap:"Hauptstadt des Landes mit dieser Flagge?",capitals:"Hauptstadt von",capitals_rev:"Welches Land hat diese Hauptstadt?",idioms:l=>"Entsprechung auf "+l,meaning:"Was bedeutet",falsefr:"Richtige Übersetzung",acronyms:l=>"Vollständiger Name auf "+l,register:r=>"Am meisten "+r+" gesagt"},
+ R:["salopp","neutral","gehoben"],L:{en:"Englisch",fr:"Französisch",de:"Deutsch",pt:"Portugiesisch"},cont:"Kontinent",world:"Ganze Welt"}};
+// Well-known cities people mistake for the capital: used as the wrong lane first.
+const TRAP={CM:"Douala",MA:"Casablanca",NG:"Lagos",TZ:"Dar es Salaam",CI:"Abidjan",BJ:"Cotonou",TR:"Istanbul",MM:["Yangon","Rangoun","Rangun"],AU:"Sydney",CA:["Toronto","Montréal","Toronto"],
+ US:["New York","New York","New York"],BR:["Rio de Janeiro","Rio de Janeiro","Rio de Janeiro"],CH:["Zurich","Zurich","Zürich"],NZ:"Auckland",KZ:"Almaty",PK:"Karachi",IN:"Mumbai",CN:["Shanghai","Shanghai","Schanghai"],
+ VN:["Ho Chi Minh City","Hô Chi Minh-Ville","Ho-Chi-Minh-Stadt"],AE:["Dubai","Dubaï","Dubai"],EC:"Guayaquil",BI:"Bujumbura",GQ:"Malabo",LK:"Colombo",BO:"La Paz",EG:["Alexandria","Alexandrie","Alexandria"],
+ SA:["Jeddah","Djeddah","Dschidda"],RU:["Saint Petersburg","Saint-Pétersbourg","Sankt Petersburg"],PL:["Kraków","Cracovie","Krakau"],ES:["Barcelona","Barcelone","Barcelona"],IT:["Milan","Milan","Mailand"],
+ DE:["Munich","Munich","München"],KE:"Mombasa",MW:"Blantyre",GA:"Port-Gentil",CD:"Lubumbashi",SY:["Aleppo","Alep","Aleppo"],BZ:"Belize City",JP:"Osaka",KR:"Busan",MX:"Guadalajara",CO:"Medellín",
+ CL:"Valparaíso",AR:"Córdoba",VE:"Maracaibo",NL:["The Hague","La Haye","Den Haag"],ID:"Surabaya",GH:"Kumasi",SN:"Saint-Louis",MR:"Nouadhibou",TN:"Sfax",LY:["Benghazi","Benghazi","Bengasi"],
+ MZ:"Beira",BY:"Hrodna",UA:["Odesa","Odessa","Odessa"],GB:["Manchester","Manchester","Manchester"],SC:"Praslin",CG:"Pointe-Noire",TG:"Kara",ML:"Tombouctou"};
+const LI={en:0,fr:1,de:2,pt:4};
+const HUB={vocab:"idioms",flags:"capitals",flags_cap:"capitals",capitals:"capitals",capitals_rev:"capitals",idioms:"idioms",meaning:"idioms",falsefr:"idioms",acronyms:"booth",register:"booth",mix:"capitals"};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let UI="en";try{UI=localStorage.getItem("twb-ui")||(navigator.language||"en").slice(0,2)}catch(e){}if(!S[UI])UI="en";
+let t=S[UI];
+let cfg={};const hp=(location.hash.match(/^#([a-z_]+)/)||[])[1];
+// ---------- random ----------
+let seed=0,rnd=Math.random;
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let x=Math.imul(a^a>>>15,1|a);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296}}
+const pick=a=>a[Math.floor(rnd()*a.length)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+// ---------- question makers: each returns {k,q,ans,wrong[]} ----------
+const CO=()=>C.CP.COUNTRIES.filter(c=>!cfg.cont||c.continent===cfg.cont);
+function distinct(ans,pool,n){const out=[];for(const x of shuffle(pool)){if(out.length>=n)break;if(x&&x!==ans&&!out.includes(x))out.push(x)}return out}
+const M={
+ capitals(){const L=cfg.lang,pool=CO(),c=pick(pool),ans=c.cap[L];let tr=TRAP[c.id];tr=tr?(Array.isArray(tr)?tr[LI[L]]:tr):null;
+  const same=C.CP.COUNTRIES.filter(x=>x.region===c.region).map(x=>x.cap[L]);
+  const w=[];if(tr&&tr!==ans)w.push(tr);w.push(...distinct(ans,same.length>3?same:C.CP.COUNTRIES.map(x=>x.cap[L]),3).filter(x=>!w.includes(x)));
+  return{k:t.Q.capitals,q:c[L]+(L==="fr"?" ?":"?"),ans,wrong:w,note:c.note}},
+ capitals_rev(){const L=cfg.lang,pool=CO(),c=pick(pool),ans=c[L];
+  const same=C.CP.COUNTRIES.filter(x=>x.region===c.region&&x.id!==c.id).map(x=>x[L]);
+  return{k:t.Q.capitals_rev,q:c.cap[L],ans,wrong:distinct(ans,same.length>2?same:C.CP.COUNTRIES.map(x=>x[L]),3),note:c.note}},
+ idioms(){let F=cfg.lang,T=cfg.to;if(F===T)T=F==="en"?"fr":"en";const I=C.ID.IDIOMS,i=pick(I);
+  const same=I.filter(x=>x.c===i.c&&x!==i).map(x=>x[T]);return{sl:F,k:t.Q.idioms(t.L[T]),q:i[F],ans:i[T],wrong:distinct(i[T],same,3),note:i.m}},
+ meaning(){const I=C.ID.IDIOMS,i=pick(I),L=cfg.lang;const same=I.filter(x=>x!==i).map(x=>x.m);
+  return{k:t.Q.meaning,q:"“"+i[L]+"”",ans:i.m,wrong:distinct(i.m,same,3),note:i.n,long:1}},
+ falsefr(){const all=C.ID.FF_FE.concat(C.ID.FF_FD),f=pick(all);return{sl:f.l,k:t.Q.falsefr+" ("+f.l.toUpperCase()+")",q:f.w,ans:f.ok,wrong:shuffle(f.bad).slice(0,3),note:f.n}},
+ acronyms(){const L=cfg.lang,A=C.BG.ACRONYMS,a=pick(A),ix={en:[1,2],fr:[3,4],de:[5,6],pt:[8,9]}[L];const ans=a[ix[1]];
+  const same=A.filter(x=>x!==a&&x[7]===a[7]).map(x=>x[ix[1]]);return{k:t.Q.acronyms(t.L[L]),q:a[ix[0]],ans,wrong:distinct(ans,same.length>2?same:A.map(x=>x[ix[1]]),3)}},
+ register(){const want=cfg.lang.toUpperCase();let P=C.BG.LADDERS.filter(x=>x[0]===want);if(!P.length)P=C.BG.LADDERS;const l=pick(P),r=rnd()<.5?2:0;
+  return{k:t.Q.register(t.R[r]),q:"“"+l[1]+"”",ans:l[2][r],wrong:[l[2][2-r],l[2][1]].filter(x=>x!==l[2][r])}},
+ vocab(){let F=cfg.lang,T=cfg.to;if(F===T)T=F==="en"?"fr":"en";const V=window.VOCAB,f=LI[F],o=LI[T],w=pick(V);
+  const same=V.filter(x=>x[3]===w[3]&&x!==w).map(x=>x[o]);return{k:t.Q.vocab(t.L[T]),q:w[f],sl:F,ans:w[o],wrong:distinct(w[o],same,3)}},
+ flags(){const L=cfg.lang,pool=CO(),c=pick(pool),ans=c[L];const same=C.CP.COUNTRIES.filter(x=>x.region===c.region&&x.id!==c.id).map(x=>x[L]);
+  return{k:t.Q.flags,q:"",img:"../flags/"+c.id.toLowerCase()+".svg",ans,wrong:distinct(ans,same.length>2?same:C.CP.COUNTRIES.map(x=>x[L]),3),note:c[L]+" · "+c.cap[L]}},
+ flags_cap(){const L=cfg.lang,pool=CO(),c=pick(pool),ans=c.cap[L];const same=C.CP.COUNTRIES.filter(x=>x.region===c.region&&x.id!==c.id).map(x=>x.cap[L]);
+  return{k:t.Q.flags_cap,q:"",img:"../flags/"+c.id.toLowerCase()+".svg",ans,wrong:distinct(ans,same.length>2?same:C.CP.COUNTRIES.map(x=>x.cap[L]),3),note:c[L]}},
+ mix(){return M[pick(["vocab","flags","capitals","capitals_rev","idioms","falsefr","acronyms","register"])]()}};
+let lastQ=[];
+function nextQ(){let q,n=0;do{q=M[cfg.pack]();n++}while(n<12&&(lastQ.includes(q.q||q.img)||!q.wrong.length));lastQ.push(q.q||q.img);if(lastQ.length>25)lastQ.shift();
+ const k=Math.min(cfg.lanes-1,q.wrong.length),lanes=shuffle([q.ans,...q.wrong.slice(0,k)]);return Object.assign(q,{lanes,right:lanes.indexOf(q.ans)})}
+
+// ---------- Live Duel ----------
+const DS={
+ en:{title:"Live Duel",lead:"One against one, same question, same moment. The first correct answer takes the point. A wrong tap locks you out of that question, so speed only pays when you are sure.",
+  mode:"Who do you duel?",face:"Face to face (one phone)",bot:"Computer",room:"Friend online",level:"Computer level",easy:"Easy",mid:"Medium",hard:"Hard",
+  len:"Questions",start:"Duel",yname:"Your name",create:"Create a room",join:"Join",code:"Room code",share:"Your friend opens this same page, chooses Friend online and types the code.",
+  players:"In the room",go:"Start the duel",hostwait:"Waiting for the host to start…",leave:"Leave the room",again:"Rematch",menu:"Change game",
+  conn:"Connecting…",fail:"Could not connect. Check the code and that the host's page is still open.",waitopp:"Waiting for a second player…",
+  p1:"Player 1",p2:"Player 2",cpu:"Computer",win:n=>n+" wins!",draw:"Draw!",youwin:"You win!",youlose:"You lose this one.",
+  rev:"Review the answers you missed",none:"No mistakes. Clean duel.",you:"chosen",right:"Right answer",
+  all:"← All games",xp:"XP",lvl:"Level",learn:"Learn this first",keys:"Keys 1 2 3 4 also answer.",
+  facehint:"Put the phone flat between you. The top half is turned for the player opposite.",
+  rating:"Duel rating",rank:"Career rank",point:"+1",out:"Out",time:"Time!",theyans:"answered",thinking:"thinking…",waiting:"waiting for",
+  faster:"faster",ranks:"Ranks: Trainee, Student Interpreter, Liaison Interpreter, Conference Interpreter, Senior Interpreter, Chief Interpreter, UN Booth."},
+ fr:{title:"Duel en direct",lead:"Un contre un, même question, même instant. La première bonne réponse prend le point. Une mauvaise réponse vous bloque pour cette question : la vitesse ne paie que si vous êtes sûr.",
+  mode:"Contre qui ?",face:"Face à face (un téléphone)",bot:"Ordinateur",room:"Ami en ligne",level:"Niveau de l'ordinateur",easy:"Facile",mid:"Moyen",hard:"Difficile",
+  len:"Questions",start:"Duel",yname:"Votre nom",create:"Créer une salle",join:"Rejoindre",code:"Code de la salle",share:"Votre ami ouvre cette page, choisit Ami en ligne et tape le code.",
+  players:"Dans la salle",go:"Lancer le duel",hostwait:"En attente de l'hôte…",leave:"Quitter la salle",again:"Revanche",menu:"Changer de jeu",
+  conn:"Connexion…",fail:"Connexion impossible. Vérifiez le code et que la page de l'hôte est ouverte.",waitopp:"En attente d'un second joueur…",
+  p1:"Joueur 1",p2:"Joueur 2",cpu:"Ordinateur",win:n=>n+" gagne !",draw:"Égalité !",youwin:"Vous gagnez !",youlose:"Perdu cette fois.",
+  rev:"Revoir les réponses manquées",none:"Aucune erreur. Duel parfait.",you:"choisi",right:"Bonne réponse",
+  all:"← Tous les jeux",xp:"XP",lvl:"Niveau",learn:"Apprendre d'abord",keys:"Les touches 1 2 3 4 répondent aussi.",
+  facehint:"Posez le téléphone à plat entre vous. La moitié du haut est tournée vers le joueur d'en face.",
+  rating:"Classement duel",rank:"Grade",point:"+1",out:"Bloqué",time:"Temps !",theyans:"a répondu",thinking:"réfléchit…",waiting:"en attente de",
+  faster:"plus rapide",ranks:"Grades : Stagiaire, Étudiant interprète, Interprète de liaison, Interprète de conférence, Interprète principal, Chef interprète, Cabine ONU."},
+ de:{title:"Live-Duell",lead:"Eins gegen eins, dieselbe Frage im selben Moment. Die erste richtige Antwort holt den Punkt. Ein falscher Tipp sperrt Sie für diese Frage: Tempo lohnt sich nur, wenn Sie sicher sind.",
+  mode:"Gegen wen?",face:"Gegenüber (ein Handy)",bot:"Computer",room:"Freund online",level:"Computer-Stufe",easy:"Leicht",mid:"Mittel",hard:"Schwer",
+  len:"Fragen",start:"Duell",yname:"Ihr Name",create:"Raum eröffnen",join:"Beitreten",code:"Raum-Code",share:"Ihr Freund öffnet diese Seite, wählt Freund online und gibt den Code ein.",
+  players:"Im Raum",go:"Duell starten",hostwait:"Warten auf den Gastgeber…",leave:"Raum verlassen",again:"Revanche",menu:"Spiel wechseln",
+  conn:"Verbinde…",fail:"Keine Verbindung. Code prüfen und ob die Seite des Gastgebers noch offen ist.",waitopp:"Warten auf einen zweiten Spieler…",
+  p1:"Spieler 1",p2:"Spieler 2",cpu:"Computer",win:n=>n+" gewinnt!",draw:"Unentschieden!",youwin:"Sie gewinnen!",youlose:"Diesmal verloren.",
+  rev:"Verpasste Antworten",none:"Keine Fehler. Sauberes Duell.",you:"gewählt",right:"Richtig",
+  all:"← Alle Spiele",xp:"XP",lvl:"Stufe",learn:"Erst lernen",keys:"Die Tasten 1 2 3 4 antworten auch.",
+  facehint:"Legen Sie das Handy flach zwischen sich. Die obere Hälfte ist zum Gegenüber gedreht.",
+  rating:"Duell-Wertung",rank:"Rang",point:"+1",out:"Gesperrt",time:"Zeit!",theyans:"hat geantwortet",thinking:"überlegt…",waiting:"warten auf",
+  faster:"schneller",ranks:"Ränge: Praktikant, Dolmetschstudent, Verhandlungsdolmetscher, Konferenzdolmetscher, Senior-Dolmetscher, Chefdolmetscher, UN-Kabine."}};
+const RANKS={en:["Trainee","Student Interpreter","Liaison Interpreter","Conference Interpreter","Senior Interpreter","Chief Interpreter","UN Booth"],
+ fr:["Stagiaire","Étudiant interprète","Interprète de liaison","Interprète de conférence","Interprète principal","Chef interprète","Cabine ONU"],
+ de:["Praktikant","Dolmetschstudent","Verhandlungsdolmetscher","Konferenzdolmetscher","Senior-Dolmetscher","Chefdolmetscher","UN-Kabine"]};
+const rankOf=e=>RANKS[UI][Math.max(0,Math.min(6,Math.floor((e-850)/100)))];
+let dt_=DS[UI];
+const QT=10000;
+cfg=Object.assign({pack:"mix",lang:UI,to:UI==="en"?"fr":"en",cont:"",n:10,bot:1,who:"bot"},JSON.parse(localStorage.getItem("du-cfg")||"{}"));cfg.lanes=4;
+if(hp&&S.en.P[hp])cfg.pack=hp;
+const saveCfg=()=>{try{localStorage.setItem("du-cfg",JSON.stringify(cfg))}catch(e){}};
+let myName="";try{myName=localStorage.getItem("lr-name")||""}catch(e){}
+let elo=1000;try{elo=+localStorage.getItem("du-elo")||1000}catch(e){}
+let voiceOn=true;try{voiceOn=localStorage.getItem("lr-voice")!=="0"}catch(e){}
+function say(q){if(!voiceOn)return;if(window.VP)VP.stop();if(!("speechSynthesis" in window)&&!(window.VP&&VP.ready))return;try{if(window.speechSynthesis)speechSynthesis.cancel();const lang=q.sl||cfg.lang;
+ const parts=[[q.k.replace(/\s*\(.*\)$/,""),UI],[(q.q||"").replace(/[“”?]/g,"").trim(),lang]].filter(x=>x[0]);
+ if(window.VP&&VP.speak(parts))return;if(!window.speechSynthesis)return;
+ for(const [txt,l] of parts){const u=new SpeechSynthesisUtterance(txt);const vs=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().startsWith(l));if(vs.length)u.voice=vs.find(v=>/natural|google|premium|enhanced/i.test(v.name))||vs[0];u.lang={en:"en-GB",fr:"fr-FR",de:"de-DE",pt:"pt-PT"}[l]||l;speechSynthesis.speak(u)}}catch(e){}}
+let G=null,seq=[];
+function makeSeq(sd){seed=sd;rnd=mulberry(sd);lastQ=[];seq=[];for(let i=0;i<cfg.n+5;i++)seq.push(nextQ())}
+function names(){if(cfg.who==="face")return[dt_.p1,dt_.p2];if(cfg.who==="bot")return[myName||dt_.p1,"🤖 "+dt_.cpu];const o=R.opp();return[myName||dt_.p1,o?o.n:"…"]}
+function newGame(sd){makeSeq(sd);G={qi:0,sc:[0,0],st:"run",mist:[],a:[],ob:null,oppE:R.opp()?R.opp().e||1000:1000};
+ $("#menu").classList.remove("on");$("#over").classList.remove("on");SFX.music("quiz");showQ()}
+function halfHTML(p,q){const long=q.long||Math.max(...q.lanes.map(s=>s.length))>30,nm=names();
+ return `<div class="half p${p+1}" data-p="${p}"><div class="who">${esc(nm[p])}</div><div class="qk">${esc(q.k)} · ${G.qi+1}/${cfg.n}</div>
+  <div class="qt${(q.q||"").length>40?" long":""}">${q.img?`<img src="${q.img}" alt="">`:esc(q.q)}</div><div class="bar"><i></i></div>
+  <div class="opts">${q.lanes.map((s,i)=>`<button class="opt${long?" long":""}" data-p="${p}" data-i="${i}">${esc(s)}</button>`).join("")}</div>
+  ${p===0&&cfg.who!=="face"?`<div class="opp"><span class="dot" id="od"></span><span id="ot">${esc(nm[1])} · ${dt_.thinking}</span></div>`:""}<div class="flash"></div></div>`}
+function showQ(){const q=seq[G.qi];G.q=q;G.done=false;G.lock=[0,0];G.my=null;G.t0=performance.now();G.pick=[-1,-1];
+ $("#arena").innerHTML=(cfg.who==="face"?halfHTML(1,q):"")+halfHTML(0,q);score();say(q);
+ if(cfg.who==="bot"){const lvl=cfg.bot,d=G.sc[1]-G.sc[0];let acc=[.6,.76,.9][lvl]+(d>=2?-.12:d<=-2?.08:0);const sp=[[3500,7500],[2400,5200],[1500,3400]][lvl];
+  G.ob={at:sp[0]+Math.random()*(sp[1]-sp[0]),ok:Math.random()<acc,done:false}}
+ sync();cancelAnimationFrame(G.raf);G.raf=requestAnimationFrame(tick)}
+function score(){const n=names();$("#n1").textContent=n[0];$("#n2").textContent=n[1];$("#s1").textContent=G?G.sc[0]:0;$("#s2").textContent=G?G.sc[1]:0}
+function tick(now){if(!G||G.st!=="run")return;const el=now-G.t0,f=Math.max(0,1-el/QT);document.querySelectorAll(".bar i").forEach(b=>b.style.width=(f*100)+"%");
+ if(!G.done){if(G.ob&&!G.ob.done&&el>=G.ob.at){G.ob.done=true;if(G.ob.ok&&!G.lock[1])tap(1,G.q.right,true);else{G.lock[1]=1;$("#ot").textContent=names()[1]+" · ✗";if(G.lock[0])resolve(-1)}}
+  if(el>=QT){if(cfg.who==="room"){if(!G.my)myAnswer(-1)}else{flash(0,dt_.time);resolve(-1)}}}
+ if(cfg.who==="room"&&G.my&&!G.done)roomCheck(el);
+ G.raf=requestAnimationFrame(tick)}
+function flash(p,s,col){const e=document.querySelector(`.half[data-p="${p}"] .flash`);if(!e)return;e.textContent=s;e.style.color=col||"#fff";e.style.display="flex";setTimeout(()=>e.style.display="none",1100)}
+function mark(p,i,cls){const e=document.querySelector(`.opt[data-p="${p}"][data-i="${i}"]`);if(e)e.classList.add(cls)}
+function lockHalf(p){document.querySelectorAll(`.opt[data-p="${p}"]`).forEach(e=>e.disabled=true)}
+function tap(p,i,isBot){if(!G||G.st!=="run"||G.done||G.lock[p])return;const q=G.q,ok=i===q.right;G.pick[p]=i;
+ if(cfg.who==="room"){if(p===0)myAnswer(i);return}
+ if(ok){G.sc[p]++;SFX.ok();flash(p,dt_.point,"#5fd39a");if(cfg.who==="face")flash(1-p,"✗","#ef476f");if(isBot)$("#ot").textContent=names()[1]+" · ✓ "+dt_.point;resolve(p)}
+ else{G.lock[p]=1;mark(p,i,"bad");lockHalf(p);SFX.bad();flash(p,dt_.out,"#ef476f");if(G.lock[0]&&G.lock[1])resolve(-1)}}
+function resolve(win){if(G.done)return;G.done=true;const q=G.q;
+ for(const p of [0,1]){lockHalf(p);mark(p,q.right,"ok")}
+ if(cfg.who==="bot"&&win===1)mark(0,q.right,"them");
+ const missed=cfg.who==="face"?(win<0):win!==0;
+ if(missed){const y=G.pick[0]>=0?q.lanes[G.pick[0]]:"—";G.mist.push({k:q.k,q:q.q||q.note,img:q.img,a:q.ans,y});if(cfg.who!=="face"||G.pick[0]>=0)BANK.add({game:"duel",lang:q.sl||cfg.lang,q:q.k+": "+(q.q||""),img:q.img,a:q.ans,note:q.note})}
+ score();setTimeout(next,win<0?1900:1300)}
+function next(){if(!G||G.st!=="run")return;G.qi++;if(G.qi>=cfg.n)return end();showQ()}
+// ---------- online: both answer, faster correct answer scores ----------
+function myAnswer(i){const q=G.q,ms=Math.round(performance.now()-G.t0),ok=i===q.right?1:0;G.my=[ok,i<0?QT:ms];G.a[G.qi]=G.my;G.lock[0]=1;lockHalf(0);
+ if(i>=0)mark(0,i,ok?"ok":"bad");if(i>=0)(ok?SFX.ok:SFX.bad)();else flash(0,dt_.time);G.wt=performance.now();sync();roomCheck(ms)}
+function roomCheck(){const o=R.opp(),oa=o&&o.go===R.go&&o.a?o.a[G.qi]:null;
+ if(!oa){$("#ot").textContent=dt_.waiting+" "+names()[1]+"…";if(performance.now()-G.wt>QT+6000)return roomResolve([0,QT*9]);return}
+ roomResolve(oa)}
+function roomResolve(oa){const m=G.my;let win=-1;if(m[0]&&oa[0])win=m[1]<=oa[1]?0:1;else if(m[0])win=0;else if(oa[0])win=1;
+ if(win>=0)G.sc[win]++;
+ $("#ot").textContent=names()[1]+" · "+(oa[0]?"✓ "+(oa[1]/1000).toFixed(1)+" s":"✗")+(m[0]?" · "+(m[1]/1000).toFixed(1)+" s":"");
+ flash(0,win===0?dt_.point:win===1?names()[1]+" "+dt_.point:"✗",win===0?"#5fd39a":"#ef476f");
+ const done=G.pick[0];G.pick[0]=G.my[0]?G.q.right:(done>=0?done:-1);resolve(win)}
+// ---------- end ----------
+function end(){G.st="over";cancelAnimationFrame(G.raf);SFX.stop();const [a,b]=G.sc,n=names();
+ let head,res=a>b?1:a<b?0:.5,xi,de=0;
+ if(cfg.who==="face")head=a===b?dt_.draw:dt_.win(a>b?n[0]:n[1]);else head=a===b?dt_.draw:a>b?dt_.youwin:dt_.youlose;
+ if(cfg.who!=="face"){const oe=cfg.who==="bot"?[900,1100,1300][cfg.bot]:(G.oppE||1000),ex=1/(1+Math.pow(10,(oe-elo)/400));de=Math.round(24*(res-ex));elo=Math.max(600,elo+de);try{localStorage.setItem("du-elo",elo)}catch(e){}}
+ xi=XP.add(a*5+(res===1?20:0),"duel");if(res===1||cfg.who==="face")SFX.win();else SFX.over();sync();
+ $("#over").innerHTML=`<div class="box"><h1>${head}</h1><div class="big"><span style="color:var(--c)">${a}</span> : <span style="color:var(--c2)">${b}</span></div>
+  ${cfg.who!=="face"?`<div class="card"><b>${dt_.rating}: ${elo} (${de>=0?"+":""}${de})</b><span>${dt_.rank}: <b>${rankOf(elo)}</b></span><span class="muted" style="font-size:14px">${dt_.ranks}</span></div>`:""}
+  <div class="card"><b>+${xi.gained||0} ${dt_.xp}${xi.up?" · "+dt_.lvl+" "+xi.level+" !":""}</b><span class="muted">${dt_.lvl} ${xi.level}${xi.streak?" · 🔥 "+xi.streak:""}</span></div>
+  <div class="row">${cfg.who==="room"?(R.host?`<button class="pri" id="rag">${dt_.again}</button>`:`<span class="muted">${dt_.hostwait}</span>`)+`<button id="mn">${dt_.leave}</button>`:`<button class="pri" id="ag">${dt_.again}</button><button id="mn">${dt_.menu}</button>`}<a href="../learn/#${HUB[cfg.pack]||"capitals"}">${dt_.learn}</a></div>
+  <h2>${dt_.rev}</h2>${G.mist.length?G.mist.map(m=>`<div class="rv"><div class="m">${esc(m.k)}</div>${m.img?`<img src="${m.img}" alt="" style="height:28px;vertical-align:middle;margin-right:6px">`:""}<b>${esc(m.q||"")}</b> → <b style="color:#5fd39a">${esc(m.a)}</b>${m.y!=="—"?`<div class="m">${dt_.you}: <s>${esc(m.y)}</s></div>`:""}</div>`).join(""):`<p>${dt_.none}</p>`}</div>`;
+ $("#over").classList.add("on");
+ const ag=$("#ag");if(ag)ag.onclick=()=>newGame((Math.random()*1e9)>>>0);const rag=$("#rag");if(rag)rag.onclick=()=>R.start();
+ $("#mn").onclick=()=>{if(cfg.who==="room")R.leave();menu()}}
+// ---------- online room ----------
+const R={room:null,host:false,code:"",go:0,list:[],status:"",sent:"",
+ others(){return this.list.filter(x=>!x.isMe).map(x=>x.presence).filter(p=>p&&p.n)},
+ opp(){const o=this.others();return o.find(p=>p.go===this.go)||o[0]||null},
+ hostP(){const h=this.list.find(x=>x.presence&&x.presence.h);return h?h.presence:null},
+ async open(asHost,code){if(!myName){alertName();return}try{localStorage.setItem("lr-name",myName)}catch(e){}
+  this.host=asHost;this.code=asHost?[...Array(4)].map(()=>"ABCDEFGHJKLMNPQRSTUVWXYZ"[Math.floor(Math.random()*24)]).join(""):String(code||"").toUpperCase().replace(/[^A-Z]/g,"");
+  if(!this.code)return;this.status=dt_.conn;menu();
+  try{this.room=await TWROOM.join("du-"+this.code.toLowerCase(),asHost)}catch(e){this.room=null;this.status=dt_.fail;menu();return}
+  this.status="";const p={n:myName.slice(0,24),e:elo,go:0,a:[]};if(asHost)Object.assign(p,{h:1,cfg,seed:0});await this.room.presence(p);
+  this.room.onPeers(ch=>{this.list=ch.peers;this.onList()});menu()},
+ onList(){const h=this.hostP();
+  if(!this.host&&h&&h.go&&h.go!==this.go){this.go=h.go;Object.assign(cfg,h.cfg,{who:"room",lanes:4});this.countdown(h.seed);return}
+  if(G&&G.st==="run")score();else if($("#menu").classList.contains("on"))this.lobby()},
+ start(){if(!this.host)return;if(!this.others().length){this.status=dt_.waitopp;menu();return}this.go=(this.go||0)+1;const sd=(Math.random()*1e9)>>>0;this.sent="";this.room.presence({cfg,seed:sd,go:this.go,a:[],e:elo});this.countdown(sd)},
+ countdown(sd){$("#menu").classList.remove("on");$("#over").classList.remove("on");const cd=$("#cd");cd.style.display="flex";let n=3;
+  const t_=()=>{if(n>0){SFX.tick();cd.textContent=n;n--;setTimeout(t_,800)}else{cd.style.display="none";newGame(sd)}};t_()},
+ lobby(){const e=$("#lobby");if(!e)return;e.innerHTML=this.list.map(x=>x.presence).filter(p=>p&&p.n).map(p=>`<div><span>⚔️ ${esc(p.n)}${p.h?" ★":""}</span><span>${rankOf(p.e||1000)} · ${p.e||1000}</span></div>`).join("")},
+ leave(){try{this.room&&this.room.leave()}catch(e){}this.room=null;this.list=[];this.go=0;this.code="";this.status=""}};
+function sync(){if(cfg.who!=="room"||!R.room||!G)return;const pr={a:G.a,go:R.go,e:elo},js=JSON.stringify(pr);if(js!==R.sent){R.sent=js;R.room.presence(pr)}}
+function alertName(){const e=$("#nm");if(e){e.focus();e.style.borderColor="var(--bad)"}}
+// ---------- menu ----------
+function menu(){SFX.stop();if(G&&G.st!=="over"){G.st="menu";cancelAnimationFrame(G.raf)}$("#arena").innerHTML="";
+ const P=["mix","capitals","flags","flags_cap","vocab","idioms","meaning","falsefr","acronyms","register","capitals_rev"],needTo=["idioms","vocab","mix"].includes(cfg.pack),cap=/^(capitals|flags)/.test(cfg.pack)||cfg.pack==="mix";
+ const b=(k,v,lab)=>`<button data-k="${k}" data-v="${v}" aria-pressed="${String(cfg[k])===String(v)}">${lab}</button>`;
+ const guest=cfg.who==="room"&&R.room&&!R.host,xi=XP.info();
+ const settings=guest?"":`<div class="lbl">${t.pack}</div><div class="row">${P.map(p=>b("pack",p,t.P[p])).join("")}</div>
+  <div class="lbl">${needTo?t.from:t.lang}</div><div class="row">${["en","fr","de","pt"].map(l=>b("lang",l,l.toUpperCase())).join("")}</div>
+  ${needTo?`<div class="lbl">${t.to}</div><div class="row">${["en","fr","de","pt"].filter(l=>l!==cfg.lang).map(l=>b("to",l,l.toUpperCase())).join("")}</div>`:""}
+  ${cap?`<div class="lbl">${t.cont}</div><div class="row">${b("cont","",t.world)}${Object.keys(C.CP.CONTINENTS).map(c=>b("cont",c,C.CP.CONTINENTS[c][UI])).join("")}</div>`:""}
+  <div class="lbl">${dt_.len}</div><div class="row">${[5,10,15].map(n=>b("n",n,n)).join("")}</div>`;
+ let action;
+ if(cfg.who==="bot")action=`<div class="lbl">${dt_.level}</div><div class="row">${b("bot",0,dt_.easy)}${b("bot",1,dt_.mid)}${b("bot",2,dt_.hard)}</div>
+  <div class="row" style="margin-top:8px"><button class="pri" id="go">⚔️ ${dt_.start} →</button></div><p class="muted" style="font-size:15px">${dt_.keys}</p>`;
+ else if(cfg.who==="face")action=`<p class="muted">${dt_.facehint}</p><div class="row"><button class="pri" id="go">⚔️ ${dt_.start} →</button></div>`;
+ else action=!R.room?`<div class="card"><div class="lbl">${dt_.yname}</div><input id="nm" maxlength="24" value="${esc(myName)}" autocomplete="nickname">
+   <div class="row"><button class="pri" id="rc">${dt_.create}</button></div><div class="lbl">${dt_.code}</div><div class="row"><input id="rcode" maxlength="4" style="width:9em;text-transform:uppercase;letter-spacing:.15em" placeholder="ABCD"><button id="rj">${dt_.join}</button></div>
+   ${R.status?`<p>${esc(R.status)}</p>`:""}<p class="muted">${dt_.share}</p></div>`
+  :`<div class="card"><div class="lbl">${dt_.code}</div><div class="code">${R.code}</div><p class="muted">${dt_.share}</p><div class="lbl">${dt_.players}</div><div class="rank" id="lobby"></div>
+   ${R.status?`<p>${esc(R.status)}</p>`:""}<div class="row">${R.host?`<button class="pri" id="rs">${dt_.go} →</button>`:`<span class="muted">${dt_.hostwait}</span>`}<button id="rl">${dt_.leave}</button></div></div>`;
+ $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font:600 15px 'Familjen Grotesk',sans-serif">${dt_.all}</a><div class="lang">${["en","fr","de"].map(l=>`<button data-ui="${l}" aria-pressed="${l===UI}">${l.toUpperCase()}</button>`).join("")}</div></div>
+  <h1>⚔️ ${dt_.title}</h1><p>${dt_.lead}</p><div class="muted" style="font:600 15px 'Familjen Grotesk',sans-serif">${dt_.lvl} ${xi.level} · ${xi.xp} ${dt_.xp}${xi.streak?" · 🔥 "+xi.streak:""} · ${dt_.rank}: ${rankOf(elo)} (${elo})</div>
+  <div class="lbl">${dt_.mode}</div><div class="row">${b("who","bot","🤖 "+dt_.bot)}${b("who","face","📱 "+dt_.face)}${b("who","room","🌍 "+dt_.room)}</div>
+  ${settings}${action}</div>`;
+ $("#menu").classList.add("on");$("#over").classList.remove("on");score();
+ const M_=$("#menu");
+ M_.querySelectorAll("[data-k]").forEach(e=>e.onclick=()=>{const k=e.dataset.k;let v=e.dataset.v;if(k==="n"||k==="bot")v=+v;if(k==="who"&&v!=="room")R.leave();cfg[k]=v;if(cfg.to===cfg.lang)cfg.to=cfg.lang==="en"?"fr":"en";saveCfg();if(R.room&&R.host)R.room.presence({cfg});menu()});
+ M_.querySelectorAll("[data-ui]").forEach(e=>e.onclick=()=>{UI=e.dataset.ui;t=S[UI];dt_=DS[UI];try{localStorage.setItem("twb-ui",UI)}catch(x){}applyUI();menu()});
+ const go=$("#go");if(go)go.onclick=()=>newGame((Math.random()*1e9)>>>0);
+ const nm=$("#nm");if(nm)nm.oninput=()=>{myName=nm.value.trim()};
+ const rc=$("#rc");if(rc)rc.onclick=()=>R.open(true);const rj=$("#rj");if(rj)rj.onclick=()=>R.open(false,$("#rcode").value);
+ const rs=$("#rs");if(rs)rs.onclick=()=>R.start();const rl=$("#rl");if(rl)rl.onclick=()=>{R.leave();menu()};
+ R.lobby()}
+function applyUI(){document.documentElement.lang=UI;$("#back").textContent=dt_.all}
+// ---------- input ----------
+$("#arena").addEventListener("click",e=>{const o=e.target.closest(".opt");if(o&&!o.disabled)tap(+o.dataset.p,+o.dataset.i)});
+addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;if(/^[1-4]$/.test(e.key))tap(0,+e.key-1)});
+$("#mu").onclick=()=>{const v=!SFX.get("music");SFX.set("music",v);$("#mu").setAttribute("aria-pressed",v);if(v&&G&&G.st==="run")SFX.music("quiz")};
+$("#vc").onclick=()=>{voiceOn=!voiceOn;try{localStorage.setItem("lr-voice",voiceOn?"1":"0")}catch(e){}$("#vc").textContent=voiceOn?"🔊":"🔇";if(!voiceOn){if(window.speechSynthesis)speechSynthesis.cancel();if(window.VP)VP.stop()}};
+$("#mu").setAttribute("aria-pressed",SFX.get("music"));$("#vc").textContent=voiceOn?"🔊":"🔇";
+applyUI();menu();
+</script>
+</body>
+</html>
