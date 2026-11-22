@@ -51,7 +51,7 @@ a{color:var(--y)}
 <div class="pov" id="pov"><h2 id="povh">Paused</h2><button class="pri" id="pres">▶ Play</button><button id="pmenu">Menu</button></div>
 <div class="ov on" id="menu"></div><div class="ov" id="over"></div>
 <script src="../content/data.js"></script>
-<script src="../live/vocab.js"></script>
+<script src="../live/vocab.js"></script><script src="../content/pt.js"></script>
 <script src="../live/xp.js"></script>
 <script src="../live/sfx.js"></script>
 <script>
@@ -73,13 +73,13 @@ const S={
 let UI="en";try{UI=localStorage.getItem("twb-ui")||(navigator.language||"en").slice(0,2)}catch(e){}if(!S[UI])UI="en";let t=S[UI];
 let cfg=Object.assign({pack:"vocab",lang:UI,to:UI==="en"?"fr":"en",time:60},JSON.parse(localStorage.getItem("mr-cfg")||"{}"));
 const hp=(location.hash.match(/^#([a-z]+)/)||[])[1];if(hp&&S.en.P[hp])cfg.pack=hp;
-const LI={en:0,fr:1,de:2};
+const LI={en:0,fr:1,de:2,pt:4};
 function pool(){const L=cfg.lang,T=cfg.to===L?(L==="en"?"fr":"en"):cfg.to;
  switch(cfg.pack){
   case"vocab":return VOCAB.map(v=>[v[LI[L]],v[LI[T]]]);
   case"capitals":return C.CP.COUNTRIES.map(c=>[c[L],c.cap[L]]);
   case"flags":return C.CP.COUNTRIES.map(c=>[{img:"../flags/"+c.id.toLowerCase()+".svg",k:c.id},c[L]]);
-  case"acronyms":{const ix={en:[1,2],fr:[3,4],de:[5,6]}[L];return C.BG.ACRONYMS.map(a=>[a[ix[0]],a[ix[1]]])}
+  case"acronyms":{const ix={en:[1,2],fr:[3,4],de:[5,6],pt:[8,9]}[L];return C.BG.ACRONYMS.map(a=>[a[ix[0]],a[ix[1]]])}
   case"idioms":return C.ID.IDIOMS.map(i=>[i[L],i[T]]);
   case"falsefr":return C.ID.FF_FE.concat(C.ID.FF_FD).map(f=>[f.w,f.ok]);}}
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -119,8 +119,8 @@ function menu(){SFX.stop();if(G)G.state="menu";$("#pov").classList.remove("on");
  $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font-weight:600">${t.all}</a><div class="lang">${["en","fr","de"].map(l=>`<button data-ui="${l}" aria-pressed="${l===UI}">${l.toUpperCase()}</button>`).join("")}</div></div>
   <h1>⚡ ${t.title}</h1><p>${t.lead}</p><div class="muted" style="font-weight:600">${t.lvl} ${xi.level} · ${xi.xp} ${t.xp}${xi.streak?" · 🔥 "+xi.streak:""}</div>
   <div class="lbl">${t.pack}</div><div class="row">${Object.keys(t.P).map(p=>b("pack",p,t.P[p])).join("")}</div>
-  ${cfg.pack==="falsefr"?"":`<div class="lbl">${two?t.from:t.lang}</div><div class="row">${["en","fr","de"].map(l=>b("lang",l,l.toUpperCase())).join("")}</div>`}
-  ${two?`<div class="lbl">${t.to}</div><div class="row">${["en","fr","de"].filter(l=>l!==cfg.lang).map(l=>b("to",l,l.toUpperCase())).join("")}</div>`:""}
+  ${cfg.pack==="falsefr"?"":`<div class="lbl">${two?t.from:t.lang}</div><div class="row">${["en","fr","de","pt"].map(l=>b("lang",l,l.toUpperCase())).join("")}</div>`}
+  ${two?`<div class="lbl">${t.to}</div><div class="row">${["en","fr","de","pt"].filter(l=>l!==cfg.lang).map(l=>b("to",l,l.toUpperCase())).join("")}</div>`:""}
   <div class="lbl">${t.time}</div><div class="row">${b("time",45,"45 s")}${b("time",60,"60 s")}${b("time",90,"90 s")}</div>
   <div class="row" style="margin-top:8px"><button class="pri" id="go">⚡ ${t.start}</button><span class="muted">${t.best}: ${+(localStorage.getItem("mr-best-"+cfg.pack+"-"+cfg.time)||0)}</span></div></div>`;
  $("#menu").classList.add("on");$("#over").classList.remove("on");

@@ -1,7 +1,8 @@
+if(window.PT&&typeof COUNTRIES!=="undefined"){COUNTRIES.forEach(window.PT.country);for(const k in CONTINENTS)CONTINENTS[k].pt=window.PT.CONT[k]||CONTINENTS[k].en}
 window.LIVE_CFG={game:"capitals",
  settings:[
   {k:"type",label:{en:"Question",fr:"Question",de:"Frage"},opts:[["cap",{en:"Country → capital",fr:"Pays → capitale",de:"Land → Hauptstadt"}],["cty",{en:"Capital → country",fr:"Capitale → pays",de:"Hauptstadt → Land"}]]},
-  {k:"lang",label:{en:"Language",fr:"Langue",de:"Sprache"},opts:[["en","English"],["fr","Français"],["de","Deutsch"]]},
+  {k:"lang",label:{en:"Language",fr:"Langue",de:"Sprache"},opts:[["en","English"],["fr","Français"],["de","Deutsch"]].concat(window.PT?[["pt","Português"]]:[])},
   {k:"cont",label:{en:"Region",fr:"Région",de:"Region"},opts:[["all",{en:"Whole world",fr:"Monde entier",de:"Ganze Welt"}]].concat(Object.keys(CONTINENTS).map(k=>[k,CONTINENTS[k]]))}],
  make(set){const l=set.lang;const P=COUNTRIES.filter(c=>set.cont==="all"||c.continent===set.cont);
   const sh=a=>a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);

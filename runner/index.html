@@ -69,7 +69,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 </div>
 <div class="ov on" id="menu"></div><div class="ov" id="over"></div>
 <script src="../content/data.js"></script>
-<script src="../live/vocab.js"></script>
+<script src="../live/vocab.js"></script><script src="../content/pt.js"></script>
 <script src="../live/peerjs.min.js"></script>
 <script src="../live/p2p.js"></script>
 <script src="../live/xp.js"></script>
@@ -85,7 +85,7 @@ en:{all:"← All games",title:"Lane Runner",lead:"A question appears, the answer
  chal:(n,s)=>`${n||"A friend"} challenges you: beat ${s} points on the same questions.`,beat:"You beat the challenge!",lost:"Challenge not beaten yet.",name:"Your name (for the challenge)",paused:"Paused",resume:"Resume",
  P:{capitals:"Country → capital",capitals_rev:"Capital → country",vocab:"Vocabulary",flags:"Flag → country",flags_cap:"Flag → capital",idioms:"Idiom equivalents",meaning:"Idiom meanings",falsefr:"False friends",acronyms:"Acronyms",register:"Register",mix:"Mix of everything"},
  Q:{vocab:l=>"In "+l,flags:"Which country is this flag?",flags_cap:"Capital of the country with this flag?",capitals:"Capital of",capitals_rev:"Which country has this capital?",idioms:l=>"Equivalent in "+l,meaning:"What does it mean?",falsefr:"Correct translation",acronyms:l=>"Full name in "+l,register:(r)=>"Most "+r+" way to say",},
- R:["casual","neutral","formal"],L:{en:"English",fr:"French",de:"German"},cont:"Continent",world:"Whole world"},
+ R:["casual","neutral","formal"],L:{en:"English",fr:"French",de:"German",pt:"Portuguese"},cont:"Continent",world:"Whole world"},
 fr:{all:"← Tous les jeux",title:"Lane Runner",lead:"Une question s'affiche, les réponses arrivent sur la route. Changez de couloir pour prendre la bonne. Trois erreurs et la course s'arrête.",
  pack:"Que voulez-vous travailler ?",lang:"Langue",from:"De",to:"Vers",lanes:"Couloirs",speed:"Vitesse",slow:"Tranquille",norm:"Normale",fast:"Rapide",start:"Courir",
  keys:"Touches ← → ou A D. Sur téléphone : glissez, ou touchez le côté gauche ou droit.",best:"Record",score:"Score",streak:"Série",over:"Course terminée",again:"Recommencer",menu:"Changer de jeu",learn:"Apprendre d'abord",
@@ -93,7 +93,7 @@ fr:{all:"← Tous les jeux",title:"Lane Runner",lead:"Une question s'affiche, le
  chal:(n,s)=>`${n||"Un ami"} vous défie : battez ${s} points sur les mêmes questions.`,beat:"Défi relevé !",lost:"Défi pas encore relevé.",name:"Votre nom (pour le défi)",paused:"Pause",resume:"Reprendre",
  P:{capitals:"Pays → capitale",capitals_rev:"Capitale → pays",vocab:"Vocabulaire",flags:"Drapeau → pays",flags_cap:"Drapeau → capitale",idioms:"Équivalents d'expressions",meaning:"Sens des expressions",falsefr:"Faux amis",acronyms:"Sigles",register:"Registre",mix:"Un peu de tout"},
  Q:{vocab:l=>"En "+l,flags:"Quel pays a ce drapeau ?",flags_cap:"Capitale du pays de ce drapeau ?",capitals:"Capitale de",capitals_rev:"Quel pays a cette capitale ?",idioms:l=>"Équivalent en "+l,meaning:"Que veut dire",falsefr:"Bonne traduction",acronyms:l=>"Nom complet en "+l,register:r=>"Façon la plus "+r+" de dire"},
- R:["familière","neutre","soutenue"],L:{en:"anglais",fr:"français",de:"allemand"},cont:"Continent",world:"Monde entier"},
+ R:["familière","neutre","soutenue"],L:{en:"anglais",fr:"français",de:"allemand",pt:"portugais"},cont:"Continent",world:"Monde entier"},
 de:{all:"← Alle Spiele",title:"Lane Runner",lead:"Eine Frage erscheint, die Antworten kommen auf der Straße auf Sie zu. Wechseln Sie rechtzeitig auf die richtige Spur. Drei Fehler und der Lauf ist vorbei.",
  pack:"Was möchten Sie trainieren?",lang:"Sprache",from:"Von",to:"Nach",lanes:"Spuren",speed:"Tempo",slow:"Gemütlich",norm:"Normal",fast:"Schnell",start:"Los",
  keys:"Tasten ← → oder A D. Am Handy: wischen oder links bzw. rechts tippen.",best:"Rekord",score:"Punkte",streak:"Serie",over:"Lauf beendet",again:"Nochmal",menu:"Spiel wechseln",learn:"Erst lernen",
@@ -101,7 +101,7 @@ de:{all:"← Alle Spiele",title:"Lane Runner",lead:"Eine Frage erscheint, die An
  chal:(n,s)=>`${n||"Ein Freund"} fordert Sie heraus: schlagen Sie ${s} Punkte mit denselben Fragen.`,beat:"Herausforderung gewonnen!",lost:"Herausforderung noch nicht geschafft.",name:"Ihr Name (für die Herausforderung)",paused:"Pause",resume:"Weiter",
  P:{capitals:"Land → Hauptstadt",capitals_rev:"Hauptstadt → Land",vocab:"Wortschatz",flags:"Flagge → Land",flags_cap:"Flagge → Hauptstadt",idioms:"Redewendungen: Entsprechungen",meaning:"Redewendungen: Bedeutung",falsefr:"Falsche Freunde",acronyms:"Abkürzungen",register:"Register",mix:"Alles gemischt"},
  Q:{vocab:l=>"Auf "+l,flags:"Welches Land hat diese Flagge?",flags_cap:"Hauptstadt des Landes mit dieser Flagge?",capitals:"Hauptstadt von",capitals_rev:"Welches Land hat diese Hauptstadt?",idioms:l=>"Entsprechung auf "+l,meaning:"Was bedeutet",falsefr:"Richtige Übersetzung",acronyms:l=>"Vollständiger Name auf "+l,register:r=>"Am meisten "+r+" gesagt"},
- R:["salopp","neutral","gehoben"],L:{en:"Englisch",fr:"Französisch",de:"Deutsch"},cont:"Kontinent",world:"Ganze Welt"}};
+ R:["salopp","neutral","gehoben"],L:{en:"Englisch",fr:"Französisch",de:"Deutsch",pt:"Portugiesisch"},cont:"Kontinent",world:"Ganze Welt"}};
 // Well-known cities people mistake for the capital: used as the wrong lane first.
 const TRAP={CM:"Douala",MA:"Casablanca",NG:"Lagos",TZ:"Dar es Salaam",CI:"Abidjan",BJ:"Cotonou",TR:"Istanbul",MM:["Yangon","Rangoun","Rangun"],AU:"Sydney",CA:["Toronto","Montréal","Toronto"],
  US:["New York","New York","New York"],BR:["Rio de Janeiro","Rio de Janeiro","Rio de Janeiro"],CH:["Zurich","Zurich","Zürich"],NZ:"Auckland",KZ:"Almaty",PK:"Karachi",IN:"Mumbai",CN:["Shanghai","Shanghai","Schanghai"],
@@ -110,7 +110,7 @@ const TRAP={CM:"Douala",MA:"Casablanca",NG:"Lagos",TZ:"Dar es Salaam",CI:"Abidja
  DE:["Munich","Munich","München"],KE:"Mombasa",MW:"Blantyre",GA:"Port-Gentil",CD:"Lubumbashi",SY:["Aleppo","Alep","Aleppo"],BZ:"Belize City",JP:"Osaka",KR:"Busan",MX:"Guadalajara",CO:"Medellín",
  CL:"Valparaíso",AR:"Córdoba",VE:"Maracaibo",NL:["The Hague","La Haye","Den Haag"],ID:"Surabaya",GH:"Kumasi",SN:"Saint-Louis",MR:"Nouadhibou",TN:"Sfax",LY:["Benghazi","Benghazi","Bengasi"],
  MZ:"Beira",BY:"Hrodna",UA:["Odesa","Odessa","Odessa"],GB:["Manchester","Manchester","Manchester"],SC:"Praslin",CG:"Pointe-Noire",TG:"Kara",ML:"Tombouctou"};
-const LI={en:0,fr:1,de:2};
+const LI={en:0,fr:1,de:2,pt:4};
 const HUB={vocab:"idioms",flags:"capitals",flags_cap:"capitals",capitals:"capitals",capitals_rev:"capitals",idioms:"idioms",meaning:"idioms",falsefr:"idioms",acronyms:"booth",register:"booth",mix:"capitals"};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -147,7 +147,7 @@ const M={
  meaning(){const I=C.ID.IDIOMS,i=pick(I),L=cfg.lang;const same=I.filter(x=>x!==i).map(x=>x.m);
   return{k:t.Q.meaning,q:"“"+i[L]+"”",ans:i.m,wrong:distinct(i.m,same,3),note:i.n,long:1}},
  falsefr(){const all=C.ID.FF_FE.concat(C.ID.FF_FD),f=pick(all);return{sl:f.l,k:t.Q.falsefr+" ("+f.l.toUpperCase()+")",q:f.w,ans:f.ok,wrong:shuffle(f.bad).slice(0,3),note:f.n}},
- acronyms(){const L=cfg.lang,A=C.BG.ACRONYMS,a=pick(A),ix={en:[1,2],fr:[3,4],de:[5,6]}[L];const ans=a[ix[1]];
+ acronyms(){const L=cfg.lang,A=C.BG.ACRONYMS,a=pick(A),ix={en:[1,2],fr:[3,4],de:[5,6],pt:[8,9]}[L];const ans=a[ix[1]];
   const same=A.filter(x=>x!==a&&x[7]===a[7]).map(x=>x[ix[1]]);return{k:t.Q.acronyms(t.L[L]),q:a[ix[0]],ans,wrong:distinct(ans,same.length>2?same:A.map(x=>x[ix[1]]),3)}},
  register(){const want=cfg.lang.toUpperCase();let P=C.BG.LADDERS.filter(x=>x[0]===want);if(!P.length)P=C.BG.LADDERS;const l=pick(P),r=rnd()<.5?2:0;
   return{k:t.Q.register(t.R[r]),q:"“"+l[1]+"”",ans:l[2][r],wrong:[l[2][2-r],l[2][1]].filter(x=>x!==l[2][r])}},
@@ -191,7 +191,7 @@ let voiceOn=true;try{voiceOn=localStorage.getItem("lr-voice")!=="0"}catch(e){}
 const VL={en:"en",fr:"fr",de:"de"};
 function say(q){if(!voiceOn||!("speechSynthesis" in window))return;try{speechSynthesis.cancel();const lang=VL[q.sl]||(q.k===t.Q.meaning||q.k.startsWith(t.Q.falsefr)?UI:cfg.lang);
  const parts=[[q.k.replace(/\s*\(.*\)$/,""),UI],[q.q.replace(/[“”?]/g,"").trim(),lang]].filter(x=>x[0]);
- for(const [txt,l] of parts){const u=new SpeechSynthesisUtterance(txt);const vs=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().startsWith(l));if(vs.length)u.voice=vs.find(v=>/natural|google|premium|enhanced/i.test(v.name))||vs[0];u.lang={en:"en-GB",fr:"fr-FR",de:"de-DE"}[l]||l;u.rate=1.02;speechSynthesis.speak(u)}}catch(e){}}
+ for(const [txt,l] of parts){const u=new SpeechSynthesisUtterance(txt);const vs=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().startsWith(l));if(vs.length)u.voice=vs.find(v=>/natural|google|premium|enhanced/i.test(v.name))||vs[0];u.lang={en:"en-GB",fr:"fr-FR",de:"de-DE",pt:"pt-PT"}[l]||l;u.rate=1.02;speechSynthesis.speak(u)}}catch(e){}}
 function setVoiceBtn(){$("#vc").textContent=voiceOn?"🔊":"🔇";$("#vc").setAttribute("aria-pressed",voiceOn)}
 // ---------- canvas ----------
 const cv=$("#cv"),cx=cv.getContext("2d");let W=0,Hh=0,DPR=1;
@@ -352,10 +352,10 @@ function showMenu(){SFX.stop();$("#pov").classList.remove("on");if(G&&G.state!==
  const xi=XP.info();
  const ch=challenge&&mode==="solo"?`<div class="chal">${esc(t.chal(challenge.by,challenge.beat))}</div>`:"";
  const guestInRace=mode==="race"&&R.room&&!R.host;
- const settings=mode==="daily"?`<div class="chal">${t.dailyT}<span class="muted">${t.dailyBest}: ${best()}</span></div><div class="lbl">${t.lang}</div><div class="row">${["en","fr","de"].map(l=>b("lang",l,l.toUpperCase())).join("")}</div>`:
+ const settings=mode==="daily"?`<div class="chal">${t.dailyT}<span class="muted">${t.dailyBest}: ${best()}</span></div><div class="lbl">${t.lang}</div><div class="row">${["en","fr","de","pt"].map(l=>b("lang",l,l.toUpperCase())).join("")}</div>`:
   guestInRace?"":`<div class="lbl">${t.pack}</div><div class="row">${P.map(p=>b("pack",p,t.P[p])).join("")}</div>
- <div class="lbl">${needTo?t.from:t.lang}</div><div class="row">${["en","fr","de"].map(l=>b("lang",l,l.toUpperCase())).join("")}</div>
- ${needTo?`<div class="lbl">${t.to}</div><div class="row">${["en","fr","de"].filter(l=>l!==cfg.lang).map(l=>b("to",l,l.toUpperCase())).join("")}</div>`:""}
+ <div class="lbl">${needTo?t.from:t.lang}</div><div class="row">${["en","fr","de","pt"].map(l=>b("lang",l,l.toUpperCase())).join("")}</div>
+ ${needTo?`<div class="lbl">${t.to}</div><div class="row">${["en","fr","de","pt"].filter(l=>l!==cfg.lang).map(l=>b("to",l,l.toUpperCase())).join("")}</div>`:""}
  ${cap?`<div class="lbl">${t.cont}</div><div class="row">${b("cont","",t.world)}${Object.keys(C.CP.CONTINENTS).map(c=>b("cont",c,C.CP.CONTINENTS[c][UI])).join("")}</div>`:""}
  <div class="lbl">${t.lanes}</div><div class="row">${b("lanes",2,"2")}${b("lanes",3,"3")}</div>
  <div class="lbl">${t.speed}</div><div class="row">${b("speed",.75,t.slow)}${b("speed",1,t.norm)}${b("speed",1.35,t.fast)}</div>`;

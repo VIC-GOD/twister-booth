@@ -49,14 +49,14 @@ table{border-collapse:collapse;width:100%;font-size:16px}th,td{text-align:left;p
  <nav class="games" id="games"></nav>
 </div></header>
 <main id="main"></main>
-<script src="../content/data.js"></script>
+<script src="../content/data.js"></script><script src="../content/pt.js"></script>
 <script>
 {
 const C=window.CONTENT;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
 let L="en";try{L=localStorage.getItem("twb-ui")||(navigator.language||"en").slice(0,2)}catch(e){}if(!["en","fr","de"].includes(L))L="en";
-const LN={en:{en:"English",fr:"French",de:"German"},fr:{en:"Anglais",fr:"Français",de:"Allemand"},de:{en:"Englisch",fr:"Französisch",de:"Deutsch"}};
+const LN={en:{en:"English",fr:"French",de:"German",pt:"Portuguese"},fr:{en:"Anglais",fr:"Français",de:"Allemand",pt:"Portugais"},de:{en:"Englisch",fr:"Französisch",de:"Deutsch",pt:"Portugiesisch"}};
 const U={
 en:{all:"All games",learn:"Learn",practise:"Practise now",run:"Lane Runner",search:"Search",cover:"Hide capitals to test yourself",uncover:"Show capitals",tap:"Tap a hidden capital to reveal it.",country:"Country",capital:"Capital",world:"Whole world",cat:"All categories",lvl:"All levels",listen:"Listen",note:"Watch out",ff:"False friends",ffl:"Words that look the same but do not mean the same.",means:"means",not:"not",acr:"Acronyms",lad:"Register ladders",ladl:"The same idea, from casual to formal. Interpreters move up and down this ladder all day.",casual:"Casual",neutral:"Neutral",formal:"Formal",eth:"Professional ethics",tech:"Articulation basics"},
 fr:{all:"Tous les jeux",learn:"Apprendre",practise:"S'entraîner",run:"Lane Runner",search:"Rechercher",cover:"Masquer les capitales pour vous tester",uncover:"Afficher les capitales",tap:"Touchez une capitale masquée pour la révéler.",country:"Pays",capital:"Capitale",world:"Monde entier",cat:"Toutes les catégories",lvl:"Tous les niveaux",listen:"Écouter",note:"Attention",ff:"Faux amis",ffl:"Des mots qui se ressemblent mais ne veulent pas dire la même chose.",means:"signifie",not:"et non",acr:"Sigles",lad:"Échelles de registre",ladl:"La même idée, du familier au soutenu. L'interprète monte et descend cette échelle toute la journée.",casual:"Familier",neutral:"Neutre",formal:"Soutenu",eth:"Déontologie",tech:"Les bases de l'articulation"},
@@ -81,7 +81,7 @@ speech:{en:{h1:"Three structures that always work",s:[["PREP","Point: say your v
  de:{h1:"Drei Strukturen, die immer funktionieren",s:[["PREP","Punkt: Ihre Meinung in einem Satz. Grund: warum. Beispiel: ein konkreter Fall. Punkt: Meinung wiederholen, etwas stärker."],["Vergangenheit, Gegenwart, Zukunft","Wie es war, wie es ist, wohin es gehen sollte. Ideal für Themen über Wandel."],["Problem, Ursache, Lösung","Problem benennen, ein oder zwei Ursachen erklären, eine realistische Lösung und einen ersten Schritt vorschlagen."]],
  h2:"Nützliche Formulierungen",o:["Lassen Sie mich mit einer einfachen Frage beginnen…","Wenn über dieses Thema gesprochen wird, vergisst man meist eines…"],t:["Ich gebe Ihnen ein Beispiel.","Andererseits…","Damit komme ich zu meinem zweiten Punkt."],c:["Zusammengefasst…","Wenn Sie heute nur eines mitnehmen, dann dies…"],
  h3:"Bevor Sie sprechen (15 Sekunden)",p:["Struktur wählen.","Ein Beispiel finden, das Sie genau beschreiben können.","Zuerst den letzten Satz festlegen: Er gibt Ihnen ein Ziel."],h4:"Während Sie sprechen",q:["Pause statt äh: Stille wirkt sicher.","Am Anfang und am Ende aufschauen und langsamer werden.","Eine Idee pro Satz. Kurze Sätze lassen sich auch leichter dolmetschen."]}}};
-const LINES={en:["en","fr","de"],fr:["fr","en","de"],de:["de","en","fr"]};
+const LINES={en:["en","fr","de","pt"],fr:["fr","en","de","pt"],de:["de","en","fr","pt"]};
 let G=(location.hash||"#capitals").slice(1);if(!GAMES[G])G="capitals";
 const F={cont:"all",cat:"all",lvl:"all",lang:"all",q:"",cover:false};
 function header(){const g=GAMES[G],u=U[L];document.documentElement.lang=L;document.documentElement.style.setProperty("--c",g.c);
@@ -91,14 +91,14 @@ function header(){const g=GAMES[G],u=U[L];document.documentElement.lang=L;docume
 const goBtns=()=>`<div class="bar"><a class="go" href="${GAMES[G].play}">${U[L].practise} →</a>${["capitals","idioms","booth"].includes(G)?`<a class="go" style="background:#16202c" href="../runner/#${G}">${U[L].run} →</a>`:""}</div>`;
 const V={};
 V.capitals=()=>{const u=U[L];const conts=Object.entries(C.CP.CONTINENTS);
- let rows=C.CP.COUNTRIES.filter(c=>(F.cont==="all"||c.continent===F.cont)&&(!F.q||[c.en,c.fr,c.de,c.cap.en,c.cap.fr,c.cap.de].join(" ").toLowerCase().includes(F.q)));
+ let rows=C.CP.COUNTRIES.filter(c=>(F.cont==="all"||c.continent===F.cont)&&(!F.q||[c.en,c.fr,c.de,c.pt,c.cap.en,c.cap.fr,c.cap.de,c.cap.pt].join(" ").toLowerCase().includes(F.q)));
  const byReg={};rows.forEach(c=>(byReg[c.region]=byReg[c.region]||[]).push(c));
  return `<div class="bar"><button data-cont="all" aria-pressed="${F.cont==="all"}">${u.world}</button>${conts.map(([k,v])=>`<button data-cont="${k}" aria-pressed="${F.cont===k}">${v[L]}</button>`).join("")}</div>
  <div class="bar"><input id="q" type="search" placeholder="${u.search}" value="${esc(F.q)}" aria-label="${u.search}"><button id="cov" aria-pressed="${F.cover}">${F.cover?u.uncover:u.cover}</button></div>${F.cover?`<p class="muted sm">${u.tap}</p>`:""}
  ${Object.entries(byReg).map(([r,cs])=>`<section class="card"><h3>${esc(C.CP.REGIONS[r]?C.CP.REGIONS[r][L]:r)}</h3><table><thead><tr><th>${u.country}</th><th>${u.capital}</th><th>${LINES[L].slice(1).map(l=>LN[L][l]).join(" · ")}</th></tr></thead><tbody>
  ${cs.map(c=>`<tr><td><b>${esc(c[L])}</b></td><td><span class="${F.cover?"hide":""}">${esc(c.cap[L])}</span></td><td class="muted sm"><span class="${F.cover?"hide":""}">${LINES[L].slice(1).map(l=>esc(c.cap[l])).join(" · ")}</span>${c.note?`<br>${esc(c.note)}`:""}</td></tr>`).join("")}</tbody></table></section>`).join("")}`};
 V.idioms=()=>{const u=U[L];const cats=[...new Set(C.ID.IDIOMS.map(i=>i.c))];
- const rows=C.ID.IDIOMS.filter(i=>(F.cat==="all"||i.c===F.cat)&&(!F.q||[i.en,i.fr,i.de,i.m].join(" ").toLowerCase().includes(F.q)));
+ const rows=C.ID.IDIOMS.filter(i=>(F.cat==="all"||i.c===F.cat)&&(!F.q||[i.en,i.fr,i.de,i.pt,i.m].join(" ").toLowerCase().includes(F.q)));
  const ff=(C.ID.FF_FE||[]).concat(C.ID.FF_FD||[]);
  return `<div class="bar"><select id="cat" aria-label="${u.cat}"><option value="all">${u.cat}</option>${cats.map(c=>`<option ${F.cat===c?"selected":""}>${esc(c)}</option>`).join("")}</select><input id="q" type="search" placeholder="${u.search}" value="${esc(F.q)}" aria-label="${u.search}"></div>
  <div class="grid">${rows.map(i=>{const n=C.ID.NOTES[i.id];return `<article class="card"><div class="bar"><span class="tag">${esc(i.c)}</span><span class="tag">${esc(i.r||"")}</span></div><h3>${esc(i[L])}</h3><p class="muted sm" style="margin:0">${esc(i.m)}</p>
@@ -115,7 +115,7 @@ V.booth=()=>{const u=U[L];const A=C.BG.ACRONYMS;const cats=[...new Set(A.map(a=>
  const rows=A.filter(a=>(F.cat==="all"||a[7]===F.cat)&&(!F.q||a.join(" ").toLowerCase().includes(F.q)));
  const lad=C.BG.LADDERS;
  return `<section class="card"><h3>${u.acr}</h3><div class="bar"><select id="cat"><option value="all">${u.cat}</option>${cats.map(c=>`<option ${F.cat===c?"selected":""}>${esc(c)}</option>`).join("")}</select><input id="q" type="search" placeholder="${u.search}" value="${esc(F.q)}" aria-label="${u.search}"></div>
- <table><thead><tr><th>EN</th><th>FR</th><th>DE</th></tr></thead><tbody>${rows.map(a=>`<tr><td><b>${esc(a[0])}</b><br><span class="sm">${esc(a[2])}</span></td><td><b>${esc(a[3])}</b><br><span class="sm">${esc(a[4])}</span></td><td><b>${esc(a[5])}</b><br><span class="sm">${esc(a[6])}</span></td></tr>`).join("")}</tbody></table></section>
+ <table><thead><tr><th>EN</th><th>FR</th><th>DE</th><th>PT</th></tr></thead><tbody>${rows.map(a=>`<tr><td><b>${esc(a[0])}</b><br><span class="sm">${esc(a[2])}</span></td><td><b>${esc(a[3])}</b><br><span class="sm">${esc(a[4])}</span></td><td><b>${esc(a[5])}</b><br><span class="sm">${esc(a[6])}</span></td><td><b>${esc(a[8]||"")}</b><br><span class="sm">${esc(a[9]||"")}</span></td></tr>`).join("")}</tbody></table></section>
  <section class="card"><h3>${u.lad}</h3><p class="muted sm" style="margin:0">${u.ladl}</p><table><thead><tr><th></th><th>${u.casual}</th><th>${u.neutral}</th><th>${u.formal}</th></tr></thead><tbody>${lad.map(r=>`<tr><td><span class="tag">${esc(r[0])}</span><br><span class="sm muted">${esc(r[1])}</span></td>${r[2].map(w=>`<td>${esc(w)}</td>`).join("")}</tr>`).join("")}</tbody></table></section>
  <section class="card guide"><h3>${u.eth}</h3>${GUIDE.eth[L].map(e=>`<div><b>${esc(e[0])}</b><p class="sm" style="margin:2px 0 0">${esc(e[1])}</p></div>`).join("")}</section>`};
 V.topics=()=>{const g=GUIDE.speech;const s=g[L];
