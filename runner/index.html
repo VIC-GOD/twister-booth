@@ -73,7 +73,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 <script src="../live/peerjs.min.js"></script>
 <script src="../live/p2p.js"></script>
 <script src="../live/xp.js"></script>
-<script src="../live/sfx.js"></script>
+<script src="../live/sfx.js"></script><script src="../live/voicepack.js"></script>
 <script>
 "use strict";
 const C=window.CONTENT;
@@ -189,8 +189,9 @@ const PCOL=["#4cc9f0","#ffb703"],LCOL=["#2b8cc4","#9b5de5","#e0568f"];
 // ---------- voice ----------
 let voiceOn=true;try{voiceOn=localStorage.getItem("lr-voice")!=="0"}catch(e){}
 const VL={en:"en",fr:"fr",de:"de"};
-function say(q){if(!voiceOn||!("speechSynthesis" in window))return;try{speechSynthesis.cancel();const lang=VL[q.sl]||(q.k===t.Q.meaning||q.k.startsWith(t.Q.falsefr)?UI:cfg.lang);
+function say(q){if(!voiceOn)return;if(window.VP)VP.stop();if(!("speechSynthesis" in window)&&!(window.VP&&VP.ready))return;try{if(window.speechSynthesis)speechSynthesis.cancel();const lang=VL[q.sl]||(q.k===t.Q.meaning||q.k.startsWith(t.Q.falsefr)?UI:cfg.lang);
  const parts=[[q.k.replace(/\s*\(.*\)$/,""),UI],[q.q.replace(/[“”?]/g,"").trim(),lang]].filter(x=>x[0]);
+ if(window.VP&&VP.speak(parts))return;if(!window.speechSynthesis)return;
  for(const [txt,l] of parts){const u=new SpeechSynthesisUtterance(txt);const vs=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().startsWith(l));if(vs.length)u.voice=vs.find(v=>/natural|google|premium|enhanced/i.test(v.name))||vs[0];u.lang={en:"en-GB",fr:"fr-FR",de:"de-DE",pt:"pt-PT"}[l]||l;u.rate=1.02;speechSynthesis.speak(u)}}catch(e){}}
 function setVoiceBtn(){$("#vc").textContent=voiceOn?"🔊":"🔇";$("#vc").setAttribute("aria-pressed",voiceOn)}
 // ---------- canvas ----------
@@ -397,11 +398,11 @@ st.addEventListener("pointerup",e=>{if(!downs.has(e.pointerId)||!G||!G.q)return;
  const vs=views(),vi=vs.length>1?(x<W/2?0:1):0,v=vs[vi],dx=e.clientX-sx;
  if(Math.abs(dx)>30)return move(vi,dx>0?1:-1);const n=G.q.lanes.length;let best_=0,bd=1e9;for(let l=0;l<n;l++){const d=Math.abs(laneX(v,l,1)-x);if(d<bd){bd=d;best_=l}}move(vi,0,best_)});
 $("#opts").addEventListener("click",e=>{const o=e.target.closest(".opt");if(o&&G&&G.P.length===1)move(0,0,+o.dataset.i)});
-function togglePause(){if(G.state==="run"){G.state="pause";SFX.stop();if(window.speechSynthesis)speechSynthesis.pause();$("#pz").textContent="▶ "+t.play;$("#povh").textContent=t.paused;$("#pres").textContent="▶ "+t.play;$("#pmenu").textContent=t.menu;$("#pov").classList.add("on")}else if(G.state==="pause"){G.state="run";SFX.music("run");if(window.speechSynthesis)speechSynthesis.resume();$("#pz").textContent="⏸ "+t.pause;$("#pov").classList.remove("on");last=performance.now()}}
+function togglePause(){if(G.state==="run"){G.state="pause";SFX.stop();if(window.speechSynthesis)speechSynthesis.pause();if(window.VP)VP.pause();$("#pz").textContent="▶ "+t.play;$("#povh").textContent=t.paused;$("#pres").textContent="▶ "+t.play;$("#pmenu").textContent=t.menu;$("#pov").classList.add("on")}else if(G.state==="pause"){G.state="run";SFX.music("run");if(window.speechSynthesis)speechSynthesis.resume();if(window.VP)VP.resume();$("#pz").textContent="⏸ "+t.pause;$("#pov").classList.remove("on");last=performance.now()}}
 $("#pres").onclick=()=>{if(G&&G.state==="pause")togglePause()};$("#pmenu").onclick=()=>{$("#pov").classList.remove("on");G.state="menu";showMenu()};
 $("#mu").onclick=()=>{const v=!SFX.get("music");SFX.set("music",v);setMuBtn();if(v&&G&&G.state==="run")SFX.music("run")};
 function setMuBtn(){$("#mu").textContent=SFX.get("music")?"🎵":"🎵";$("#mu").setAttribute("aria-pressed",SFX.get("music"))}
-$("#vc").onclick=()=>{voiceOn=!voiceOn;try{localStorage.setItem("lr-voice",voiceOn?"1":"0")}catch(e){}setVoiceBtn();if(!voiceOn&&window.speechSynthesis)speechSynthesis.cancel();else if(G&&G.q)say(G.q)};
+$("#vc").onclick=()=>{voiceOn=!voiceOn;try{localStorage.setItem("lr-voice",voiceOn?"1":"0")}catch(e){}setVoiceBtn();if(!voiceOn){if(window.speechSynthesis)speechSynthesis.cancel();if(window.VP)VP.stop()}else if(G&&G.q)say(G.q)};
 $("#pz").onclick=()=>{if(G&&(G.state==="run"||G.state==="pause")&&mode!=="race")togglePause()};
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&G&&G.state==="run"&&mode!=="race")togglePause()});
 addEventListener("hashchange",()=>location.reload());

@@ -67,7 +67,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 <script src="../live/peerjs.min.js"></script>
 <script src="../live/p2p.js"></script>
 <script src="../live/xp.js"></script>
-<script src="../live/sfx.js"></script>
+<script src="../live/sfx.js"></script><script src="../live/voicepack.js"></script>
 <script>
 "use strict";
 /*SHARED*/
@@ -101,8 +101,9 @@ if(hp&&S.en.P[hp])cfg.pack=hp;
 const saveCfg=()=>{try{localStorage.setItem("mc-cfg",JSON.stringify(cfg))}catch(e){}};
 let myName="";try{myName=localStorage.getItem("lr-name")||""}catch(e){}
 let voiceOn=true;try{voiceOn=localStorage.getItem("lr-voice")!=="0"}catch(e){}
-function say(q){if(!voiceOn||!("speechSynthesis" in window))return;try{speechSynthesis.cancel();const lang=q.sl||cfg.lang;
+function say(q){if(!voiceOn)return;if(window.VP)VP.stop();if(!("speechSynthesis" in window)&&!(window.VP&&VP.ready))return;try{if(window.speechSynthesis)speechSynthesis.cancel();const lang=q.sl||cfg.lang;
  const parts=[[q.k.replace(/\s*\(.*\)$/,""),UI],[(q.q||"").replace(/[“”?]/g,"").trim(),lang]].filter(x=>x[0]);
+ if(window.VP&&VP.speak(parts))return;if(!window.speechSynthesis)return;
  for(const [txt,l] of parts){const u=new SpeechSynthesisUtterance(txt);const vs=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().startsWith(l));if(vs.length)u.voice=vs.find(v=>/natural|google|premium|enhanced/i.test(v.name))||vs[0];u.lang={en:"en-GB",fr:"fr-FR",de:"de-DE",pt:"pt-PT"}[l]||l;speechSynthesis.speak(u)}}catch(e){}}
 const cv=$("#cv"),cx=cv.getContext("2d");let W=0,Hh=0;
 function size(){const r=$("#stage").getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);W=r.width;Hh=r.height;cv.width=W*d;cv.height=Hh*d;cx.setTransform(d,0,0,d,0,0)}
@@ -241,7 +242,7 @@ function togglePause(){if(G.state==="run"){G.state="pause";SFX.stop();$("#pz").t
  else if(G.state==="pause"){G.state="run";SFX.music("quiz");$("#pz").textContent="⏸ "+ct.pause;$("#pov").classList.remove("on");last=performance.now()}}
 $("#pz").onclick=()=>{if(G&&(G.state==="run"||G.state==="pause"))togglePause()};$("#pres").onclick=()=>{if(G&&G.state==="pause")togglePause()};$("#pmenu").onclick=()=>menu();
 $("#mu").onclick=()=>{const v=!SFX.get("music");SFX.set("music",v);$("#mu").setAttribute("aria-pressed",v);if(v&&G&&G.state==="run")SFX.music("quiz")};
-$("#vc").onclick=()=>{voiceOn=!voiceOn;try{localStorage.setItem("lr-voice",voiceOn?"1":"0")}catch(e){}$("#vc").textContent=voiceOn?"🔊":"🔇";if(!voiceOn&&window.speechSynthesis)speechSynthesis.cancel()};
+$("#vc").onclick=()=>{voiceOn=!voiceOn;try{localStorage.setItem("lr-voice",voiceOn?"1":"0")}catch(e){}$("#vc").textContent=voiceOn?"🔊":"🔇";if(!voiceOn){if(window.speechSynthesis)speechSynthesis.cancel();if(window.VP)VP.stop()}};
 $("#mu").setAttribute("aria-pressed",SFX.get("music"));$("#vc").textContent=voiceOn?"🔊":"🔇";
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&G&&G.state==="run"&&cfg.who!=="room")togglePause()});
 applyUI();size();menu();
