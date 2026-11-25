@@ -29,3 +29,8 @@ Play: https://vic-god.github.io/twister-booth/
 - `fingerspell/` Fingerspelling Rush (ASL hand drawings in `asl/`, from handsign-multilingual, BSD-2).
 - `synonyms/` Word Web: synonyms, antonyms, odd one out and "say it 3 ways" in EN, FR, DE, PT. Data in `content/synonyms.js` (88 aligned groups); `node tools/check-synonyms.js` rejects any word used twice in a language. Printable decks in `print/synonyms/`.
 - `progress/` dashboard: career ranks, streak + weekly freeze, daily goal, badges, metrics, error bank reviews (1, 3, 7, 21 days). Logic in `live/xp.js`.
+
+## God Love (new app, preview)
+- `app/`: the new platform shell. Onboarding (interpreter / translator, language combination, level, daily goal), then 5 tabs: Today, Learn, Practice, Games, Dictionary, plus Profile.
+- `app/catalog.js` languages, games by skill, verified EU SCICtrain video links. `app/learn.js` learning modules. `app/practice.js` corrected translation sentences, grammar sheets and the correction engine. `app/i18n.js` interface text (FR, EN, DE).
+- Reuses `content/`, `live/xp.js` (XP, streak, error bank) and all the existing games.
