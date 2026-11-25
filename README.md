@@ -27,4 +27,5 @@ Play: https://vic-god.github.io/twister-booth/
 - `shadow/` Shadow Boss (`live/speeches.js`, speech synthesis + speech recognition).
 - `filler/` Filler Hunter (speech recognition or partner mode).
 - `fingerspell/` Fingerspelling Rush (ASL hand drawings in `asl/`, from handsign-multilingual, BSD-2).
+- `synonyms/` Word Web: synonyms, antonyms, odd one out and "say it 3 ways" in EN, FR, DE, PT. Data in `content/synonyms.js` (88 aligned groups); `node tools/check-synonyms.js` rejects any word used twice in a language. Printable decks in `print/synonyms/`.
 - `progress/` dashboard: career ranks, streak + weekly freeze, daily goal, badges, metrics, error bank reviews (1, 3, 7, 21 days). Logic in `live/xp.js`.

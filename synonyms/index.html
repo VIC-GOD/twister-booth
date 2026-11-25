@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Word Web: synonyms and antonyms · Interpreter Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="../live/shell.css">
+<style>
+:root{--c:#3fb6d9;--bg:#0c1a24}
+body{background:radial-gradient(circle at 80% 10%,#16384a,transparent 50%),radial-gradient(circle at 10% 90%,#1a2f45,transparent 45%),var(--bg);background-attachment:fixed;min-height:100vh}
+.web{position:fixed;inset:0;pointer-events:none;opacity:.12;z-index:-1}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{min-height:96px;border-radius:18px;border:3px solid #2b5870;background:linear-gradient(160deg,#173548,#0f2534);font:800 clamp(17px,4.4vw,24px)/1.2 "Familjen Grotesk",sans-serif;padding:12px;text-wrap:balance;box-shadow:0 6px 0 #061118}
+.opt:active{transform:translateY(3px);box-shadow:0 3px 0 #061118}
+.opt.ok{background:var(--ok);border-color:#7ff0b2;color:#06210f}
+.opt.no{background:var(--bad);border-color:#ffb3c4;animation:sh .35s}
+.word{font-weight:800;font-size:clamp(32px,8.5vw,56px);text-align:center;line-height:1.1;text-wrap:balance}
+.task{text-align:center;font-weight:700;color:var(--c);font-size:clamp(17px,4vw,22px)}
+.cat span{filter:brightness(1.9) saturate(1.2)}.cat{text-align:center;font-size:13px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.reveal{display:grid;gap:6px;text-align:center;font-size:19px}.reveal b{color:#7ff0b2}.reveal i{color:#ffb3c4;font-style:normal}
+.sp{display:grid;grid-template-columns:1fr 1fr;gap:12px}.sp button{min-height:64px;font-size:20px}
+input.nm{font-size:17px;min-height:42px;width:11em}
+.mode{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}.mode button{text-align:left;padding:10px 12px}.mode small{display:block;font-weight:500;opacity:.8;font-size:13px}
+</style>
+</head>
+<body>
+<svg class="web" viewBox="0 0 400 400" aria-hidden="true"><g fill="none" stroke="#9fe3ff" stroke-width="1.2"><path d="M200 0V400M0 200H400M60 60L340 340M340 60L60 340"/><circle cx="200" cy="200" r="40"/><circle cx="200" cy="200" r="90"/><circle cx="200" cy="200" r="145"/><circle cx="200" cy="200" r="200"/></g></svg>
+<div class="wrap" id="game"></div>
+<div class="ov on" id="menu"></div><div class="ov" id="over"></div>
+<script src="../live/sfx.js"></script>
+<script src="../live/xp.js"></script>
+<script src="../live/shell.js"></script>
+<script src="../content/synonyms.js"></script>
+<script>
+"use strict";
+const {$,esc}=SH;
+const L10={
+ en:{title:"Word Web",sub:"Synonyms, antonyms and word groups",lead:"An interpreter never gets stuck on one word. Find the synonym, flip to the opposite, spot the intruder, or say three alternatives out loud before the timer runs out. 88 word groups in English, French, German and Portuguese.",
+  lang:"Language",cat:"Topic",all:"All topics",mode:"Game",players:"Players (pass the phone)",p:"Player",start:"Start",
+  M:{mix:["🎲 Mix","all three, shuffled"],syn:["🟰 Synonym","same meaning"],ant:["↔️ Opposite","the antonym"],odd:["🕵️ Odd one out","which word does not belong?"],say:["🎙️ Say it 3 ways","speak, then check"]},
+  qs:"Which word means the same?",qa:"Which word is the opposite?",qo:"Which word does not belong?",say3:"Say 3 synonyms out loud",say2:"Say 2 synonyms and 1 opposite",
+  syn:"Synonyms",ant:"Opposites",group:"The group",show:"Show answers",got:"✓ I said them",miss:"✗ Not yet",turn:n=>n+", your turn",out:"Out!",over:"Game over",win:n=>n+" wins!",right:"Correct",said:"Cards said",best:"Best streak",
+  L:{en:"English",fr:"French",de:"German",pt:"Portuguese"}},
+ fr:{title:"Word Web",sub:"Synonymes, antonymes et familles de mots",lead:"Un interprète ne reste jamais bloqué sur un mot. Trouvez le synonyme, passez au contraire, repérez l'intrus ou dites trois équivalents à voix haute avant la fin du temps. 88 groupes de mots en anglais, français, allemand et portugais.",
+  lang:"Langue",cat:"Thème",all:"Tous les thèmes",mode:"Jeu",players:"Joueurs (passez le téléphone)",p:"Joueur",start:"Commencer",
+  M:{mix:["🎲 Mélange","les trois, au hasard"],syn:["🟰 Synonyme","même sens"],ant:["↔️ Contraire","l'antonyme"],odd:["🕵️ L'intrus","quel mot n'a rien à faire là ?"],say:["🎙️ Dites-le de 3 façons","parlez, puis vérifiez"]},
+  qs:"Quel mot a le même sens ?",qa:"Quel mot est le contraire ?",qo:"Quel mot est l'intrus ?",say3:"Dites 3 synonymes à voix haute",say2:"Dites 2 synonymes et 1 contraire",
+  syn:"Synonymes",ant:"Contraires",group:"Le groupe",show:"Voir les réponses",got:"✓ Je les ai dits",miss:"✗ Pas encore",turn:n=>n+", à vous",out:"Éliminé !",over:"Partie terminée",win:n=>n+" gagne !",right:"Bonnes réponses",said:"Cartes réussies",best:"Meilleure série",
+  L:{en:"anglais",fr:"français",de:"allemand",pt:"portugais"}},
+ de:{title:"Word Web",sub:"Synonyme, Antonyme und Wortgruppen",lead:"Wer dolmetscht, bleibt nie an einem Wort hängen. Finden Sie das Synonym, das Gegenteil, den Eindringling, oder sagen Sie drei Alternativen laut, bevor die Zeit abläuft. 88 Wortgruppen auf Englisch, Französisch, Deutsch und Portugiesisch.",
+  lang:"Sprache",cat:"Thema",all:"Alle Themen",mode:"Spiel",players:"Spieler (Handy weitergeben)",p:"Spieler",start:"Start",
+  M:{mix:["🎲 Mix","alle drei gemischt"],syn:["🟰 Synonym","gleiche Bedeutung"],ant:["↔️ Gegenteil","das Antonym"],odd:["🕵️ Was passt nicht?","welches Wort gehört nicht dazu?"],say:["🎙️ Dreimal anders","sprechen, dann prüfen"]},
+  qs:"Welches Wort bedeutet dasselbe?",qa:"Welches Wort ist das Gegenteil?",qo:"Welches Wort passt nicht dazu?",say3:"Sagen Sie 3 Synonyme laut",say2:"Sagen Sie 2 Synonyme und 1 Gegenteil",
+  syn:"Synonyme",ant:"Gegenteile",group:"Die Gruppe",show:"Antworten zeigen",got:"✓ Geschafft",miss:"✗ Noch nicht",turn:n=>n+", Sie sind dran",out:"Raus!",over:"Spiel vorbei",win:n=>n+" gewinnt!",right:"Richtig",said:"Geschaffte Karten",best:"Beste Serie",
+  L:{en:"Englisch",fr:"Französisch",de:"Deutsch",pt:"Portugiesisch"}}};
+let t=L10[SH.UI];
+const FL={en:"🇬🇧",fr:"🇫🇷",de:"🇩🇪",pt:"🇵🇹"};
+// Distractors never come from the same cluster (near-synonyms across groups) and keep the same word class.
+const CL={};[["true","honest","clear"],["kind","polite"],["happy","grateful"],["afraid","worried"],["important","famous"],["big","strong"],["boring","tired","lazy"],["calm","modest"],
+ ["say","claim","admit","explain","emphasise","promise"],["support","agree","suggest","warn","persuade"],["criticise","complain","refuse"],["interrupt","stop"],["increase","improve","spread","change","growth"],["reduce","collapse"],
+ ["problem","crisis"],["agreement","decision","result","meeting"],["however","although","on the other hand","despite"],["therefore","because"],["in short","finally","first of all"],["for example","in particular","moreover"]]
+ .forEach((g,i)=>g.forEach(w=>CL[w]=i+1));
+const ADJ=["stable","sudden","temporary"],NOUN=["growth"];
+const pos=c=>c.cat==="lk"?"lk":c.cat==="po"||NOUN.includes(c.en.w)?"n":c.cat==="ev"||c.cat==="em"||ADJ.includes(c.en.w)?"a":"v";
+SYN.forEach(c=>{c.cl=CL[c.en.w]||100+c.i;c.pos=pos(c)});
+let cfg=Object.assign({lang:"en",cat:"all",mode:"mix",np:1,names:[]},JSON.parse(localStorage.getItem("ww-cfg")||"{}"));
+let G=null;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const pool=()=>SYN.filter(c=>cfg.cat==="all"||c.cat===cfg.cat);
+function others(c,n){const L=cfg.lang,cand=shuffle(SYN.filter(o=>o!==c&&o.cl!==c.cl&&o.pos===c.pos));const out=[];
+ for(const o of cand){if(out.length>=n)break;out.push(pick([o[L].w,...o[L].syn]))}return out}
+function makeQ(c,kind){const L=cfg.lang,d=c[L];
+ if(kind==="ant"&&!d.ant.length)kind="syn";
+ if(kind==="syn"){const ok=pick(d.syn),tr=d.ant.length?[pick(d.ant)]:[];return{kind,c,prompt:d.w,ok,opts:shuffle([ok,...tr,...others(c,3-tr.length)])}}
+ if(kind==="ant"){const ok=pick(d.ant),tr=[pick(d.syn)];return{kind,c,prompt:d.w,ok,opts:shuffle([ok,...tr,...others(c,2)])}}
+ const three=shuffle([d.w,...d.syn]).slice(0,3),ok=others(c,1)[0];return{kind:"odd",c,prompt:"",ok,opts:shuffle([...three,ok])}}
+function start(){const P=shuffle(pool());
+ G={deck:P,di:0,players:[...Array(cfg.np)].map((_,i)=>({name:(cfg.names[i]||"").trim()||t.p+" "+(i+1),lives:3,score:0,streak:0,best:0,ok:0})),pi:0,miss:[],state:"",lv:0,turns:0};
+ $("#menu").classList.remove("on");$("#over").classList.remove("on");SH.state="run";SH.music="quiz";SFX.music("quiz");
+ $("#game").innerHTML=SH.header()+`<div class="row" id="pls"></div><div class="bar"><i id="fuse"></i></div><div class="card"><div class="cat" id="cat"></div><div class="task" id="task"></div><div class="word" id="w"></div><div class="muted" style="text-align:center" id="who"></div></div><div id="area"></div>`;
+ SH.mount();next();tick.last=performance.now();requestAnimationFrame(tick)}
+const alive=()=>G.players.filter(p=>p.lives>0);
+function next(){if(G.di>=G.deck.length){G.deck=G.deck.concat(shuffle(pool()))}
+ const c=G.deck[G.di++],p=G.players[G.pi],k=SYN_CAT(c);
+ $("#cat").innerHTML=`<span style="color:${k.c}">${esc(k[SH.UI]||k.en)}</span> · ${FL[cfg.lang]} ${t.L[cfg.lang]}`;
+ $("#who").textContent=G.players.length>1?t.turn(p.name):"";
+ if(cfg.mode==="say"){G.c=c;G.state="say";G.t0=performance.now();G.limit=12;G.two=c[cfg.lang].ant.length&&Math.random()<.5;
+  $("#task").textContent=G.two?t.say2:t.say3;$("#w").textContent=c[cfg.lang].w;
+  $("#area").innerHTML=`<div class="row" style="justify-content:center"><button class="pri" id="rv">${t.show}</button></div>`;$("#rv").onclick=reveal;hud();return}
+ const kind=cfg.mode==="mix"?pick(["syn","ant","odd"]):cfg.mode;const q=makeQ(c,kind);G.q=q;G.state="ask";G.t0=performance.now();G.limit=Math.max(5,10-G.lv*.3);
+ $("#task").textContent={syn:t.qs,ant:t.qa,odd:t.qo}[q.kind];$("#w").textContent=q.prompt;$("#w").style.display=q.prompt?"":"none";
+ $("#area").innerHTML=`<div class="opts">${q.opts.map((o,i)=>`<button class="opt pop" data-i="${i}">${esc(o)}</button>`).join("")}</div>`;hud()}
+function SYN_CAT(c){return SYNCATS[c.cat]}
+function groupHTML(c){const d=c[cfg.lang];return `<div class="reveal"><div><span class="lbl">${t.syn}</span><br><b>${esc(d.syn.join(" · "))}</b></div>${d.ant.length?`<div><span class="lbl">${t.ant}</span><br><i>${esc(d.ant.join(" · "))}</i></div>`:""}</div>`}
+function reveal(){if(G.state!=="say")return;G.state="judge";$("#fuse").style.width="0%";
+ $("#area").innerHTML=groupHTML(G.c)+`<div class="sp" style="margin-top:12px"><button id="ko">${t.miss}</button><button class="pri" id="okb">${t.got}</button></div>`;
+ $("#okb").onclick=()=>judge(true);$("#ko").onclick=()=>judge(false)}
+function judge(ok){if(G.state!=="judge")return;const p=G.players[G.pi];G.turns++;
+ if(ok){p.ok++;p.streak++;p.best=Math.max(p.best,p.streak);p.score+=10*(1+Math.floor(p.streak/5));SFX.ok()}
+ else{p.streak=0;SFX.bad();const d=G.c[cfg.lang];G.miss.push({c:G.c,y:""});BANK.add({game:"wordweb",lang:cfg.lang,q:"🕸️ "+d.w+" = ?",a:d.syn.join(", "),note:d.ant.length?"≠ "+d.ant.join(", "):""})}
+ G.state="fb";hud();if(G.turns>=8*G.players.length)return setTimeout(end,300);G.pi=(G.pi+1)%G.players.length;setTimeout(next,250)}
+function hud(){const P=G.players,me=P[0],say=cfg.mode==="say";
+ $("#sh-st").innerHTML=P.length===1?`<span>${SH.t.score} ${me.score}</span>${say?`<span>${G.turns}/8</span>`:`<span style="color:#ef476f">${"♥".repeat(Math.max(0,me.lives))}${"♡".repeat(3-Math.max(0,me.lives))}</span>`}${me.streak>=5?`<span style="color:#ffd166">🔥${me.streak}</span>`:""}`:"";
+ $("#pls").innerHTML=P.length>1?P.map((p,i)=>`<span class="pl${i===G.pi?" on":""}${p.lives<=0?" out":""}">${esc(p.name)} · ${p.score}${say?"":` <span style="color:#ef476f">${"♥".repeat(Math.max(0,p.lives))}</span>`}</span>`).join(""):""}
+function choose(i){if(G.state!=="ask"||SH.state!=="run")return;G.state="fb";const q=G.q,ok=i>=0&&q.opts[i]===q.ok,p=G.players[G.pi],els=[...document.querySelectorAll(".opt")],right=q.opts.indexOf(q.ok);
+ if(ok){p.ok++;p.streak++;p.best=Math.max(p.best,p.streak);const left=Math.max(0,G.limit-(performance.now()-G.t0)/1000);p.score+=Math.round(10+left*3)*(1+Math.floor(p.streak/5));els[i].classList.add("ok");p.streak%5===0?SFX.combo():SFX.ok();G.lv++}
+ else{if(i>=0)els[i].classList.add("no");els[right].classList.add("ok");SFX.bad();try{navigator.vibrate&&navigator.vibrate(120)}catch(e){}p.lives--;p.streak=0;
+  const d=q.c[cfg.lang];G.miss.push({c:q.c,q,y:i>=0?q.opts[i]:"⏱"});
+  BANK.add({game:"wordweb",lang:cfg.lang,q:q.kind==="odd"?"🕵️ "+q.opts.join(" · "):"🕸️ "+d.w+(q.kind==="ant"?" ≠ ?":" = ?"),a:q.ok,note:d.w+": "+d.syn.join(", ")+(d.ant.length?" ≠ "+d.ant.join(", "):"")});
+  if(p.lives<=0)SH.toast(p.name+" · "+t.out)}
+ if(!ok)$("#area").insertAdjacentHTML("beforeend",`<div class="card" style="margin-top:12px">${q.kind==="odd"?`<div class="lbl">${t.group}: ${esc(q.c[cfg.lang].w)}</div>`:""}${groupHTML(q.c)}</div>`);
+ hud();setTimeout(()=>{if(SH.state!=="run"&&SH.state!=="pause")return;const al=alive();if(!al.length||(G.players.length>1&&al.length<=1))return end();
+  do{G.pi=(G.pi+1)%G.players.length}while(G.players[G.pi].lives<=0);next()},ok?650:2600)}
+function tick(now){if(!G||SH.state==="menu"||SH.state==="over")return;requestAnimationFrame(tick);if(SH.state!=="run"){G.t0+=now-tick.last;tick.last=now;return}tick.last=now;
+ if(G.state==="ask"||G.state==="say"){const left=G.limit-(now-G.t0)/1000;$("#fuse").style.width=Math.max(0,left/G.limit*100)+"%";if(left<=0){G.state==="ask"?choose(-1):reveal()}}}
+function end(){SH.state="over";SFX.stop();const P=G.players,solo=P.length===1,me=P[0],say=cfg.mode==="say";
+ const xi=XP.add(P.reduce((a,p)=>a+p.score,0)/8+P.reduce((a,p)=>a+p.ok,0)*2,{lang:cfg.lang});
+ solo?SFX.over():SFX.win();
+ const bk="ww-best-"+cfg.lang+"-"+cfg.mode;let b=+(localStorage.getItem(bk)||0);if(solo&&me.score>b){localStorage.setItem(bk,me.score);b=me.score}
+ const ranked=P.slice().sort((a,b)=>(say?0:b.lives-a.lives)||b.score-a.score);
+ const head=solo?`<h1>🕸️ ${t.over}</h1><div class="row" style="gap:26px"><div><div class="lbl">${SH.t.score}</div><div class="big" style="color:var(--c);text-align:left">${me.score}</div></div><div><div class="lbl">${say?t.said:t.right}</div><div class="big" style="text-align:left">${me.ok}</div></div><div><div class="lbl">${t.best}</div><div class="big" style="text-align:left">${me.best}</div></div></div><p>${SH.t.best}: ${b}</p>`
+  :`<h1>🏆 ${esc(t.win(ranked[0].name))}</h1>${ranked.map((p,i)=>`<div class="rv"><b>${i+1}. ${esc(p.name)}</b> · ${p.score} · ${p.ok} ✅</div>`).join("")}`;
+ $("#over").innerHTML=`<div class="box">${head}${XP.strip(xi,SH.UI)}<div class="row"><button class="pri" id="ag">${SH.t.again}</button><button id="mn2">${SH.t.change}</button><a href="../progress/">${SH.t.progress} →</a></div>
+  <div class="lbl">${SH.t.review}</div>${G.miss.length?G.miss.map(m=>{const d=m.c[cfg.lang];return `<div class="rv"><b>${esc(d.w)}</b>${m.q?` → <b class="ok">${esc(m.q.ok)}</b> <span class="muted">✗ ${esc(m.y)}</span>`:""}<div class="muted">= ${esc(d.syn.join(", "))}${d.ant.length?" · ≠ "+esc(d.ant.join(", ")):""}</div></div>`}).join("")+`<p class="muted">${SH.t.bank}</p>`:`<p>${SH.t.none}</p>`}</div>`;
+ $("#over").classList.add("on");$("#ag").onclick=start;$("#mn2").onclick=menu}
+function menu(){SH.state="menu";SFX.stop();t=L10[SH.UI];const o=(k,v,l)=>SH.opt(cfg,k,v,l);
+ const n=pool().length;
+ $("#menu").innerHTML=`<div class="box"><div class="row" style="justify-content:space-between"><a href="../" style="color:var(--ink);text-decoration:none;font-weight:600">${SH.t.all}</a>${SH.langBar()}</div>
+  <h1>🕸️ ${t.title}</h1><p><b>${t.sub}.</b> ${t.lead}</p>
+  <div class="lbl">${t.mode}</div><div class="mode">${Object.entries(t.M).map(([k,v])=>`<button data-k="mode" data-v="${k}" aria-pressed="${cfg.mode===k}">${v[0]}<small>${v[1]}</small></button>`).join("")}</div>
+  <div class="lbl">${t.lang}</div><div class="row">${["en","fr","de","pt"].map(l=>o("lang",l,FL[l]+" "+t.L[l])).join("")}</div>
+  <div class="lbl">${t.cat}</div><div class="row">${o("cat","all",t.all+" (88)")}${Object.entries(SYNCATS).map(([k,v])=>o("cat",k,`<span style="color:${v.c}">●</span> ${v[SH.UI]||v.en} (${SYN.filter(c=>c.cat===k).length})`)).join("")}</div>
+  <div class="lbl">${t.players}</div><div class="row">${[1,2,3,4,5,6].map(n=>o("np",n,n)).join("")}</div>
+  ${cfg.np>1?`<div class="row">${[...Array(cfg.np)].map((_,i)=>`<input class="nm" data-n="${i}" maxlength="16" placeholder="${t.p} ${i+1}" value="${esc(cfg.names[i]||"")}">`).join("")}</div>`:""}
+  <div class="row" style="margin-top:8px"><button class="pri" id="go">🕸️ ${t.start}</button><span class="muted">${SH.t.best}: ${+(localStorage.getItem("ww-best-"+cfg.lang+"-"+cfg.mode)||0)}</span></div></div>`;
+ $("#menu").classList.add("on");$("#over").classList.remove("on");
+ SH.bindOpts($("#menu"),cfg,"ww-cfg",menu);SH.bindLang($("#menu"),menu);
+ document.querySelectorAll("#menu .nm").forEach(e=>e.oninput=()=>{cfg.names[+e.dataset.n]=e.value;try{localStorage.setItem("ww-cfg",JSON.stringify(cfg))}catch(x){}});
+ $("#go").onclick=start}
+document.addEventListener("click",e=>{const m=e.target.closest(".opt");if(m)choose(+m.dataset.i)});
+addEventListener("keydown",e=>{if(/^[1-4]$/.test(e.key)&&G&&G.state==="ask")choose(+e.key-1)});
+SH.onMenu=menu;document.documentElement.lang=SH.UI;menu();
+</script>
+</body>
+</html>
